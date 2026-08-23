@@ -1,0 +1,48 @@
+[project]
+name = "gdsviewer"
+version = "0.1.0"
+description = "A lightweight browser viewer for GDSII layouts"
+readme = "README.md"
+requires-python = ">=3.12"
+license = "MIT"
+authors = [
+  { name = "ChunTung Cheung", email = "ctcheung1123@gmail.com" },
+]
+keywords = ["GDSII", "gdstk", "layout", "viewer"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Operating System :: OS Independent",
+  "Topic :: Scientific/Engineering :: Electronic Design Automation (EDA)",
+]
+dependencies = [
+  "gdstk>=0.9.60,<0.10",
+  "numpy>=2.3,<3",
+]
+
+[project.scripts]
+gdsviewer = "gdsviewer.cli:main"
+
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+gdsviewer = ["*.html", "*.js"]
+
+[dependency-groups]
+dev = [
+  "pytest>=8.3,<9",
+  "ruff>=0.11,<0.12",
+]
+
+[tool.uv]
+default-groups = ["dev"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 120

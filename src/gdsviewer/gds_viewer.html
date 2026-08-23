@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GDS Viewer</title>
+  <style>
+    :root {
+      --viewer-bg: #f5ecf6;
+      --viewer-surface: #fffafc;
+      --viewer-panel: #f8f1f7;
+      --viewer-panel-accent: #eadff0;
+      --viewer-border: #d9c9dd;
+      --viewer-text: #2d2a38;
+      --viewer-muted: #6d687c;
+      --viewer-accent: #6f8fc7;
+      --viewer-accent-soft: #e7eefb;
+      --viewer-accent-strong: #4969a3;
+      --viewer-shadow: rgba(77, 59, 99, 0.12);
+    }
+    body {
+      margin: 0;
+      padding: 16px;
+      background:
+        radial-gradient(circle at top, rgba(255, 255, 255, 0.65), transparent 42%),
+        linear-gradient(180deg, #fdf5fb, var(--viewer-bg));
+      font-family: "Segoe UI", "Aptos", Helvetica, Arial, sans-serif;
+      color: var(--viewer-text);
+    }
+    .viewer {
+      display: grid;
+      grid-template-columns: 300px minmax(0, 1fr);
+      height: calc(100vh - 32px);
+      border: 1px solid var(--viewer-border);
+      border-radius: 12px;
+      overflow: hidden;
+      background: var(--viewer-surface);
+      box-shadow: 0 14px 36px var(--viewer-shadow);
+    }
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      background: var(--viewer-panel);
+      border-right: 1px solid var(--viewer-border);
+      padding: 16px;
+      overflow: hidden;
+      min-height: 0;
+    }
+    .title {
+      margin: 0 0 6px 0;
+      font-size: 18px;
+      font-weight: 700;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+    .subtitle {
+      margin: 0 0 14px 0;
+      font-size: 13px;
+      color: var(--viewer-muted);
+    }
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    button, input[type="text"] {
+      border: 1px solid var(--viewer-border);
+      background: rgba(255, 251, 255, 0.96);
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 12px;
+      color: var(--viewer-text);
+    }
+    button {
+      cursor: pointer;
+    }
+    button:hover {
+      border-color: #c5b0d2;
+      background: #fffefe;
+    }
+    button.is-active {
+      background: var(--viewer-accent-soft);
+      border-color: #98afc4;
+      color: var(--viewer-accent-strong);
+    }
+    .section {
+      margin-top: 16px;
+    }
+    .cell-section {
+      flex: 1 1 auto;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+    }
+    .cell-section-body {
+      min-height: 0;
+      overflow: auto;
+      padding-right: 4px;
+    }
+    .section h3 {
+      margin: 0 0 8px 0;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--viewer-muted);
+    }
+    .section-hint {
+      margin: -2px 0 10px 0;
+      font-size: 12px;
+      color: var(--viewer-muted);
+      line-height: 1.4;
+    }
+    .tree-list {
+      display: grid;
+      gap: 6px;
+    }
+    label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+    }
+    .tree-node {
+      display: grid;
+      gap: 6px;
+    }
+    .tree-folder {
+      display: grid;
+      gap: 6px;
+    }
+    .tree-summary {
+      list-style: none;
+      cursor: pointer;
+    }
+    .tree-summary::-webkit-details-marker {
+      display: none;
+    }
+    .tree-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+    .cell-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--viewer-border);
+      background: #fff;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: opacity 120ms ease, transform 120ms ease, box-shadow 120ms ease;
+    }
+    .cell-chip:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 3px 10px rgba(96, 78, 116, 0.1);
+    }
+    .cell-chip.is-off {
+      opacity: 0.35;
+    }
+    .tree-children {
+      display: grid;
+      gap: 6px;
+      margin-left: 18px;
+      padding-left: 10px;
+      border-left: 1px solid var(--viewer-panel-accent);
+    }
+    .fold-marker {
+      width: 12px;
+      color: var(--viewer-muted);
+      font-size: 11px;
+      text-align: center;
+      flex: 0 0 auto;
+    }
+    .layer-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .measurement-list {
+      display: grid;
+      gap: 8px;
+    }
+    .measurement-item {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
+      align-items: center;
+      padding: 8px 10px;
+      border: 1px solid var(--viewer-border);
+      border-radius: 10px;
+      background: #fff;
+      font-size: 12px;
+    }
+    .measurement-item.is-selected {
+      border-color: #9eb0c0;
+      background: #e8eef2;
+    }
+    .measurement-main {
+      min-width: 0;
+      cursor: pointer;
+    }
+    .measurement-title {
+      font-weight: 600;
+      color: var(--viewer-text);
+    }
+    .measurement-detail {
+      color: var(--viewer-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .measurement-delete {
+      padding: 6px 8px;
+    }
+    .layer-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--viewer-border);
+      background: #fff;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: opacity 120ms ease, transform 120ms ease, box-shadow 120ms ease;
+    }
+    .layer-chip:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 3px 10px rgba(96, 78, 116, 0.1);
+    }
+    .layer-chip.is-off {
+      opacity: 0.35;
+    }
+    .chip {
+      width: 14px;
+      height: 14px;
+      border-radius: 999px;
+      flex: 0 0 auto;
+      border: 1px solid rgba(0, 0, 0, 0.12);
+    }
+    .file-row {
+      display: grid;
+      gap: 8px;
+    }
+    .stage {
+      position: relative;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at top, rgba(255, 255, 255, 0.82), transparent 34%),
+        linear-gradient(180deg, #fff9fd, #f3e8f3);
+      min-height: 0;
+    }
+    .stage.is-dragover::after {
+      content: "Drop .gds file to load";
+      position: absolute;
+      inset: 16px;
+      display: grid;
+      place-items: center;
+      border: 2px dashed #aeb8df;
+      border-radius: 12px;
+      background: rgba(236, 241, 252, 0.92);
+      color: var(--viewer-accent-strong);
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      pointer-events: none;
+      z-index: 3;
+    }
+    .pixi-host {
+      width: 100%;
+      height: 100%;
+      display: block;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(249, 242, 248, 0.95)),
+        repeating-linear-gradient(
+          0deg,
+          transparent 0,
+          transparent 27px,
+          rgba(95, 96, 133, 0.03) 27px,
+          rgba(95, 96, 133, 0.03) 28px
+        );
+    }
+    .status, .warning {
+      position: absolute;
+      z-index: 2;
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 12px;
+    }
+    .status {
+      right: 12px;
+      bottom: 12px;
+      background: rgba(255, 251, 255, 0.94);
+      border: 1px solid var(--viewer-border);
+      color: var(--viewer-muted);
+    }
+    .pointer-status {
+      position: absolute;
+      left: 12px;
+      bottom: 52px;
+      z-index: 2;
+      display: none;
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 12px;
+      background: rgba(255, 251, 255, 0.94);
+      border: 1px solid var(--viewer-border);
+      color: var(--viewer-muted);
+      pointer-events: none;
+    }
+    .warning {
+      left: 12px;
+      top: 12px;
+      max-width: 380px;
+      display: none;
+      background: rgba(255, 242, 214, 0.97);
+      border: 1px solid #d7b978;
+      color: #71551f;
+    }
+    .scale-bar {
+      position: absolute;
+      left: 12px;
+      bottom: 12px;
+      z-index: 2;
+      display: none;
+      gap: 6px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      background: rgba(255, 251, 255, 0.94);
+      border: 1px solid var(--viewer-border);
+      color: var(--viewer-muted);
+      font-size: 12px;
+    }
+    .scale-bar-line {
+      height: 8px;
+      border-left: 2px solid #5e5b6f;
+      border-right: 2px solid #5e5b6f;
+      border-bottom: 2px solid #5e5b6f;
+      box-sizing: border-box;
+    }
+    .measure-readout {
+      position: absolute;
+      z-index: 2;
+      display: none;
+      padding: 8px 10px;
+      border-radius: 8px;
+      background: rgba(255, 251, 255, 0.96);
+      border: 1px solid var(--viewer-border);
+      color: var(--viewer-muted);
+      font-size: 12px;
+      pointer-events: none;
+      transform: translate(-50%, -120%);
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+  <div class="viewer">
+    <aside class="sidebar">
+      <h2 class="title">GDS Viewer</h2>
+      <p class="subtitle">Inspect GDS layouts, toggle layers and cells, and measure geometry.</p>
+
+      <div class="section">
+        <h3>Load GDS</h3>
+        <div class="file-row">
+          <button id="load-file-button" type="button">Load GDS File</button>
+          <input id="file-input" type="file" accept=".gds" hidden>
+        </div>
+        <p class="section-hint">Use the picker or drag a <code>.gds</code> file onto the viewer.</p>
+      </div>
+
+      <div class="toolbar">
+        <button id="fit-button" type="button">Fit View</button>
+        <button id="show-all-button" type="button">Show All</button>
+        <button id="hide-all-button" type="button">Hide All</button>
+        <button id="measure-button" type="button">Measure</button>
+        <button id="grid-button" type="button">Grid</button>
+      </div>
+      <p class="section-hint">Measure: press <code>m</code>, left click two points, hold <code>Ctrl</code> to lock horizontal or vertical, right drag to pan. Zoom: hold <code>z</code> to zoom in and hold <code>x</code> to zoom out at the mouse location.</p>
+
+      <div class="section cell-section">
+        <h3>Cells</h3>
+        <p class="section-hint">Click a cell to show or hide that branch.</p>
+        <div class="cell-section-body">
+          <div id="cell-toggles" class="tree-list"></div>
+        </div>
+      </div>
+      <div class="section">
+        <h3>Layers</h3>
+        <div id="layer-toggles" class="layer-list"></div>
+      </div>
+      <div class="section">
+        <h3>Measurements</h3>
+        <p class="section-hint">Select a saved ruler to highlight it, then delete it if needed.</p>
+        <div id="measurement-list" class="measurement-list"></div>
+      </div>
+    </aside>
+
+    <section class="stage">
+      <div id="warning" class="warning"></div>
+      <div id="pixi-host" class="pixi-host"></div>
+      <div id="pointer-status" class="pointer-status"></div>
+      <div id="measure-readout" class="measure-readout"></div>
+      <div id="scale-bar" class="scale-bar">
+        <div id="scale-bar-label"></div>
+        <div id="scale-bar-line" class="scale-bar-line"></div>
+      </div>
+      <div id="status" class="status"></div>
+    </section>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/pixi.js@8.x/dist/pixi.min.js"></script>
+  <script src="/gds_viewer.js"></script>
+</body>
+</html>
