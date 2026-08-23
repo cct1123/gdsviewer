@@ -15,6 +15,10 @@ uv sync
 The browser client currently loads PixiJS from jsDelivr, so opening the viewer requires
 an internet connection unless that script is already cached by the browser.
 
+Browser uploads are limited to 100 MiB. The browser and server still buffer an accepted
+file in memory, and parsed documents remain in server memory, so repeated or complex
+uploads can exhaust memory well before that file-size limit.
+
 ## Run
 
 Open an empty viewer and select or drag in a `.gds` file:

@@ -257,6 +257,31 @@ def test_viewer_app_serves_html_js_and_initial_data(tmp_path) -> None:
     assert payload["initial_layer"]["layerKey"] == "L5/D0"
 
 
+def test_viewer_app_rejects_upload_over_size_limit() -> None:
+    app = create_gds_viewer_app(max_upload_bytes=4)
+
+    status, headers, body = _call_wsgi_app(app, "POST", "/api/load-gds", body=b"12345")
+
+    assert status.startswith("413")
+    assert headers["Content-Type"].startswith("application/json")
+    assert json.loads(body) == {"error": "Upload exceeds the 4-byte limit."}
+
+
+def test_viewer_app_rejects_invalid_content_length() -> None:
+    app = create_gds_viewer_app()
+
+    status, _, body = _call_wsgi_app(
+        app,
+        "POST",
+        "/api/load-gds",
+        body=b"not read",
+        extra_environ={"CONTENT_LENGTH": "invalid"},
+    )
+
+    assert status.startswith("400")
+    assert json.loads(body) == {"error": "Invalid Content-Length header."}
+
+
 def test_viewer_app_loads_uploaded_gds(tmp_path) -> None:
     import gdstk
 

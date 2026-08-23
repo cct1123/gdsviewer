@@ -13,6 +13,9 @@ from wsgiref.simple_server import make_server
 import numpy as np
 
 
+DEFAULT_MAX_UPLOAD_BYTES = 100 * 1024 * 1024
+
+
 @dataclass(frozen=True)
 class PolygonRecord:
     cell_id: str
@@ -520,7 +523,11 @@ def create_gds_viewer_app(
     initial_cell_name: str | None = None,
     initial_title: str | None = None,
     max_depth: int | None = None,
+    max_upload_bytes: int = DEFAULT_MAX_UPLOAD_BYTES,
 ):
+    if max_upload_bytes <= 0:
+        raise ValueError("max_upload_bytes must be greater than zero.")
+
     html_text = _asset_text("gds_viewer.html")
     js_text = _asset_text("gds_viewer.js")
     document_store: dict[str, dict[str, object]] = {}
@@ -584,7 +591,26 @@ def create_gds_viewer_app(
             )
 
         if method == "POST" and path == "/api/load-gds":
-            content_length = int(environ.get("CONTENT_LENGTH") or "0")
+            try:
+                content_length = int(environ.get("CONTENT_LENGTH") or "0")
+                if content_length < 0:
+                    raise ValueError
+            except (TypeError, ValueError):
+                return respond(
+                    environ,
+                    start_response,
+                    "400 Bad Request",
+                    _json_bytes({"error": "Invalid Content-Length header."}),
+                    "application/json; charset=utf-8",
+                )
+            if content_length > max_upload_bytes:
+                return respond(
+                    environ,
+                    start_response,
+                    "413 Payload Too Large",
+                    _json_bytes({"error": f"Upload exceeds the {max_upload_bytes}-byte limit."}),
+                    "application/json; charset=utf-8",
+                )
             raw_body = environ["wsgi.input"].read(content_length)
             if not raw_body:
                 return respond(
