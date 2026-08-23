@@ -534,6 +534,7 @@ def create_gds_viewer_app(
 
     html_text = _asset_text("gds_viewer.html")
     js_text = _asset_text("gds_viewer.js")
+    parser_text = _asset_text("gds_parser.js")
     document_store: dict[str, dict[str, object]] = {}
 
     def store_document(document_id: str, view_model: dict[str, object]) -> None:
@@ -581,6 +582,15 @@ def create_gds_viewer_app(
                 start_response,
                 "200 OK",
                 js_text.encode("utf-8"),
+                "application/javascript; charset=utf-8",
+            )
+
+        if method == "GET" and path == "/gds_parser.js":
+            return respond(
+                environ,
+                start_response,
+                "200 OK",
+                parser_text.encode("utf-8"),
                 "application/javascript; charset=utf-8",
             )
 

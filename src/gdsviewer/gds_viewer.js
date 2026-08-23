@@ -1212,11 +1212,17 @@
     void renderSceneProgressively();
   }
 
-  async function setViewModel(nextViewModel, initialLayerPayload = null) {
+  async function setViewModel(nextViewModel, initialLayerPayload = null, options = {}) {
     viewModel = nextViewModel;
-    viewModel.groups = [];
-    viewModel.templates = [];
-    loadedLayerKeys = new Set();
+    if (!viewModel.documentId) {
+      loadedLayerKeys = new Set((viewModel.layers || []).map((layer) => layer.key));
+      mergeLayerPayload({ groups: options.groups || [], templates: options.templates || [] });
+    } else {
+      viewModel.groups = [];
+      viewModel.templates = [];
+      loadedLayerKeys = new Set();
+      mergeLayerPayload(initialLayerPayload);
+    }
     measurements = [];
     selectedMeasurementId = null;
     measureStart = null;
@@ -1234,17 +1240,12 @@
     clearWarning();
   }
 
-  async function uploadFile(file) {
-    const params = new URLSearchParams({ filename: file.name });
-    const response = await fetch(`/api/load-gds?${params.toString()}`, {
-      method: "POST",
-      body: await file.arrayBuffer(),
-    });
-    const payload = await response.json();
-    if (!response.ok) {
-      throw new Error(payload.error || "Failed to load GDS file.");
+  async function parseLocalGds(file) {
+    if (!window.GdsParser || !window.GdsParser.parseGds || !window.GdsParser.buildGdsViewModel) {
+      throw new Error("The GDS parser script failed to load.");
     }
-    return payload;
+    const library = window.GdsParser.parseGds(await file.arrayBuffer());
+    return window.GdsParser.buildGdsViewModel(library, { title: `GDS Viewer: ${file.name}` });
   }
 
   async function loadGdsFile(file) {
@@ -1257,8 +1258,8 @@
     }
     showWarning("Loading GDS file...");
     try {
-      const payload = await uploadFile(file);
-      await setViewModel(payload.view_model, payload.initial_layer);
+      const model = await parseLocalGds(file);
+      await setViewModel(model, null, { groups: model.groups, templates: model.templates });
     } catch (error) {
       showWarning(String(error));
     }

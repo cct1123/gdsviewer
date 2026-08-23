@@ -15,12 +15,11 @@ uv sync
 The browser client currently loads PixiJS from jsDelivr, so opening the viewer requires
 an internet connection unless that script is already cached by the browser.
 
-The client-side migration has started with a dependency-free JavaScript GDSII parser
-and view-model builder in `src/gdsviewer/gds_parser.js`. Its output is checked against
-the current gdstk-backed Python model on generated layouts. It is not connected to the
-upload UI yet: this slice still sends browser uploads to the Python server for parsing.
-See `docs/javascript-migration.md` for the bounded migration sequence and current
-format limits.
+The client-side migration is underway: a dependency-free JavaScript GDSII parser and
+view-model builder (`src/gdsviewer/gds_parser.js`) now parses browser-uploaded files
+entirely in the client. Its output is checked against the gdstk-backed Python model on
+generated layouts, and preloaded layouts still use the Python server. See
+`docs/javascript-migration.md` for the bounded migration sequence and current format limits.
 
 Browser uploads are limited to 100 MiB. The browser and server still buffer each
 accepted file in memory. The server retains at most eight parsed documents, including
