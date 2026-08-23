@@ -14,6 +14,7 @@ import numpy as np
 
 
 DEFAULT_MAX_UPLOAD_BYTES = 100 * 1024 * 1024
+DEFAULT_MAX_DOCUMENTS = 8
 
 
 @dataclass(frozen=True)
@@ -524,15 +525,22 @@ def create_gds_viewer_app(
     initial_title: str | None = None,
     max_depth: int | None = None,
     max_upload_bytes: int = DEFAULT_MAX_UPLOAD_BYTES,
+    max_documents: int = DEFAULT_MAX_DOCUMENTS,
 ):
     if max_upload_bytes <= 0:
         raise ValueError("max_upload_bytes must be greater than zero.")
+    if max_documents <= 0:
+        raise ValueError("max_documents must be greater than zero.")
 
     html_text = _asset_text("gds_viewer.html")
     js_text = _asset_text("gds_viewer.js")
     document_store: dict[str, dict[str, object]] = {}
 
-    initial_model = None
+    def store_document(document_id: str, view_model: dict[str, object]) -> None:
+        document_store[document_id] = view_model
+        while len(document_store) > max_documents:
+            del document_store[next(iter(document_store))]
+
     initial_document_id = None
     if initial_gds_path is not None:
         initial_model = load_gds_view_model(
@@ -542,7 +550,7 @@ def create_gds_viewer_app(
             max_depth=max_depth,
         )
         initial_document_id = f"doc-{uuid4().hex}"
-        document_store[initial_document_id] = initial_model
+        store_document(initial_document_id, initial_model)
 
     def respond(environ, start_response, status: str, body: bytes, content_type: str) -> list[bytes]:
         accepts_gzip = "gzip" in (environ.get("HTTP_ACCEPT_ENCODING", "") or "").lower()
@@ -578,6 +586,7 @@ def create_gds_viewer_app(
 
         if method == "GET" and path == "/api/initial-data":
             payload = {"view_model": None, "initial_layer": None}
+            initial_model = document_store.get(initial_document_id) if initial_document_id is not None else None
             if initial_model is not None and initial_document_id is not None:
                 metadata = _view_model_metadata(initial_model, document_id=initial_document_id)
                 initial_layer = _layer_payload(initial_model, metadata["layers"][0]["key"]) if metadata["layers"] else None
@@ -631,7 +640,7 @@ def create_gds_viewer_app(
                     temp_path = Path(tmp.name)
                 view_model = load_gds_view_model(temp_path, cell_name=cell_name, title=title, max_depth=max_depth)
                 document_id = f"doc-{uuid4().hex}"
-                document_store[document_id] = view_model
+                store_document(document_id, view_model)
             except Exception as exc:
                 return respond(
                     environ,

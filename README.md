@@ -15,9 +15,12 @@ uv sync
 The browser client currently loads PixiJS from jsDelivr, so opening the viewer requires
 an internet connection unless that script is already cached by the browser.
 
-Browser uploads are limited to 100 MiB. The browser and server still buffer an accepted
-file in memory, and parsed documents remain in server memory, so repeated or complex
-uploads can exhaust memory well before that file-size limit.
+Browser uploads are limited to 100 MiB. The browser and server still buffer each
+accepted file in memory. The server retains at most eight parsed documents, including
+any preloaded layout, and evicts the oldest after a successful upload. Python callers
+can configure both positive limits with the application factory's `max_upload_bytes`
+and `max_documents` arguments. These limits bound upload size and document count, not
+parsed memory; one complex layout can still use substantial memory.
 
 ## Run
 

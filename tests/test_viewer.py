@@ -314,6 +314,101 @@ def test_viewer_app_loads_uploaded_gds(tmp_path) -> None:
     ]
 
 
+def test_viewer_app_evicts_oldest_uploaded_document(tmp_path) -> None:
+    import gdstk
+
+    app = create_gds_viewer_app(max_documents=2)
+    document_ids = []
+    for index in range(3):
+        top = gdstk.Cell(f"TOP_{index}")
+        top.add(gdstk.rectangle((0, 0), (1, 1), layer=index + 1, datatype=0))
+        library = gdstk.Library()
+        library.add(top)
+        path = tmp_path / f"upload_{index}.gds"
+        library.write_gds(path)
+
+        status, _, response_body = _call_wsgi_app(
+            app,
+            "POST",
+            f"/api/load-gds?filename={path.name}",
+            body=path.read_bytes(),
+        )
+
+        assert status.startswith("200")
+        document_ids.append(json.loads(response_body)["view_model"]["documentId"])
+
+    status, _, body = _call_wsgi_app(
+        app,
+        "GET",
+        f"/api/layer-data?document_id={document_ids[0]}&layer_key=L1/D0",
+    )
+    assert status.startswith("404")
+    assert json.loads(body) == {"error": f"Unknown document id: {document_ids[0]}"}
+
+    for index, document_id in enumerate(document_ids[1:], start=2):
+        status, _, _ = _call_wsgi_app(
+            app,
+            "GET",
+            f"/api/layer-data?document_id={document_id}&layer_key=L{index}/D0",
+        )
+        assert status.startswith("200")
+
+
+def test_viewer_app_evicts_preloaded_document(tmp_path) -> None:
+    import gdstk
+
+    initial_cell = gdstk.Cell("INITIAL")
+    initial_cell.add(gdstk.rectangle((0, 0), (1, 1), layer=1, datatype=0))
+    initial_library = gdstk.Library()
+    initial_library.add(initial_cell)
+    initial_path = tmp_path / "initial.gds"
+    initial_library.write_gds(initial_path)
+
+    uploaded_cell = gdstk.Cell("UPLOADED")
+    uploaded_cell.add(gdstk.rectangle((0, 0), (1, 1), layer=2, datatype=0))
+    uploaded_library = gdstk.Library()
+    uploaded_library.add(uploaded_cell)
+    uploaded_path = tmp_path / "uploaded.gds"
+    uploaded_library.write_gds(uploaded_path)
+
+    app = create_gds_viewer_app(initial_gds_path=initial_path, max_documents=1)
+    status, _, body = _call_wsgi_app(app, "GET", "/api/initial-data")
+    assert status.startswith("200")
+    initial_document_id = json.loads(body)["view_model"]["documentId"]
+
+    status, _, body = _call_wsgi_app(
+        app,
+        "POST",
+        f"/api/load-gds?filename={uploaded_path.name}",
+        body=uploaded_path.read_bytes(),
+    )
+    assert status.startswith("200")
+    uploaded_document_id = json.loads(body)["view_model"]["documentId"]
+
+    status, _, body = _call_wsgi_app(app, "GET", "/api/initial-data")
+    assert status.startswith("200")
+    assert json.loads(body) == {"view_model": None, "initial_layer": None}
+
+    status, _, _ = _call_wsgi_app(
+        app,
+        "GET",
+        f"/api/layer-data?document_id={initial_document_id}&layer_key=L1/D0",
+    )
+    assert status.startswith("404")
+
+    status, _, _ = _call_wsgi_app(
+        app,
+        "GET",
+        f"/api/layer-data?document_id={uploaded_document_id}&layer_key=L2/D0",
+    )
+    assert status.startswith("200")
+
+
+def test_viewer_app_rejects_non_positive_document_limit() -> None:
+    with pytest.raises(ValueError, match="max_documents must be greater than zero"):
+        create_gds_viewer_app(max_documents=0)
+
+
 def test_viewer_app_can_gzip_large_json_response(tmp_path) -> None:
     import gdstk
 
