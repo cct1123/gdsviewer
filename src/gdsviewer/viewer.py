@@ -530,7 +530,7 @@ def load_gds_view_model(
 
 
 def _asset_text(name: str) -> str:
-    return Path(__file__).with_name(name).read_text(encoding="utf-8")
+    return (Path(__file__).parent / name).read_text(encoding="utf-8")
 
 
 def create_gds_viewer_app(
@@ -550,6 +550,9 @@ def create_gds_viewer_app(
     html_text = _asset_text("gds_viewer.html")
     js_text = _asset_text("gds_viewer.js")
     parser_text = _asset_text("gds_parser.js")
+    # DEPRECATED: this in-memory document store is vestigial. The browser client
+    # parses uploaded/preloaded files itself and never queries stored documents.
+    # Scheduled for removal in the static-server reduction slice.
     document_store: dict[str, dict[str, object]] = {}
 
     def store_document(document_id: str, view_model: dict[str, object]) -> None:
@@ -607,6 +610,15 @@ def create_gds_viewer_app(
                 "application/javascript; charset=utf-8",
             )
 
+        if method == "GET" and path == "/vendor/pixi.min.js":
+            return respond(
+                environ,
+                start_response,
+                "200 OK",
+                _asset_text("vendor/pixi.min.js").encode("utf-8"),
+                "application/javascript; charset=utf-8",
+            )
+
         if method == "GET" and path == "/api/preload":
             return respond(
                 environ,
@@ -634,6 +646,10 @@ def create_gds_viewer_app(
             start_response("200 OK", headers)
             return [preload_bytes]
 
+        # DEPRECATED upload endpoint: the browser client parses .gds files itself
+        # (gds_parser.js) and no longer calls this. Kept only for backward
+        # compatibility until the static-server reduction slice removes it,
+        # along with the document store it feeds.
         if method == "POST" and path == "/api/load-gds":
             try:
                 content_length = int(environ.get("CONTENT_LENGTH") or "0")
