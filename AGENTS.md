@@ -55,7 +55,7 @@ The default server listens on `127.0.0.1:8765` and opens a browser. See all CLI 
 uv run gdsviewer --help
 ```
 
-Network requirement: `src/gdsviewer/gds_viewer.html` currently loads PixiJS 8.x from jsDelivr (`https://cdn.jsdelivr.net/npm/pixi.js@8.x/dist/pixi.min.js`). The Python server and local assets can start offline, but rendering requires network access unless that CDN asset is already cached. Do not describe the viewing experience as fully offline while this dependency remains external.
+Network requirement: none for rendering. `src/gdsviewer/gds_viewer.html` loads PixiJS from the vendored copy at `src/gdsviewer/vendor/pixi.min.js` (version, source URL, and SHA256 recorded in `src/gdsviewer/vendor/VENDORED.md`); all script tags use relative paths, so the viewer renders fully offline. The Python server remains needed only for the CLI preload flow (`/api/preload`, `/api/preloaded-gds`) plus static asset delivery; `POST /api/load-gds` and the document store are deprecated vestiges scheduled for removal in the static-server reduction slice.
 
 ## Architecture map
 
