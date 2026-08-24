@@ -882,23 +882,6 @@
     }
   }
 
-  async function fetchLayerPayload(layerKey) {
-    if (!viewModel || !viewModel.documentId || loadedLayerKeys.has(layerKey)) {
-      return null;
-    }
-    const params = new URLSearchParams({
-      document_id: viewModel.documentId,
-      layer_key: layerKey,
-    });
-    const response = await fetch(`/api/layer-data?${params.toString()}`);
-    const payload = await response.json();
-    if (!response.ok) {
-      throw new Error(payload.error || `Failed to load layer ${layerKey}.`);
-    }
-    mergeLayerPayload(payload);
-    return payload;
-  }
-
   async function ensureApp() {
     if (!window.PIXI || !window.PIXI.Application || !window.PIXI.Graphics) {
       throw new Error("PixiJS failed to load.");
@@ -1160,16 +1143,6 @@
 
     const firstLayerKey = layerOrder[0];
     setStatusMessage(`Rendering layer 1/${layerOrder.length}: ${firstLayerKey}`);
-    if (!loadedLayerKeys.has(firstLayerKey)) {
-      await fetchLayerPayload(firstLayerKey);
-    }
-    groupsByLayer.clear();
-    for (const group of viewModel.groups || []) {
-      if (!groupsByLayer.has(group.layerKey)) {
-        groupsByLayer.set(group.layerKey, []);
-      }
-      groupsByLayer.get(group.layerKey).push(group);
-    }
     for (const group of groupsByLayer.get(firstLayerKey) || []) {
       drawGroup(group);
     }
@@ -1182,16 +1155,6 @@
       }
       const layerKey = layerOrder[layerIndex];
       setStatusMessage(`Rendering layer ${layerIndex + 1}/${layerOrder.length}: ${layerKey}`);
-      if (!loadedLayerKeys.has(layerKey)) {
-        await fetchLayerPayload(layerKey);
-        groupsByLayer.clear();
-        for (const group of viewModel.groups || []) {
-          if (!groupsByLayer.has(group.layerKey)) {
-            groupsByLayer.set(group.layerKey, []);
-          }
-          groupsByLayer.get(group.layerKey).push(group);
-        }
-      }
       for (const group of groupsByLayer.get(layerKey) || []) {
         drawGroup(group);
       }
@@ -1212,23 +1175,15 @@
     void renderSceneProgressively();
   }
 
-  async function setViewModel(nextViewModel, initialLayerPayload = null, options = {}) {
+  async function setViewModel(nextViewModel) {
     viewModel = nextViewModel;
-    if (!viewModel.documentId) {
-      loadedLayerKeys = new Set((viewModel.layers || []).map((layer) => layer.key));
-      mergeLayerPayload({ groups: options.groups || [], templates: options.templates || [] });
-    } else {
-      viewModel.groups = [];
-      viewModel.templates = [];
-      loadedLayerKeys = new Set();
-      mergeLayerPayload(initialLayerPayload);
-    }
+    loadedLayerKeys = new Set((viewModel.layers || []).map((layer) => layer.key));
+    mergeLayerPayload({ groups: viewModel.groups || [], templates: viewModel.templates || [] });
     measurements = [];
     selectedMeasurementId = null;
     measureStart = null;
     measureEnd = null;
     measurePointer = null;
-    mergeLayerPayload(initialLayerPayload);
     document.title = viewModel.title;
     const titleNode = document.querySelector(".title");
     if (titleNode) {
@@ -1241,11 +1196,59 @@
   }
 
   async function parseLocalGds(file) {
+    return parseArrayBufferGds(await file.arrayBuffer(), { title: `GDS Viewer: ${file.name}` });
+  }
+
+  function requireGdsParser() {
     if (!window.GdsParser || !window.GdsParser.parseGds || !window.GdsParser.buildGdsViewModel) {
       throw new Error("The GDS parser script failed to load.");
     }
-    const library = window.GdsParser.parseGds(await file.arrayBuffer());
-    return window.GdsParser.buildGdsViewModel(library, { title: `GDS Viewer: ${file.name}` });
+    return window.GdsParser;
+  }
+
+  function buildLocalViewModel(library, options) {
+    const parser = requireGdsParser();
+    const model = parser.buildGdsViewModel(library, options);
+    model.groups = model.groups || [];
+    model.templates = model.templates || [];
+    return model;
+  }
+
+  async function parseArrayBufferGds(arrayBuffer, options) {
+    const library = requireGdsParser().parseGds(arrayBuffer);
+    return buildLocalViewModel(library, options);
+  }
+
+  async function loadPreloadedGds() {
+    const configResponse = await fetch("/api/preload");
+    if (!configResponse.ok) {
+      throw new Error("Failed to fetch preload configuration.");
+    }
+    const config = await configResponse.json();
+    if (!config) {
+      return false;
+    }
+
+    showWarning("Loading preloaded GDS file...");
+    const bytesResponse = await fetch("/api/preloaded-gds");
+    const bytesPayload = await bytesResponse.arrayBuffer();
+    if (!bytesResponse.ok) {
+      let message = "Failed to fetch the preloaded GDS file.";
+      try {
+        message = JSON.parse(new TextDecoder().decode(bytesPayload)).error || message;
+      } catch (_) {
+        // keep the generic message
+      }
+      throw new Error(message);
+    }
+
+    const model = await parseArrayBufferGds(bytesPayload, {
+      title: config.title || `GDS Viewer: ${config.filename}`,
+      cellName: config.cellName || null,
+      maxDepth: config.maxDepth ?? null,
+    });
+    await setViewModel(model);
+    return true;
   }
 
   async function loadGdsFile(file) {
@@ -1259,7 +1262,7 @@
     showWarning("Loading GDS file...");
     try {
       const model = await parseLocalGds(file);
-      await setViewModel(model, null, { groups: model.groups, templates: model.templates });
+      await setViewModel(model);
     } catch (error) {
       showWarning(String(error));
     }
@@ -1372,11 +1375,8 @@
   });
 
   try {
-    const response = await fetch("/api/initial-data");
-    const payload = await response.json();
-    if (payload.view_model) {
-      await setViewModel(payload.view_model, payload.initial_layer);
-    } else {
+    const loadedPreloaded = await loadPreloadedGds();
+    if (!loadedPreloaded) {
       showWarning("No initial GDS is loaded yet. Use the Load GDS File button.");
     }
   } catch (error) {

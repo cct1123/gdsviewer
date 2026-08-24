@@ -57,3 +57,22 @@ def test_client_parses_uploads_locally_without_server_apis() -> None:
 @pytest.mark.parametrize("marker", ["parseLocalGds", "file.arrayBuffer()"])
 def test_client_local_load_helpers_exist(marker: str) -> None:
     assert marker in _asset_text("gds_viewer.js")
+
+
+@pytest.mark.parametrize(
+    "marker",
+    [
+        "/api/preload",
+        "loadPreloadedGds",
+        "parseArrayBufferGds",
+    ],
+)
+def test_client_preload_bootstrap_exists(marker: str) -> None:
+    assert marker in _asset_text("gds_viewer.js")
+
+
+def test_client_no_longer_fetches_initial_or_layer_data() -> None:
+    js_text = _asset_text("gds_viewer.js")
+
+    assert '"/api/initial-data"' not in js_text
+    assert '"/api/layer-data"' not in js_text

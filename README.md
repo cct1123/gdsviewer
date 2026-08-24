@@ -16,17 +16,20 @@ The browser client currently loads PixiJS from jsDelivr, so opening the viewer r
 an internet connection unless that script is already cached by the browser.
 
 The client-side migration is underway: a dependency-free JavaScript GDSII parser and
-view-model builder (`src/gdsviewer/gds_parser.js`) now parses browser-uploaded files
-entirely in the client. Its output is checked against the gdstk-backed Python model on
-generated layouts, and preloaded layouts still use the Python server. See
-`docs/javascript-migration.md` for the bounded migration sequence and current format limits.
+view-model builder (`src/gdsviewer/gds_parser.js`) parses both browser-uploaded files
+and CLI-preloaded layouts entirely in the client. Its output is checked against the
+gdstk-backed Python model on generated layouts. The server only supplies static assets,
+a small preload configuration, the raw preloaded bytes, and the (soon-to-be-removed)
+upload endpoint. See `docs/javascript-migration.md` for the bounded migration sequence
+and current format limits.
 
 Browser uploads are limited to 100 MiB. The browser and server still buffer each
-accepted file in memory. The server retains at most eight parsed documents, including
-any preloaded layout, and evicts the oldest after a successful upload. Python callers
-can configure both positive limits with the application factory's `max_upload_bytes`
-and `max_documents` arguments. These limits bound upload size and document count, not
-parsed memory; one complex layout can still use substantial memory.
+accepted file in memory. Uploaded documents are retained by the server only until the
+next slice removes the upload path; at most eight parsed documents are kept, evicting
+the oldest after a successful upload. Python callers can configure both positive limits
+with the application factory's `max_upload_bytes` and `max_documents` arguments. These
+limits bound upload size and document count, not parsed memory; one complex layout can
+still use substantial memory.
 
 ## Run
 

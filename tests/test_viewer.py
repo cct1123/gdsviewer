@@ -250,11 +250,11 @@ def test_viewer_app_serves_html_js_and_initial_data(tmp_path) -> None:
     assert "loadGdsFile" in js_text
     assert 'stageNode?.addEventListener("drop"' in js_text
 
-    status, _, json_body = _call_wsgi_app(app, "GET", "/api/initial-data")
-    payload = json.loads(json_body)
+    status, _, preload_body = _call_wsgi_app(app, "GET", "/api/preload")
+    payload = json.loads(preload_body)
     assert status.startswith("200")
-    assert payload["view_model"]["cellName"] == "FILE_TOP"
-    assert payload["initial_layer"]["layerKey"] == "L5/D0"
+    assert payload["filename"] == "viewer_file.gds"
+    assert payload["cellName"] == "FILE_TOP"
 
 
 def test_viewer_app_rejects_upload_over_size_limit() -> None:
@@ -354,7 +354,7 @@ def test_viewer_app_evicts_oldest_uploaded_document(tmp_path) -> None:
         assert status.startswith("200")
 
 
-def test_viewer_app_evicts_preloaded_document(tmp_path) -> None:
+def test_viewer_app_keeps_preloaded_file_available_after_upload_eviction(tmp_path) -> None:
     import gdstk
 
     initial_cell = gdstk.Cell("INITIAL")
@@ -372,10 +372,6 @@ def test_viewer_app_evicts_preloaded_document(tmp_path) -> None:
     uploaded_library.write_gds(uploaded_path)
 
     app = create_gds_viewer_app(initial_gds_path=initial_path, max_documents=1)
-    status, _, body = _call_wsgi_app(app, "GET", "/api/initial-data")
-    assert status.startswith("200")
-    initial_document_id = json.loads(body)["view_model"]["documentId"]
-
     status, _, body = _call_wsgi_app(
         app,
         "POST",
@@ -385,16 +381,13 @@ def test_viewer_app_evicts_preloaded_document(tmp_path) -> None:
     assert status.startswith("200")
     uploaded_document_id = json.loads(body)["view_model"]["documentId"]
 
-    status, _, body = _call_wsgi_app(app, "GET", "/api/initial-data")
-    assert status.startswith("200")
-    assert json.loads(body) == {"view_model": None, "initial_layer": None}
-
-    status, _, _ = _call_wsgi_app(
+    status, _, body = _call_wsgi_app(
         app,
         "GET",
-        f"/api/layer-data?document_id={initial_document_id}&layer_key=L1/D0",
+        "/api/preloaded-gds",
     )
-    assert status.startswith("404")
+    assert status.startswith("200")
+    assert body == initial_path.read_bytes()
 
     status, _, _ = _call_wsgi_app(
         app,
@@ -495,3 +488,73 @@ def test_viewer_app_serves_layer_data_endpoint(tmp_path) -> None:
     assert layer_payload["layerKey"] == "L2/D0"
     assert len(layer_payload["groups"]) == 1
     assert layer_payload["templates"][0]["layerKey"] == "L2/D0"
+
+
+def _gds_library_with(*cells):
+    import gdstk
+
+    library = gdstk.Library()
+    library.add(*cells)
+    return library
+
+
+def test_viewer_app_serves_preload_config(tmp_path) -> None:
+    import gdstk
+
+    top = gdstk.Cell("PRELOAD_TOP")
+    top.add(gdstk.rectangle((0, 0), (1, 1), layer=1, datatype=0))
+    path = tmp_path / "preload.gds"
+    _gds_library_with(top).write_gds(path)
+
+    app = create_gds_viewer_app(initial_gds_path=path, initial_cell_name="PRELOAD_TOP")
+    status, _, body = _call_wsgi_app(app, "GET", "/api/preload")
+
+    assert status.startswith("200")
+    assert json.loads(body) == {
+        "filename": "preload.gds",
+        "cellName": "PRELOAD_TOP",
+        "title": None,
+        "maxDepth": None,
+    }
+
+
+def test_viewer_app_initial_data_endpoint_is_removed(tmp_path) -> None:
+    import gdstk
+
+    top = gdstk.Cell("GONE_TOP")
+    top.add(gdstk.rectangle((0, 0), (1, 1), layer=1, datatype=0))
+    path = tmp_path / "gone.gds"
+    _gds_library_with(top).write_gds(path)
+
+    app = create_gds_viewer_app(initial_gds_path=path)
+    status, _, body = _call_wsgi_app(app, "GET", "/api/initial-data")
+
+    assert status.startswith("404")
+    assert "error" in json.loads(body)
+
+
+def test_viewer_app_serves_preloaded_gds_bytes(tmp_path) -> None:
+    import gdstk
+
+    top = gdstk.Cell("BYTES_TOP")
+    top.add(gdstk.rectangle((0, 0), (1, 1), layer=1, datatype=0))
+    path = tmp_path / "bytes.gds"
+    _gds_library_with(top).write_gds(path)
+
+    app = create_gds_viewer_app(initial_gds_path=path, initial_title="Bytes Title")
+    status, headers, body = _call_wsgi_app(app, "GET", "/api/preloaded-gds")
+
+    assert status.startswith("200")
+    assert headers["Content-Type"] == "application/octet-stream"
+    assert body == path.read_bytes()
+
+
+def test_viewer_app_preload_endpoints_absent_without_initial_file() -> None:
+    app = create_gds_viewer_app()
+
+    status, _, body = _call_wsgi_app(app, "GET", "/api/preload")
+    assert status.startswith("200")
+    assert json.loads(body) is None
+
+    status, _, body = _call_wsgi_app(app, "GET", "/api/preloaded-gds")
+    assert status.startswith("404")

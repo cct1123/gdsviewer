@@ -267,6 +267,21 @@ def _layer_payload(view_model: dict[str, object], layer_key: str) -> dict[str, o
     return {"layerKey": layer_key, "groups": groups, "templates": templates}
 
 
+def _preload_config(
+    gds_path: str | Path,
+    *,
+    cell_name: str | None,
+    title: str | None,
+    max_depth: int | None,
+) -> dict[str, object]:
+    return {
+        "filename": Path(gds_path).name,
+        "cellName": cell_name,
+        "title": title,
+        "maxDepth": max_depth,
+    }
+
+
 def build_gds_view_model(source, *, title: str | None = None, max_depth: int | None = None) -> dict[str, object]:
     bounds_min: np.ndarray | None = None
     bounds_max: np.ndarray | None = None
@@ -542,16 +557,14 @@ def create_gds_viewer_app(
         while len(document_store) > max_documents:
             del document_store[next(iter(document_store))]
 
-    initial_document_id = None
+    preload_config: dict[str, object] | None = None
     if initial_gds_path is not None:
-        initial_model = load_gds_view_model(
+        preload_config = _preload_config(
             initial_gds_path,
             cell_name=initial_cell_name,
             title=initial_title,
             max_depth=max_depth,
         )
-        initial_document_id = f"doc-{uuid4().hex}"
-        store_document(initial_document_id, initial_model)
 
     def respond(environ, start_response, status: str, body: bytes, content_type: str) -> list[bytes]:
         accepts_gzip = "gzip" in (environ.get("HTTP_ACCEPT_ENCODING", "") or "").lower()
@@ -594,20 +607,32 @@ def create_gds_viewer_app(
                 "application/javascript; charset=utf-8",
             )
 
-        if method == "GET" and path == "/api/initial-data":
-            payload = {"view_model": None, "initial_layer": None}
-            initial_model = document_store.get(initial_document_id) if initial_document_id is not None else None
-            if initial_model is not None and initial_document_id is not None:
-                metadata = _view_model_metadata(initial_model, document_id=initial_document_id)
-                initial_layer = _layer_payload(initial_model, metadata["layers"][0]["key"]) if metadata["layers"] else None
-                payload = {"view_model": metadata, "initial_layer": initial_layer}
+        if method == "GET" and path == "/api/preload":
             return respond(
                 environ,
                 start_response,
                 "200 OK",
-                _json_bytes(payload),
+                _json_bytes(preload_config),
                 "application/json; charset=utf-8",
             )
+
+        if method == "GET" and path == "/api/preloaded-gds":
+            if preload_config is None or initial_gds_path is None:
+                return respond(
+                    environ,
+                    start_response,
+                    "404 Not Found",
+                    _json_bytes({"error": "No GDS file was preloaded."}),
+                    "application/json; charset=utf-8",
+                )
+            preload_bytes = Path(initial_gds_path).read_bytes()
+            headers = [
+                ("Content-Type", "application/octet-stream"),
+                ("Content-Length", str(len(preload_bytes))),
+                ("Cache-Control", "no-store"),
+            ]
+            start_response("200 OK", headers)
+            return [preload_bytes]
 
         if method == "POST" and path == "/api/load-gds":
             try:
