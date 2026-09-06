@@ -1,68 +1,69 @@
-# User-guide screenshots
+# Screenshots for the XOR walkthrough
 
-The JPEG files are unedited captures of the actual GDS Viewer WebUI. The `crops/`
-folder contains 16 PNG close-ups taken from those originals. They illustrate the
-[user guide](../user-guide.md) and the repository [README](../../README.md).
+The 11 full screenshots and 16 close-ups illustrate the [picture guide](../user-guide.md)
+and [README](../../README.md). All loaded views use `examples/yzuda/xor.gds2`, the
+public XOR example from [YZUDA](https://www.yzuda.org/download/_GDSII_examples.html).
+The first screenshot shows the empty viewer before loading it.
 
-## Cropped close-ups
+## How they were captured
 
-Each close-up keeps an exact rectangular region of its source screenshot, without
-changing the decoded pixels. Crops were created with Windows `System.Drawing` and
-saved as PNG, with no resampling, sharpening, retouching, or generated UI elements.
-The original JPEGs remain available through the full-screenshot links in the guides.
+- Captured on 6 September 2026 in headless Microsoft Edge on Windows, at a
+  1440 × 1000 viewport and device scale factor 1.
+- Application source: `d140156` on `main`, with constant 1-pixel polygon borders.
+- Used the loopback static helper in `tests/serve.cjs`, under `/viewer/`.
+- The original `xor.gds2` file was supplied through the normal browser file input.
+  Native OS picker dialogs were not exercised. No private layout was used.
+- Every view was produced with the viewer's own controls. The sidebar is scrolled
+  in the layer and measurement pictures to reveal the relevant controls.
+- Full screenshots are JPEGs at quality 96. The README hero, `../viewer-xor.png`,
+  is a PNG of the same fitted overview state.
+- The captures preserve the rendered UI; no labels, dimensions, or geometry were
+  painted into the pictures. Text elements from the GDSII file are not rendered.
+- The capture session reported no browser script errors. Previous checks also
+  exercised direct `file://` loading and root/subdirectory hosting in Edge on
+  Windows. These screenshots do not validate other browsers or OS launchers.
 
-[crop-regions.json](crop-regions.json) records each source filename, crop filename,
-and rectangle as `[x, y, width, height]` in source-image pixels, measured from the
-top-left corner. Its `width` field outside the rectangle is the suggested display
-width in the guides. Small controls are displayed larger to make labels easier to
-read; this does not resize the stored image. Crop filenames describe the function
-being highlighted, including controls and their resulting status or geometry.
+## Close-ups
 
-## Capture conditions
+Each PNG is an exact rectangular crop of its decoded JPEG source. The crop process
+uses Sharp, without resampling, sharpening, or retouching. All 16 outputs were
+compared byte-for-byte with the corresponding decoded source regions.
 
-- Captured on 6 September 2026 using the Codex in-app browser on Windows.
-- Application source: commit `b980197`; documentation worktree: `codex/readme-beginners`.
-- Started with `node tests/serve.cjs` and opened the printed **Static test viewer**
-  address under `/viewer/`. The server is bound to loopback.
-- Used a 1280 × 960 desktop viewport so the canvas tools could be exercised.
-  The sidebar is scrolled in some pictures to expose lower controls.
-- Loaded only `tests/fixtures/hierarchy.gds`, the bundled synthetic example, through
-  the native file-picker flow. No private design files were used.
-- Captures come from browser screenshots, without image generation, retouching,
-  or fabricated interface elements. Captions describe the observed states.
-- Direct-file opening was not tested. Other browser engines and macOS/Linux launchers
-  remain unverified. These screenshots do not establish complete GDSII compatibility.
+[crop-regions.json](crop-regions.json) records the source, output filename, rectangle
+`[x, y, width, height]`, suggested display width, and description. Coordinates are
+in source-image pixels from the top-left corner. The guides may display a crop
+larger to make a small control easier to read; the stored crop is unchanged.
+Full-screenshot links let readers locate each detail in the window.
 
-## Screens and observed results
+## Captured states
 
-| File | Action or state | Visible result |
+| Screenshot | Action | Observed result |
 | --- | --- | --- |
-| `01-open-viewer.jpg` | Empty startup | File-loading prompt; view options disabled. |
-| `02-layout-overview.jpg` | Load hierarchy.gds and fit | 3 cells, 3 layers, 9 visible polygons. |
-| `03-zoom-and-pan.jpg` | Wheel zoom and canvas drag | Enlarged and shifted layout; geometry extends outside the window. |
-| `04-layer-visibility.jpg` | Hide L7/D3 | 2 of 3 layers and 5 polygons visible. |
-| `05-cell-visibility.jpg` | Show all, then hide CHILD | CHILD and LEAF hidden; 1 of 3 cells and 1 polygon visible. |
-| `06-root-cell.jpg` | Apply LEAF with blank depth, zoom out three steps | LEAF alone; 2 layers and 2 polygons. |
-| `07-hierarchy-depth.jpg` | Apply TOP with depth 0 | TOP's own rectangle; 1 cell, 1 layer, 1 polygon. |
-| `08-grid-and-scale.jpg` | Restore all roots/levels and enable Grid | Nine polygons over the grid; 10.0 um scale bar. |
-| `09-measure-distance.jpg` | Measure between matching repeated shapes | Saved 20.0 um ruler; dx 20.0 um, dy 0.0 nm. |
-| `10-pointer-coordinates.jpg` | Start another ruler at a first point | Crosshair and x/y readout; previous saved ruler remains. |
-| `11-delete-measurement.jpg` | Cancel unfinished ruler, delete saved ruler | No ruler drawn; list says “No measurements yet.” |
+| `01-open-viewer.jpg` | Open the viewer | Empty view, file prompt, disabled root/depth controls. |
+| `02-layout-overview.jpg` | Load xor.gds2 and fit | 4 / 4 cells, 15 / 15 layers, 520 polygons; 50.0 um scale bar. |
+| `03-zoom-and-pan.jpg` | Zoom in six wheel steps, then drag | Enlarged and shifted geometry; 20.0 um scale bar. |
+| `04-layer-visibility.jpg` | Hide L47/D0 | 14 / 15 layers and 512 polygons. |
+| `05-cell-visibility.jpg` | Show all, then hide nand2 | nand2 and via hidden; 2 / 4 cells and 166 polygons. |
+| `06-root-cell.jpg` | Apply nand2 with blank depth | 2 / 2 cells, 15 / 15 layers, 107 polygons. |
+| `07-hierarchy-depth.jpg` | Apply abc2 with depth 0 | 1 / 1 cells, 4 / 4 layers, 28 polygons. |
+| `08-grid-and-scale.jpg` | Restore all roots/levels; enable Grid | Full XOR layout with grid and 50.0 um scale bar. |
+| `09-measure-distance.jpg` | Turn Grid off; place a horizontal ruler | Saved 30.1 um measurement, dx 30.1 um, dy 0.0 nm. |
+| `10-pointer-coordinates.jpg` | Start another ruler near the middle | Crosshair and zero-length preview; x 62.0 um, y 55.3 um. Earlier ruler remains. |
+| `11-delete-measurement.jpg` | Cancel the preview, delete the saved ruler | No ruler drawn; Measurements says “No measurements yet.” |
 
-Also exercised Hide All (zero visible polygons), Show All (nine restored), keyboard
-zoom with z/x, and Fit View. The browser reported no warnings or errors in the
-captured session. Measurement mode was observed to end automatically after the
-second point; the beginner documentation reflects that behavior.
+The measurement was made by clicks in the rendered layout, not from a reference
+circuit dimension. Values are reported as the viewer displayed them. Different
+click positions may produce different readings. These external examples are
+illustrations, not independent geometry test fixtures.
+The XOR file's user unit is 1 µm, matching the viewer's current distance-label
+assumption. These captures do not validate physical measurements for other user units.
 
 ## Updating the pictures
 
-Use the same bundled example and repeat the steps in the user guide. Capture the
-actual result after each operation finishes. Keep each screenshot's control values,
-visible counts, filename, and caption consistent. Update this record if the browser,
-application behavior, sample, or viewport changes.
+Follow the steps in the guide with the original XOR file. Capture each state after
+loading or applying options has finished. Keep controls, filenames, counts, and
+captions in agreement. Preserve the [source attribution](../../examples/yzuda/README.md).
 
-After replacing an original, review its rectangles in `crop-regions.json` and
-regenerate the associated PNG crops. Check that every label and button is fully
-visible and that each crop matches its source region exactly. Keep the overview
-uncropped so readers can locate the controls, and retain full-screenshot links
-beside the close-ups.
+When replacing a full screenshot, review its crop rectangles and regenerate the
+associated close-ups. Check that each label is complete and that no unrelated
+control intrudes into the crop. Refresh the README hero from the overview as well.

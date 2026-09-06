@@ -15,6 +15,12 @@
 - Native OS picker dialogs were not exercised; browser automation supplied files
   through the normal file input. No macOS/Linux launcher checks were performed.
 
+The later [picture-guide capture](images/README.md) uses the same XOR source with
+1-pixel borders for all loaded views. It records 11 full screenshots, 16 exact
+crops, and the observed counts, cell selections, grid scale, and ruler readings.
+The XOR file uses a 1 µm library user unit; other user units are not covered by
+these measurement checks and currently produce misleading physical-unit labels.
+
 The documentation files are not application dependencies. Removing the demo script
 also removes its startup base64 payload and decoding path. File parsing retains
 existing resource limitations; the external examples are not geometry correctness

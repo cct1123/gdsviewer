@@ -11,8 +11,10 @@ through its normal picker or drag-and-drop controls.
 ![XOR layout with all layers visible](viewer-xor.png)
 
 Toggle a layer chip to inspect overlapping geometry, drag to pan, or scroll to zoom.
-Select **Measure**, then click two points to place a ruler; press **m** to leave
-measurement mode. **Fit View** returns to the full layout.
+Select **Measure**, then click two points to place a ruler. Measurement mode ends
+after the second click; press **m** to cancel an unfinished ruler. **Fit View**
+returns to the full layout. For the full walkthrough, open the
+[guide in pictures](user-guide.md).
 
 For other illustrations, load `inv.gds2`, `nand2.gds2`, or `1Kpolyg.gds` from the same
 folder. The files are unchanged downloads from [YZUDA](https://www.yzuda.org/download/_GDSII_examples.html);

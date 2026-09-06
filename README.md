@@ -1,189 +1,156 @@
 # GDS Viewer
 
-Open a `.gds` or `.gds2` chip-layout file, explore its layers, and measure distances in your
-browser. Your files stay on your computer.
+Take a closer look at a chip layout, one layer at a time. GDS Viewer opens `.gds`
+and `.gds2` files in your browser, where you can move around the design, inspect
+individual cells, and measure distances. Your files stay on your computer.
 
-**No Python, uv, installation, or build step is needed to use the viewer.**
-The drawing library is included, so the viewer can work offline.
+There is nothing to install or build. The drawing library is included, so you can
+use the viewer offline too.
 
-## Project objective
+![YZUDA's XOR layout in GDS Viewer, with the cell tree and layer controls on the left](docs/viewer-xor.png)
 
-Make local GDSII inspection dependable: correct supported geometry and units,
-consistent hierarchy controls, responsive navigation, and useful errors. Keep files
-in the browser and the viewer usable without installation, a build, or a backend.
-Prioritize correctness and usability over more formats or infrastructure.
-Contributor guidance is in [AGENTS.md](AGENTS.md).
+New to layout viewers? The [guide in pictures](docs/user-guide.md) walks through
+this same XOR layout, with close-ups of each control and the result of using it.
 
-![GDS Viewer displaying YZUDA's XOR gate example](docs/viewer-xor.png)
+## Open your first layout
 
-## Illustration and tutorial files
+1. Download or copy the project folder. If it is a ZIP, extract it first.
+2. Open `index.html` in your browser. Keep the JavaScript files and `vendor` folder
+   beside it. On Windows, you can also double-click `open_gds_viewer.bat`.
+3. Click **Load GDS File** and choose a `.gds` or `.gds2` file. Dragging a file into
+   the drawing area works too.
+4. Click **Fit View** whenever you want to see the whole layout again.
 
-The screenshot shows the [YZUDA XOR gate example](https://www.yzuda.org/download/_GDSII_examples.html)
-loaded with **Load GDS File**, with all layers visible. Text labels are not rendered.
-The inverter, NAND, XOR, and 1,000-polygon files are kept for documentation only.
-See the [illustration tutorial](docs/layout-tutorial.md) and
-[source attribution and checksums](examples/yzuda/README.md).
+<img src="docs/images/crops/01-load-file.png" alt="Load GDS File button and the .gds / .gds2 file hint" width="390">
 
+The viewer starts empty. To follow along with the pictures, open
+[`examples/yzuda/xor.gds2`](examples/yzuda/xor.gds2). This is the XOR example from
+[YZUDA](https://www.yzuda.org/download/_GDSII_examples.html); its original filename
+ends in `.gds2`, which the viewer accepts. The example files are included for the
+documentation and are opened with the same picker as your own files.
+[Full screenshot of the empty viewer](docs/images/01-open-viewer.jpg).
 
-**Learn by following the pictures:** open the [illustrated user guide](docs/user-guide.md)
-for focused close-ups of loading, zooming, visibility, cell selection, grid, and
-measurements. Each close-up links to the original full screenshot for context.
-
-## Start here
-
-You need the project folder, a modern browser, and a `.gds` file to view.
-If you downloaded a ZIP, **extract it first**. Keep `index.html` beside the
-JavaScript files and the `vendor` folder; do not move it out on its own.
-
-### Windows
-
-1. Open the extracted project folder in File Explorer.
-2. Find `index.html`, right-click it, and choose **Open with** and your browser.
-   You can also double-click `open_gds_viewer.bat` to use your default browser.
-3. Click **Load GDS File** and choose your `.gds` file. You can also drag the file
-   onto the large viewing area.
-4. Click **Fit View** to bring the layout into view.
-
-The page starts empty until you choose a file. To try a small example, load
-`tests/fixtures/hierarchy.gds` from the project folder.
-
-<img src="docs/images/crops/01-load-file.png" alt="Load GDS File button and the drag-and-drop hint" width="426">
-
-*Start with this button in the left sidebar.* [Full screenshot](docs/images/01-open-viewer.jpg)
-
-### macOS and Linux
-
-Open `index.html` with your browser, then follow steps 3 and 4 above. The optional
-`open_gds_viewer.sh` launcher opens the same page. Launchers accept no arguments;
-choose the layout inside the browser.
-
-**Testing note:** direct `file://` loading of the XOR documentation file was tested
-in headless Microsoft Edge on Windows. Root and subdirectory hosting also passed.
-Native OS picker dialogs, macOS/Linux launchers, and other browser engines remain
-unverified for this update; see [validation details](docs/yzuda-demo-validation.md).
-
-## If opening the HTML directly does not work
-
-You can use the included local server. This option requires Node.js and the full
-project folder, including `tests/`. It still uses no Python, and layout files are
-read inside your browser.
-
-1. Open a terminal in the project folder, the folder containing `index.html`.
-   On Windows, you can open PowerShell and change to that folder. For example,
-   if you saved the project at `C:\projects\gdsviewer`, run:
-
-   ```powershell
-   cd "C:\projects\gdsviewer"
-   ```
-
-2. Start the server:
-
-   ```text
-   node tests/serve.cjs
-   ```
-
-3. Copy the address printed after **Static test viewer:** into your browser.
-   It starts with `http://127.0.0.1:`; the port number is chosen each time.
-   The separate **Browser checks:** address is for developers.
-4. Leave the terminal open while using the viewer. Press **Ctrl+C** in that
-   terminal when you want to stop the server.
-
-The server is available only on your computer. If the terminal says `node` is not
-recognized or not found, Node.js is not available there. Install Node.js to use this
-optional method; the viewer itself does not require it.
+On macOS or Linux, open `index.html` with a browser, or use `./open_gds_viewer.sh`.
+Direct file opening has been checked in headless Edge on Windows. The native OS
+picker dialogs and macOS/Linux launchers have not been checked in this update.
 
 ## Find your way around
 
-| What you want to do | How to do it |
+| When you want to… | Try this |
 | --- | --- |
-| Open another layout | Click **Load GDS File**, or drop another `.gds` file onto the viewer. |
-| Move around the layout | Click and drag in the viewing area. |
-| Zoom in or out | Scroll the mouse wheel, or hold **z** to zoom in and **x** to zoom out at the pointer. |
-| See the whole layout again | Click **Fit View**. |
-| Show or hide parts of the layout | Toggle individual layers or cells in the sidebar. **Show All** and **Hide All** affect all of them. |
-| Show a reference grid | Click **Grid**. |
-| Check the current scale | Read the scale bar in the viewing area. |
+| Move across the layout | Click and drag in the drawing area. |
+| Get a closer look | Scroll the wheel, or hold **z** to zoom in and **x** to zoom out at the pointer. |
+| Return to the overview | Click **Fit View**. |
+| Hide a layer or cell | Click its name in the sidebar. Click again to bring it back. |
+| Restore everything you hid | Click **Show All**. |
+| Add a reference grid | Click **Grid**. The scale bar shows the current distance scale. |
+| Open another file | Use **Load GDS File** again, or drop the file into the viewer. |
 
-<img src="docs/images/crops/04-layer-controls.png" alt="Layer controls with L7/D3 faded because it is hidden" width="425">
+The sidebar scrolls separately from the drawing. If you cannot see all the layers
+or the measurement list, scroll inside the sidebar.
 
-*Click a layer button to hide or restore its shapes. A faded button means hidden.*
-[Visibility walkthrough](docs/user-guide.md#4-show-or-hide-layers-and-cells) ·
-[Full screenshot](docs/images/04-layer-visibility.jpg)
+<img src="docs/images/crops/04-layer-controls.png" alt="XOR layer controls with L47/D0 faded because it is hidden" width="390">
+
+A faded layer button means that layer is hidden. Here, **L47/D0** is off: that is
+layer 47, datatype 0. Nothing is deleted from the file.
+[See the visibility walkthrough](docs/user-guide.md#4-show-or-hide-layers-and-cells).
 
 ### Measure a distance
 
-1. Click **Measure** or press **m**.
-2. Click a starting point, then an ending point to create a ruler.
-3. Hold **Ctrl** while choosing the second point to keep the ruler horizontal or vertical.
+Click **Measure** (or press **m**), then click two points. Hold **Ctrl** while
+choosing the second point to keep the ruler horizontal or vertical.
 
-<img src="docs/images/crops/09-ruler-detail.png" alt="A ruler measuring 20.0 um horizontally between two repeated shapes" width="786">
+<img src="docs/images/crops/09-ruler-detail.png" alt="A horizontal ruler on the XOR layout reading 30.1 um, with dy 0.0 nm" width="620">
 
-*This example measures 20 micrometres. The label also shows horizontal (`dx`) and
-vertical (`dy`) distances.* [Full screenshot](docs/images/09-measure-distance.jpg)
+This ruler spans two matching contact regions near the top of the XOR layout and
+reads **30.1 µm**. Your result may vary a little with the points you choose. The
+label also gives `dx`, the horizontal distance, and `dy`, the vertical distance.
+[Follow the measurement steps](docs/user-guide.md#8-measure-a-distance).
 
-While measuring, drag with the right mouse button to move the view. Use a ruler's
-delete button, or select it in the measurement list and press **Delete**, to remove it.
-After the second point, measuring ends automatically and normal navigation resumes.
-Click **Measure** again to start another ruler. To cancel an unfinished ruler,
-click **Measure** or press **m** before choosing its second point.
+After the second click, the ruler is saved and normal dragging resumes. Click
+**Measure** again for another ruler. While drawing a ruler, use a right-button drag
+to pan. Press **m** to cancel an unfinished ruler, or use **Delete** beside a saved
+measurement to remove it.
 
-See the [measurement walkthrough](docs/user-guide.md#8-measure-a-distance) for a
-20 micrometre example and screenshots of the saved ruler and Delete button.
+### Look inside one cell
 
-### Choose which cells to display
+A **cell** is a named group of shapes. It can contain copies of other cells; that
+nesting is the **hierarchy**. You can leave these settings alone at first:
 
-A **cell** is a named group of shapes that can include copies of other cells.
-This nesting is called the **hierarchy**. You can leave the default settings alone
-when first opening a file.
-
-- **Root cell:** leave **All top-level cells** selected to view the design roots,
-  or choose a specific cell to inspect it.
-- **Hierarchy depth:** leave this blank to include all nested levels. Enter `0`
-  to show only the selected root's own shapes, or `1` to also include its immediate
-  child cells.
+- **Root cell** chooses what to inspect. Keep **All top-level cells** for the full
+  design, or choose a cell such as `nand2` in the XOR example.
+- **Hierarchy depth** controls how far into the nested cells to look. Leave it
+  blank for all levels. `0` shows only the root's own shapes; `1` adds its children.
 - Click **Apply view options** after changing either setting.
 
-Applying view options resets visibility choices and clears measurements. Loading
-another file also clears measurements.
-
-See the close-ups for [choosing a root cell](docs/user-guide.md#5-inspect-one-cell)
-and [setting hierarchy depth](docs/user-guide.md#6-limit-the-hierarchy-depth).
+Applying these options resets hidden layers and cells, and clears measurements.
+The guide shows [one cell on its own](docs/user-guide.md#5-inspect-one-cell) and
+[the root at depth zero](docs/user-guide.md#6-limit-the-hierarchy-depth).
 
 ## Troubleshooting
 
 | What you see | What to try |
 | --- | --- |
-| An empty viewer at startup | Click **Load GDS File** and select a `.gds` file. Nothing loads automatically. |
-| A loaded layout looks blank | Click **Show All**, then **Fit View**. Select **All top-level cells**, clear **Hierarchy depth**, and apply the options. An empty cell has no shapes to display. |
-| “PixiJS failed to load” | Extract the whole project again and keep the `vendor` folder beside `index.html`. It contains the drawing library. |
-| The page opens in a text editor | Right-click `index.html` and use **Open with** to choose a browser. |
-| A file produces a parsing or unsupported-path error | Try the included `tests/fixtures/hierarchy.gds` example. The viewer supports only the geometry described below; a failed parse leaves the previous layout available. |
-| A large layout makes the browser slow | Try a smaller layout. Once it loads, selecting one cell or a lower hierarchy depth may reduce what is drawn. These options cannot prevent every slow or oversized load. |
+| An empty viewer when it opens | Choose a file with **Load GDS File**. Nothing loads automatically. |
+| A loaded layout looks blank | Click **Show All**, then **Fit View**. If needed, choose **All top-level cells**, clear the depth field, and apply. An empty cell has no shapes to show. |
+| “PixiJS failed to load” | Extract the full project again. The `vendor` folder must sit beside `index.html`. |
+| The page opens in a text editor | Right-click `index.html` and use **Open with** to select your browser. |
+| A parsing or unsupported-path error | Try the XOR documentation file to check that the viewer is working. Some GDSII geometry is not supported; a failed parse leaves the previous layout available. |
+| A large layout feels slow | Try a smaller file. Once it loads, choosing one root cell or a lower depth may help, but these options cannot prevent every oversized load. |
+
+### If opening the HTML directly does not work
+
+You can serve the folder locally. This optional route needs Node.js; simply opening
+`index.html` does not.
+
+1. Open a terminal in the project folder. For example, in PowerShell:
+
+   ```powershell
+   cd "C:\projects\gdsviewer"
+   ```
+
+2. Start the helper:
+
+   ```text
+   node tests/serve.cjs
+   ```
+
+3. Open the address printed after **Static test viewer:**. Its port number changes
+   each time. The other address, **Browser checks:**, runs the developer tests.
+4. Leave the terminal open while you use the viewer. Press **Ctrl+C** there to stop it.
+
+The helper is available only on your computer. If `node` is not found, install
+Node.js to use this option, or try opening `index.html` in another browser.
 
 ## Supported layouts and limits
 
 Tests cover polygons, straight paths with flush, square, and explicit end extensions,
 nested and repeated cells, rectangular arrays, rotation, magnification, reflection,
-separate layers and datatypes, multiple roots, and hierarchy-depth limits.
-Empty cells display an empty view. Libraries with no cells and malformed record
-framing produce errors. Round-ended paths produce an explicit unsupported error.
-Zero padding after ENDLIB is accepted; nonzero trailing data is rejected.
+separate layers and datatypes, multiple roots, and hierarchy-depth limits. Empty
+cells open as empty views. Malformed record framing produces an error. Zero padding
+after ENDLIB is accepted; nonzero trailing data is rejected. Round-ended paths
+produce an explicit unsupported error.
 
 This is not a complete GDSII implementation. Text, boxes, nodes, properties, unusual
 reference flags, vendor extensions, and arbitrary path joins are not guaranteed to
 render correctly. Some unsupported elements are skipped. Model coordinates are
-rounded to 0.001 of the file's library user unit.
+rounded to 0.001 of the file's library user unit. The XOR pictures show supported
+geometry; they do not include the file's text labels.
 
-Files are processed in browser memory and are not uploaded. Replacing a layout
-releases its old drawing resources, but there are no enforced file-size, geometry,
-processing-time, or memory limits. Large or heavily repeated layouts can pause the
-browser or exhaust memory. Hierarchy depth is a viewing option, not a complete
-resource limit.
+Distance labels currently assume that one library user unit is one micrometre,
+as it is in the XOR example. Files using other user units can display misleading
+measurement, coordinate, and scale-bar labels; check the file's units before relying
+on those readings.
+
+Files are processed in browser memory and are not uploaded. Old drawing resources
+are released when you replace a layout, but there are no enforced file-size,
+geometry-count, processing-time, or memory limits. A heavily repeated layout can
+pause the browser or exhaust memory. Hierarchy depth is a viewing option, not a
+complete resource limit.
 
 ## Share or host the viewer
 
-Keep these files together when copying the viewer to another computer or a static
-web host:
+Keep these files together when copying the viewer or putting it on a static web host:
 
 ```text
 index.html
@@ -196,24 +163,20 @@ vendor/
 LICENSE
 ```
 
-The launchers and this README are optional conveniences. Keep `tests/` as well if
-you want the example layouts, local server, or developer checks. Static hosting
-also works under a subdirectory. There is no build step or application backend.
-Keep `docs/`, including `docs/images/`, if you want the illustrated instructions
-and README pictures to remain available with your copy. Keep `examples/yzuda/`
-with its attribution if you also include the documentation layouts.
+The launchers and README are optional. Include `docs/` for the illustrated guide,
+and `examples/yzuda/` with its attribution for the tutorial layouts. Keep `tests/`
+if you want the local server or developer checks. Static hosting also works under
+a subdirectory; no backend or build step is required.
 
-The `main` branch is the Python-free version. The previous Python launcher version
-is preserved on `python-launch`. Commands such as `uv run gdsviewer`, the Python
-API, and `/api/*` endpoints are retired on `main`. See the
-[migration record](docs/javascript-migration.md) for details.
+The former Python API and `/api/*` endpoints are retired on `main`. See the
+[migration record](docs/javascript-migration.md) if you used the older viewer.
 
 ## For developers
 
-You can skip this section if you only want to view layouts.
+The project aims to make local GDSII inspection dependable and easy to use, with
+plain JavaScript and local assets. [AGENTS.md](AGENTS.md) has the contributor guidance.
 
-Development checks use Node.js, validated with version 24.14.1. There are no npm
-packages to install. From the project folder, run:
+Development checks use Node.js (validated with 24.14.1). No npm packages are needed:
 
 ```text
 node --check gds_parser.js
@@ -222,24 +185,22 @@ node --check tests/browser-smoke.js
 node --test tests/*.test.cjs
 ```
 
-If a sandbox blocks test child processes with `spawn EPERM`, Node 24 also supports
-`node --test --test-isolation=none tests/*.test.cjs`. Record use of this fallback;
-ordinary assertion failures still need diagnosis.
+If a sandbox blocks test processes with `spawn EPERM`, use
+`node --test --test-isolation=none tests/*.test.cjs` on Node 24 and record the fallback.
+The suite checks independent reference models, malformed inputs, and static asset
+delivery. See [fixture provenance](tests/fixtures/README.md).
 
-The Node suite checks saved independent reference models, malformed inputs, and
-static asset delivery. Fixture provenance is in [tests/fixtures/README.md](tests/fixtures/README.md).
+For browser checks, start the helper above and open its **Browser checks:** address.
+Click **Run browser checks** to exercise loading, navigation, visibility,
+measurements, resizing, errors, overlapping loads, and graphics cleanup. Also inspect
+the drawing and test the native picker manually on the browsers you support.
+[The screenshot record](docs/images/README.md) describes how the guide was captured.
 
-To check browser interactions, start the local server as described above, open its
-**Browser checks:** address, and click **Run browser checks**. The harness uses
-synthetic layouts and the real renderer to exercise loading, controls, navigation,
-measurements, resize, error handling, overlapping loads, and graphics cleanup.
-Also inspect the rendered layout and try the native file picker manually.
-
-The included PixiJS version, checksum, license, and update instructions are in
+PixiJS version, checksum, license, and update instructions are in
 [vendor/VENDORED.md](vendor/VENDORED.md).
 
 ## License
 
-Viewer code: MIT. See `LICENSE` and the vendored asset notices. Third-party documentation
-layouts have separate [source attribution](examples/yzuda/README.md); no explicit
-license is stated on their download page.
+Viewer code: MIT. See [LICENSE](LICENSE) and the notices in `vendor/`. The YZUDA
+layouts have their own [source attribution](examples/yzuda/README.md); their download
+page does not state an explicit license.
