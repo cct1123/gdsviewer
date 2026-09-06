@@ -16,7 +16,7 @@ test("vendored PixiJS retains the upstream bytes and license notice", () => {
 test("entry point uses existing relative classic scripts", () => {
   const html = fs.readFileSync(path.join(root, "index.html"), "utf8");
   const scripts = [...html.matchAll(/<script\b[^>]*src="([^"]+)"[^>]*>/g)].map((match) => match[1]);
-  assert.deepEqual(scripts, ["./vendor/pixi.min.js", "./gds_parser.js", "./gds_viewer.js"]);
+  assert.deepEqual(scripts, ["./vendor/pixi.min.js", "./gds_parser.js", "./examples/yzuda/demo-data.js", "./gds_viewer.js"]);
   assert.doesNotMatch(html, /type="module"|https?:\/\/|__INITIAL/);
   for (const script of scripts) assert.ok(fs.statSync(path.join(root, script)).isFile());
   assert.doesNotMatch(fs.readFileSync(path.join(root, "open_gds_viewer.sh"), "utf8"), /\r/);
@@ -41,7 +41,7 @@ test("static helper serves root and nested assets and exposes no API", async () 
       const page = await fetch(base + prefix);
       assert.equal(page.status, 200);
       assert.match(page.headers.get("Content-Type"), /text\/html/);
-      for (const asset of ["gds_parser.js", "gds_viewer.js", "vendor/pixi.min.js"]) {
+      for (const asset of ["gds_parser.js", "gds_viewer.js", "vendor/pixi.min.js", "examples/yzuda/demo-data.js"]) {
         const response = await fetch(base + prefix + asset);
         assert.equal(response.status, 200);
         assert.match(response.headers.get("Content-Type"), /javascript/);

@@ -4,17 +4,30 @@ A standalone GDSII viewer built with plain JavaScript and vendored PixiJS. Files
 parsed and rendered in your browser. No Python, uv, Node.js, backend API, or internet
 connection is required by the viewer.
 
+![GDS Viewer displaying YZUDA's XOR gate example](docs/viewer-xor.png)
+
+## Try the examples
+
+Open `index.html`, choose an **Example layout**, and select **Load example**.
+The bundled [YZUDA GDSII examples](https://www.yzuda.org/download/_GDSII_examples.html)
+include an inverter, NAND gate, XOR gate, and a random layout with 1,000 polygons.
+They load locally with no download or server needed. The screenshot above shows
+`xor.gds2` with all layers visible; text labels are not rendered.
+Original files, attribution, checksums, and the offline payload regeneration command
+are in [examples/yzuda](examples/yzuda/README.md).
+
 ## Open a layout
 
 Open `index.html` in a modern browser, then choose **Load GDS File** or drop a `.gds`
-file onto the viewer. Keep `gds_parser.js`, `gds_viewer.js`, and the `vendor` folder
+or `.gds2` file onto the viewer. Keep `gds_parser.js`, `gds_viewer.js`, and the `vendor` and `examples` folders
 beside the HTML file. You can also serve this folder from any static web host,
 including under a subdirectory. There is no install or build step.
 
 `open_gds_viewer.bat` on Windows and `./open_gds_viewer.sh` on macOS/Linux open the
 page with the default browser. They do not start a server and accept no arguments.
-Direct `file://` launch is an intended mode but could not be exercised by the browser
-automation used for this migration; see [validation notes](docs/javascript-migration.md).
+Direct `file://` loading of the bundled XOR example was tested in headless Microsoft
+Edge on Windows. Native file-picker dialogs and macOS/Linux launchers were not
+tested for this update; see [demo validation](docs/yzuda-demo-validation.md).
 
 After loading a file:
 
@@ -42,6 +55,7 @@ end extensions, nested references, rectangular reference arrays, rotation,
 magnification, reflection, layer/datatype separation, multiple roots, and depth limits.
 Empty cells display an empty view; libraries without cells and malformed record
 framing produce errors. Round-ended paths fail explicitly.
+Zero padding after an ENDLIB record is accepted; nonzero trailing data is rejected.
 
 This is not a complete GDSII implementation. Text, boxes, nodes, properties, uncommon
 reference flags, vendor extensions, and arbitrary path joins are not guaranteed to
@@ -51,7 +65,8 @@ view model retain the previous viewer's rounding to 0.001 library user units.
 ## Distribution
 
 The application consists of `index.html`, `gds_parser.js`, `gds_viewer.js`, and
-`vendor/pixi.min.js`. Include the `vendor` notices and `LICENSE` when distributing it;
+`vendor/pixi.min.js`, plus `examples/yzuda/demo-data.js` for the offline demos.
+Include the `vendor` notices, `examples/yzuda/README.md` attribution, and `LICENSE` when distributing it;
 the launchers and README are optional conveniences. No generated Python package is
 needed. PixiJS version, checksum, source, and update instructions are recorded in
 [vendor/VENDORED.md](vendor/VENDORED.md).
@@ -90,4 +105,6 @@ Stop it with Ctrl+C. Also inspect the viewer visually and exercise a native file
 
 ## License
 
-MIT. See `LICENSE` and the vendored asset notices.
+Viewer code: MIT. See `LICENSE` and the vendored asset notices. Third-party demo
+layouts have separate [source attribution](examples/yzuda/README.md); no explicit
+license is stated on their download page.

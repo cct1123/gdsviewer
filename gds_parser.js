@@ -324,6 +324,17 @@
           break;
       }
       offset = end;
+      if (recordType === RECORD.ENDLIB) {
+        if (length !== 4 || bytes[dataStart - 1] !== 0) {
+          throw new Error("Invalid GDSII ENDLIB record.");
+        }
+        // Some writers pad the final tape block with null bytes.
+        for (; offset < bytes.length; offset += 1) {
+          if (bytes[offset] !== 0) {
+            throw new Error(`Unexpected data after GDSII ENDLIB at byte ${offset}.`);
+          }
+        }
+      }
     }
 
     if (currentCell || element) {

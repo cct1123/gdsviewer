@@ -388,9 +388,21 @@
         <h3>Load GDS</h3>
         <div class="file-row">
           <button id="load-file-button" type="button">Load GDS File</button>
-          <input id="file-input" type="file" accept=".gds" hidden>
+          <input id="file-input" type="file" accept=".gds,.gds2" hidden>
         </div>
-        <p class="section-hint">Use the picker or drag a <code>.gds</code> file onto the viewer.</p>
+        <p class="section-hint">Use the picker or drag a <code>.gds</code> / <code>.gds2</code> file onto the viewer.</p>
+        <div class="load-options">
+          <label for="demo-select">Example layout
+            <select id="demo-select">
+              <option value="xor.gds2">XOR gate</option>
+              <option value="nand2.gds2">NAND gate</option>
+              <option value="inv.gds2">Inverter</option>
+              <option value="1Kpolyg.gds">1,000 polygons</option>
+            </select>
+          </label>
+          <button id="load-demo-button" type="button">Load example</button>
+        </div>
+        <p class="section-hint">Examples from YZUDA. <a href="./examples/yzuda/README.md">Source details</a></p>
       </div>
 
       <form id="view-options" class="load-options">
@@ -449,6 +461,7 @@
   <!-- PixiJS is vendored locally (see vendor/VENDORED.md); no CDN needed. -->
   <script src="./vendor/pixi.min.js"></script>
   <script src="./gds_parser.js"></script>
+  <script src="./examples/yzuda/demo-data.js"></script>
   <script src="./gds_viewer.js"></script>
 </body>
 </html>

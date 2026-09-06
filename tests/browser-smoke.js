@@ -76,6 +76,21 @@ runButton.addEventListener("click", async () => {
       assert(doc.querySelectorAll("canvas").length === 1, "Missing or duplicate canvas");
       assert(get("cell-select").options.length === 5, "Missing cell options");
     });
+    await check("gds2 extension loads through picker and drop", async () => {
+      await load(bytes.hierarchy, "hierarchy.GDS2");
+      await load(bytes.hierarchy, "hierarchy.gds2", true);
+      assert(/Visible polygons: 9$/.test(status()), status());
+    });
+    await check("all offline demo examples render", async () => {
+      for (const name of ["inv.gds2", "nand2.gds2", "xor.gds2", "1Kpolyg.gds"]) {
+        get("demo-select").value = name;
+        get("load-demo-button").click();
+        await until(() => ready() && warning() === "" && doc.title === `GDS Viewer: ${name}`, `demo ${name}`);
+        assert(!/Visible polygons: 0$/.test(status()), status());
+        assert(doc.querySelectorAll("canvas").length === 1, "Demo reload duplicated canvas");
+      }
+      await load(bytes.hierarchy, "hierarchy.gds");
+    });
     await check("root selection and depth controls", async () => {
       await apply("TOP", "0");
       assert(/Visible polygons: 1$/.test(status()), status());

@@ -8,6 +8,17 @@ const { parseGds, buildGdsViewModel, pathToPolygon } = require("../gds_parser.js
 const fixture = (name) => fs.readFileSync(path.join(__dirname, "fixtures", name));
 const manifest = JSON.parse(fixture("manifest.json"));
 
+test("ENDLIB accepts null padding but rejects trailing data and malformed end records", () => {
+  const original = fixture("hierarchy.gds");
+  const padded = Buffer.concat([original, Buffer.alloc(2048)]);
+  assert.deepEqual(parseGds(padded), parseGds(original));
+  padded[padded.length - 1] = 1;
+  assert.throws(() => parseGds(padded), /Unexpected data after GDSII ENDLIB/);
+  assert.throws(() => parseGds(Buffer.concat([original.subarray(0, -4), Buffer.alloc(8)])), /Invalid GDSII record length/);
+  assert.throws(() => parseGds(Uint8Array.of(0, 6, 4, 0, 0, 0)), /Invalid GDSII ENDLIB/);
+  assert.throws(() => parseGds(Uint8Array.of(0, 4, 4, 2)), /Invalid GDSII ENDLIB/);
+});
+
 // gdstk adds collinear vertices at path extensions. Remove those exact splits,
 // then normalize cyclic starting vertex/winding while retaining connectivity.
 function canonicalPolygon(coordinates) {
