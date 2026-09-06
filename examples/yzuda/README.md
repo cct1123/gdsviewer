@@ -1,4 +1,4 @@
-# YZUDA demonstration layouts
+# YZUDA documentation layouts
 
 Downloaded on 2026-09-06 from [GDSII Layout Examples](https://www.yzuda.org/download/_GDSII_examples.html).
 These third-party example layouts are attributed to YZUDA; the viewer's MIT license
@@ -13,12 +13,12 @@ does not relicense them. The source page supplies no explicit license statement.
 
 The GDS bytes are unchanged, including zero padding after ENDLIB in the gate files.
 The NAND and XOR downloads both name their root `abc2`; the labels above follow the
-source page. These files are demo inputs, not independent geometry reference models.
+source page. These files are documentation inputs, not independent geometry reference models.
 Text labels are skipped by the viewer; the screenshot shows supported geometry.
 
-`demo-data.js` contains the same bytes encoded as base64 so **Load example** works
-without fetching files, including when opening the viewer locally. Regenerate it
-after deliberately replacing source files with `node examples/yzuda/build-demo.cjs`.
+These files support the README illustration and [tutorial](../../docs/layout-tutorial.md).
+Use the normal **Load GDS File** picker to open them. They are not loaded by the
+viewer at startup and are not required in an application distribution.
 
 SHA256:
 

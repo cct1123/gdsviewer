@@ -20,11 +20,11 @@ Commit, merge, tag, push, and publish each require explicit user authorization.
 ## Architecture
 
 - `gds_parser.js`: byte decoding and hierarchy-aware models; no DOM or PixiJS.
-- `gds_viewer.js`: local file/example loading, rendering, controls, and interaction.
+- `gds_viewer.js`: local file loading, rendering, controls, and interaction.
 - `index.html`: layout, styles, and relative classic scripts.
 - `vendor/`: pinned PixiJS; follow [VENDORED.md](vendor/VENDORED.md) for updates.
-- `examples/yzuda/`: attributed demos; follow its [README](examples/yzuda/README.md).
-  Regenerate `demo-data.js` with `node examples/yzuda/build-demo.cjs`; never hand-edit it.
+- `examples/yzuda/`: layouts for documentation only; preserve the source attribution
+  in its [README](examples/yzuda/README.md). These are not runtime dependencies.
 - `tests/`: Node tests, independent fixtures, and a real-browser harness.
   `tests/serve.cjs` is a loopback-only development helper.
 - `open_gds_viewer.bat` / `.sh`: open the static page in the default browser.
@@ -62,13 +62,14 @@ and Node suite for code changes; verify facts and links for documentation change
   roots, transforms, repetitions, shared references, cycles, bounds, and depth.
 - Viewer/HTML: run the browser harness and visually check affected interactions,
   including loading, visibility, navigation, measurements, overlays, resize, and
-  reload cleanup. Use non-confidential synthetic fixtures; demo files are not
+  reload cleanup. Use non-confidential synthetic fixtures; documentation layouts are not
   independent reference models. Check root/subdirectory hosting for asset changes.
 - Performance: measure representative layouts and reloads; small smoke tests do
   not establish responsiveness or a hard memory bound.
 - Launchers/releases: test the actual OS/browser and extracted distribution,
-  including offline demos, notices, attribution, and LICENSE. Follow README's
-  distribution list. Report untested platforms and policy blocks without bypassing them.
+  including offline assets, required notices, and LICENSE. Preserve attribution when
+  distributing documentation layouts. Follow README's distribution list. Report
+  untested platforms and policy blocks without bypassing them.
 
 Report what changed, why, validation results, unresolved findings, and worktree
 status. Distinguish completed work from proposals and unperformed checks.
