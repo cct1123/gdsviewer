@@ -1,0 +1,137 @@
+{
+  "title": "Reference fixture",
+  "cellName": "LEAF",
+  "bounds": {
+    "xmin": 0.0,
+    "ymin": 0.0,
+    "xmax": 4.0,
+    "ymax": 3.5
+  },
+  "groups": [
+    {
+      "id": "root:0::4:2",
+      "cellId": "root:0",
+      "cellName": "LEAF",
+      "layer": 4,
+      "datatype": 2,
+      "layerKey": "L4/D2",
+      "cssColor": "#f06595",
+      "count": 1,
+      "templateId": "LEAF::4:2",
+      "transform": [
+        1.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "offset": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "root:0::7:3",
+      "cellId": "root:0",
+      "cellName": "LEAF",
+      "layer": 7,
+      "datatype": 3,
+      "layerKey": "L7/D3",
+      "cssColor": "#339af0",
+      "count": 1,
+      "templateId": "LEAF::7:3",
+      "transform": [
+        1.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "offset": [
+        0.0,
+        0.0
+      ]
+    }
+  ],
+  "templates": [
+    {
+      "id": "LEAF::4:2",
+      "cellName": "LEAF",
+      "layer": 4,
+      "datatype": 2,
+      "layerKey": "L4/D2",
+      "cssColor": "#f06595",
+      "polygonCount": 1,
+      "polygons": [
+        {
+          "polygon": [
+            0.0,
+            3.5,
+            0.0,
+            2.5,
+            4.0,
+            2.5,
+            4.0,
+            3.5
+          ]
+        }
+      ]
+    },
+    {
+      "id": "LEAF::7:3",
+      "cellName": "LEAF",
+      "layer": 7,
+      "datatype": 3,
+      "layerKey": "L7/D3",
+      "cssColor": "#339af0",
+      "polygonCount": 1,
+      "polygons": [
+        {
+          "polygon": [
+            0.0,
+            0.0,
+            2.0,
+            0.0,
+            2.0,
+            1.0,
+            0.0,
+            1.0
+          ]
+        }
+      ]
+    }
+  ],
+  "cellTree": {
+    "roots": [
+      "LEAF"
+    ],
+    "nodes": [
+      {
+        "id": "LEAF",
+        "name": "LEAF",
+        "children": []
+      }
+    ]
+  },
+  "cells": [
+    {
+      "id": "LEAF",
+      "name": "LEAF",
+      "children": []
+    }
+  ],
+  "layers": [
+    {
+      "key": "L4/D2",
+      "label": "L4/D2",
+      "layer": 4,
+      "datatype": 2,
+      "cssColor": "#f06595"
+    },
+    {
+      "key": "L7/D3",
+      "label": "L7/D3",
+      "layer": 7,
+      "datatype": 3,
+      "cssColor": "#339af0"
+    }
+  ]
+}

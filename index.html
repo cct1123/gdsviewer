@@ -28,6 +28,7 @@
       color: var(--viewer-text);
     }
     .viewer {
+      box-sizing: border-box;
       display: grid;
       grid-template-columns: 300px minmax(0, 1fr);
       height: calc(100vh - 32px);
@@ -43,7 +44,7 @@
       background: var(--viewer-panel);
       border-right: 1px solid var(--viewer-border);
       padding: 16px;
-      overflow: hidden;
+      overflow: auto;
       min-height: 0;
     }
     .title {
@@ -64,7 +65,7 @@
       gap: 8px;
       margin-bottom: 14px;
     }
-    button, input[type="text"] {
+    button, input[type="text"], input[type="number"], select {
       border: 1px solid var(--viewer-border);
       background: rgba(255, 251, 255, 0.96);
       border-radius: 8px;
@@ -88,8 +89,8 @@
       margin-top: 16px;
     }
     .cell-section {
-      flex: 1 1 auto;
-      min-height: 0;
+      flex: 1 0 150px;
+      min-height: 150px;
       display: flex;
       flex-direction: column;
     }
@@ -246,6 +247,25 @@
       display: grid;
       gap: 8px;
     }
+    .load-options {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .load-options label {
+      display: grid;
+      gap: 4px;
+      font-size: 12px;
+    }
+    .load-options input, .load-options select {
+      width: 100%;
+      min-width: 0;
+      box-sizing: border-box;
+    }
+    button:disabled, input:disabled, select:disabled {
+      opacity: 0.55;
+      cursor: default;
+    }
     .stage {
       position: relative;
       overflow: hidden;
@@ -372,6 +392,19 @@
         </div>
         <p class="section-hint">Use the picker or drag a <code>.gds</code> file onto the viewer.</p>
       </div>
+
+      <form id="view-options" class="load-options">
+        <label for="cell-select">Root cell
+          <select id="cell-select" disabled>
+            <option value="">All top-level cells</option>
+          </select>
+        </label>
+        <label for="depth-input">Hierarchy depth
+          <input id="depth-input" type="number" min="0" step="1" placeholder="All levels" disabled>
+        </label>
+        <button id="apply-options-button" type="submit" disabled>Apply view options</button>
+        <p class="section-hint">Depth 0 shows only root geometry. Applying options resets measurements.</p>
+      </form>
 
       <div class="toolbar">
         <button id="fit-button" type="button">Fit View</button>

@@ -1,0 +1,86 @@
+{
+  "title": "Reference fixture",
+  "cellName": "A",
+  "bounds": {
+    "xmin": 0.0,
+    "ymin": 0.0,
+    "xmax": 2.0,
+    "ymax": 1.0
+  },
+  "groups": [
+    {
+      "id": "root:0::1:0",
+      "cellId": "root:0",
+      "cellName": "A",
+      "layer": 1,
+      "datatype": 0,
+      "layerKey": "L1/D0",
+      "cssColor": "#5c7cfa",
+      "count": 1,
+      "templateId": "A::1:0",
+      "transform": [
+        1.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "offset": [
+        0.0,
+        0.0
+      ]
+    }
+  ],
+  "templates": [
+    {
+      "id": "A::1:0",
+      "cellName": "A",
+      "layer": 1,
+      "datatype": 0,
+      "layerKey": "L1/D0",
+      "cssColor": "#5c7cfa",
+      "polygonCount": 1,
+      "polygons": [
+        {
+          "polygon": [
+            0.0,
+            0.0,
+            2.0,
+            0.0,
+            2.0,
+            1.0,
+            0.0,
+            1.0
+          ]
+        }
+      ]
+    }
+  ],
+  "cellTree": {
+    "roots": [
+      "A"
+    ],
+    "nodes": [
+      {
+        "id": "A",
+        "name": "A",
+        "children": []
+      }
+    ]
+  },
+  "cells": [
+    {
+      "id": "A",
+      "name": "A",
+      "children": []
+    }
+  ],
+  "layers": [
+    {
+      "key": "L1/D0",
+      "label": "L1/D0",
+      "layer": 1,
+      "datatype": 0,
+      "cssColor": "#5c7cfa"
+    }
+  ]
+}

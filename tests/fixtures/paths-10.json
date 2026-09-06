@@ -1,0 +1,259 @@
+{
+  "title": "Reference fixture",
+  "cellName": "GDS Library",
+  "bounds": {
+    "xmin": -0.5,
+    "ymin": -0.5,
+    "xmax": 5.75,
+    "ymax": 14.0
+  },
+  "groups": [
+    {
+      "id": "root:0::4:0",
+      "cellId": "root:0",
+      "cellName": "PATHS",
+      "layer": 4,
+      "datatype": 0,
+      "layerKey": "L4/D0",
+      "cssColor": "#a5d8ff",
+      "count": 1,
+      "templateId": "PATHS::4:0",
+      "transform": [
+        1.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "offset": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "root:0::4:1",
+      "cellId": "root:0",
+      "cellName": "PATHS",
+      "layer": 4,
+      "datatype": 1,
+      "layerKey": "L4/D1",
+      "cssColor": "#74c0fc",
+      "count": 1,
+      "templateId": "PATHS::4:1",
+      "transform": [
+        1.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "offset": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "root:0::4:2",
+      "cellId": "root:0",
+      "cellName": "PATHS",
+      "layer": 4,
+      "datatype": 2,
+      "layerKey": "L4/D2",
+      "cssColor": "#f06595",
+      "count": 1,
+      "templateId": "PATHS::4:2",
+      "transform": [
+        1.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "offset": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "root:0::9:0",
+      "cellId": "root:0",
+      "cellName": "PATHS",
+      "layer": 9,
+      "datatype": 0,
+      "layerKey": "L9/D0",
+      "cssColor": "#ffd43b",
+      "count": 1,
+      "templateId": "PATHS::9:0",
+      "transform": [
+        1.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "offset": [
+        0.0,
+        0.0
+      ]
+    }
+  ],
+  "templates": [
+    {
+      "id": "PATHS::4:0",
+      "cellName": "PATHS",
+      "layer": 4,
+      "datatype": 0,
+      "layerKey": "L4/D0",
+      "cssColor": "#a5d8ff",
+      "polygonCount": 1,
+      "polygons": [
+        {
+          "polygon": [
+            0.0,
+            0.5,
+            0.0,
+            -0.5,
+            5.0,
+            -0.5,
+            5.0,
+            0.5
+          ]
+        }
+      ]
+    },
+    {
+      "id": "PATHS::4:1",
+      "cellName": "PATHS",
+      "layer": 4,
+      "datatype": 1,
+      "layerKey": "L4/D1",
+      "cssColor": "#74c0fc",
+      "polygonCount": 1,
+      "polygons": [
+        {
+          "polygon": [
+            0.0,
+            3.5,
+            -0.5,
+            3.5,
+            -0.5,
+            2.5,
+            0.0,
+            2.5,
+            5.0,
+            2.5,
+            5.5,
+            2.5,
+            5.5,
+            3.5,
+            5.0,
+            3.5
+          ]
+        }
+      ]
+    },
+    {
+      "id": "PATHS::4:2",
+      "cellName": "PATHS",
+      "layer": 4,
+      "datatype": 2,
+      "layerKey": "L4/D2",
+      "cssColor": "#f06595",
+      "polygonCount": 1,
+      "polygons": [
+        {
+          "polygon": [
+            0.0,
+            6.5,
+            -0.25,
+            6.5,
+            -0.25,
+            5.5,
+            0.0,
+            5.5,
+            5.0,
+            5.5,
+            5.75,
+            5.5,
+            5.75,
+            6.5,
+            5.0,
+            6.5
+          ]
+        }
+      ]
+    },
+    {
+      "id": "PATHS::9:0",
+      "cellName": "PATHS",
+      "layer": 9,
+      "datatype": 0,
+      "layerKey": "L9/D0",
+      "cssColor": "#ffd43b",
+      "polygonCount": 1,
+      "polygons": [
+        {
+          "polygon": [
+            0.0,
+            10.0,
+            4.0,
+            10.0,
+            4.0,
+            11.0,
+            1.0,
+            11.0,
+            1.0,
+            14.0,
+            0.0,
+            14.0
+          ]
+        }
+      ]
+    }
+  ],
+  "cellTree": {
+    "roots": [
+      "PATHS"
+    ],
+    "nodes": [
+      {
+        "id": "PATHS",
+        "name": "PATHS",
+        "children": []
+      }
+    ]
+  },
+  "cells": [
+    {
+      "id": "PATHS",
+      "name": "PATHS",
+      "children": []
+    }
+  ],
+  "layers": [
+    {
+      "key": "L4/D0",
+      "label": "L4/D0",
+      "layer": 4,
+      "datatype": 0,
+      "cssColor": "#a5d8ff"
+    },
+    {
+      "key": "L4/D1",
+      "label": "L4/D1",
+      "layer": 4,
+      "datatype": 1,
+      "cssColor": "#74c0fc"
+    },
+    {
+      "key": "L4/D2",
+      "label": "L4/D2",
+      "layer": 4,
+      "datatype": 2,
+      "cssColor": "#f06595"
+    },
+    {
+      "key": "L9/D0",
+      "label": "L9/D0",
+      "layer": 9,
+      "datatype": 0,
+      "cssColor": "#ffd43b"
+    }
+  ]
+}

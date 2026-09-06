@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>GDS Viewer browser checks</title>
+  <style>
+    body { font: 14px system-ui; margin: 16px; }
+    iframe { width: 1100px; height: 820px; border: 1px solid #aaa; }
+    pre { white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <h1>GDS Viewer browser checks</h1>
+  <button id="run" type="button">Run browser checks</button>
+  <pre id="results" role="status">Ready. Uses only synthetic test layouts.</pre>
+  <iframe id="viewer" title="Viewer under test" src="../index.html"></iframe>
+  <script src="./browser-smoke.js"></script>
+</body>
+</html>

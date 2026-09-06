@@ -6,3 +6,4 @@ pytest-cache-files-*/
 *.egg-info/
 build/
 dist/
+.worktrees/

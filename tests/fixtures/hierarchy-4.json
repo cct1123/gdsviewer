@@ -1,0 +1,86 @@
+{
+  "title": "Reference fixture",
+  "cellName": "GDS Library",
+  "bounds": {
+    "xmin": -2.0,
+    "ymin": -1.0,
+    "xmax": 3.0,
+    "ymax": 2.0
+  },
+  "groups": [
+    {
+      "id": "root:0::1:0",
+      "cellId": "root:0",
+      "cellName": "TOP",
+      "layer": 1,
+      "datatype": 0,
+      "layerKey": "L1/D0",
+      "cssColor": "#5c7cfa",
+      "count": 1,
+      "templateId": "TOP::1:0",
+      "transform": [
+        1.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "offset": [
+        0.0,
+        0.0
+      ]
+    }
+  ],
+  "templates": [
+    {
+      "id": "TOP::1:0",
+      "cellName": "TOP",
+      "layer": 1,
+      "datatype": 0,
+      "layerKey": "L1/D0",
+      "cssColor": "#5c7cfa",
+      "polygonCount": 1,
+      "polygons": [
+        {
+          "polygon": [
+            -2.0,
+            -1.0,
+            3.0,
+            -1.0,
+            3.0,
+            2.0,
+            -2.0,
+            2.0
+          ]
+        }
+      ]
+    }
+  ],
+  "cellTree": {
+    "roots": [
+      "TOP"
+    ],
+    "nodes": [
+      {
+        "id": "TOP",
+        "name": "TOP",
+        "children": []
+      }
+    ]
+  },
+  "cells": [
+    {
+      "id": "TOP",
+      "name": "TOP",
+      "children": []
+    }
+  ],
+  "layers": [
+    {
+      "key": "L1/D0",
+      "label": "L1/D0",
+      "layer": 1,
+      "datatype": 0,
+      "cssColor": "#5c7cfa"
+    }
+  ]
+}

@@ -1,37 +1,79 @@
-# Client-side migration plan
+# Python-free migration record
 
-## Current Python responsibilities
+## Result
 
-`src/gdsviewer/viewer.py` retains the Python API/reference model and serves the browser.
-Its parsing/model code is used by Python callers, parity tests, and the deprecated
-upload API; normal browser file loading and CLI preloading use `gds_parser.js` instead.
+The application is now a static folder: index.html, gds_parser.js, gds_viewer.js, and
+vendored PixiJS. Files are read through the browser File API, parsed locally, and
+rendered locally. Startup makes no preload or layer-data requests. The same relative
+classic scripts support static hosting under a subdirectory and are intended to work
+when the HTML is opened directly. There is no runtime installation or build step.
 
-1. GDSII input: `gdstk.read_gds` reads a library, `_visible_top_level_cells` filters metadata-like `$$$` roots, and `_select_gds_source` handles explicit cell selection.
-2. Geometry semantics: direct polygons and paths are collected, paths are converted to polygons, and references are expanded through rotation, magnification, x-reflection, and repetition offsets.
-3. View-model construction: cell templates are grouped by `(cell, layer, datatype)`, instances retain affine transforms, the cell tree and layer colors are built, and transformed layout bounds are calculated. Coordinates are rounded only at the JSON boundary.
-4. Delivery: a WSGI application serves static assets, preload configuration, and raw preloaded bytes. The deprecated `POST /api/load-gds` endpoint still accepts uploads and stores parsed models; `GET /api/layer-data` still serves their layer-scoped geometry. The store defaults to eight documents with oldest-first eviction. The browser does not use either endpoint. `/api/initial-data` has been removed.
+The Python modules, Python package metadata/lockfile, WSGI upload/preload/layer-data
+endpoints, and document store were removed. Development checks use Node's built-in
+test runner; tests no longer invoke Python, gdstk, NumPy, pytest, or Ruff. The optional
+Node server in tests/ serves only a fixed set of local test/application assets and is
+an optional development helper, not a viewer runtime dependency.
 
-PixiJS already owns rendering and interaction in `gds_viewer.js`: reusable graphics contexts, layer and cell visibility, pan/zoom/fit, measurements, snapping, grid, pointer coordinates, and scale bar. That rendering boundary should remain intact.
+## Compatibility changes
 
-## Browser architecture and remaining migration
+The Python API and `uv run gdsviewer ...` CLI no longer exist. The launchers open the
+static page and accept no arguments. Browsers require users to choose local files;
+the viewer does not automatically read arbitrary filesystem paths from a URL or CLI.
 
-The browser reads a selected/dropped `File` as an `ArrayBuffer`. The dependency-free `gds_parser.js` module decodes GDSII records into a library model, converts supported paths to polygons, selects roots, traverses hierarchy, and emits the PixiJS view-model contract. Parsing/model construction must not depend on the DOM or PixiJS. The renderer consumes the resulting templates, groups, layers, cell tree, and bounds locally without fetching per-layer geometry.
+Root cell and hierarchy-depth options are now in the browser. The default includes
+all design roots, with metadata-like roots filtered as before. A specific library cell
+can be selected. Blank depth expands all levels; 0 includes only root geometry.
+Applying options resets measurements and visibility. Reloads release replaced Pixi
+instances and contexts; the current parsed library stays available for option changes.
 
-For the browser, Python supplies static assets, the optional launcher, and CLI preload configuration/raw bytes. A later slice can remove the deprecated upload/layer-data endpoints and document store, decide the future of the Python API/reference model, and remove gdstk/NumPy from runtime dependencies. PixiJS is already vendored at `src/gdsviewer/vendor/pixi.min.js`, so rendering has no runtime CDN dependency; its provenance and update procedure are recorded in `src/gdsviewer/vendor/VENDORED.md`. A fully static distribution remains a later step.
+Geometry scope is unchanged. Round-ended paths remain explicitly unsupported, and
+uncommon records and arbitrary path joins remain limited. This migration does not
+establish complete GDSII compatibility or impose comprehensive browser resource limits.
 
-Browser-local file loading has no explicit file-size limit and does not send selected files to the server. The deprecated upload API defaults to a 100 MiB request limit and eight stored documents, configurable through the positive `max_upload_bytes` and `max_documents` factory arguments. These limits do not apply to browser-local loading or CLI preload delivery and do not bound parsed memory.
+## Regression coverage
 
-The pure-JavaScript parser is deliberately scoped to records needed by the current rendering contract: library units, structures, boundaries, paths, SREF/AREF references, layers/datatypes, coordinates, path width/end style, and reference transforms. Unsupported element types may be skipped, but malformed record framing and unsupported path geometry must fail clearly rather than render misleading geometry.
+Before deleting the Python implementation, six synthetic GDS fixtures and eleven
+full reference models were saved with gdstk 0.9.62 against commit 083d771. Their
+hashes, model options, and provenance are in tests/fixtures/. Geometry comparisons
+normalize floating-point noise, polygon start/winding, and exact collinear path
+extension vertices while preserving connectivity. Expected data is not generated by
+the JavaScript implementation under test.
 
-## Incremental slices
+Existing model semantics are covered by saved fixtures and Node assertions. Tests for
+the retired WSGI service and Python exports were removed with those interfaces.
+Browser checks now exercise the real DOM and renderer, including races between file
+reads, a failed selection during a render, and repeated dense hierarchical loads.
 
-1. Parser and parity harness (done): add a standalone browser/Node-compatible GDSII record parser and JavaScript view-model builder. Generate fixtures with gdstk, run the JavaScript parser under Node, and compare cells, hierarchy, transforms, repeated instances, path polygons, layer metadata, and bounds with the existing Python view model.
-2. Browser integration (done): selected/dropped `.gds` files are read as an `ArrayBuffer` and parsed entirely in the browser by `gds_parser.js`; file loading no longer calls `/api/load-gds`, and all layers/groups/templates are present locally instead of fetched per layer. CLI-preloaded layouts use `GET /api/preload` plus `GET /api/preloaded-gds`; the browser downloads the raw bytes, parses them with `gds_parser.js`, and builds the full local view model. `/api/initial-data` is removed. `/api/load-gds`, `/api/layer-data`, and the document store remain for compatibility until the next slice. Browser behavior still needs a manual smoke test (load, visibility, navigation, measurements, grid, scale bar, resize, errors); the automated suite covers parser/model parity, endpoint contracts, and client wiring, not browser rendering.
-3. Static-server reduction (next): remove the upload and layer-data endpoints and document store. Decide the future of the Python API and parity reference before removing gdstk/NumPy runtime dependencies. Serve HTML, CSS/embedded styling, parser JavaScript, renderer JavaScript, vendored PixiJS, and optional preload configuration/raw bytes. Decide and document whether CLI preloading/cell selection remains as browser startup configuration or is removed.
-4. Static distribution: make the asset directory usable with a generic static server or direct hosting. Preserve the vendored PixiJS asset and offline rendering, and update packaging, launchers, documentation, and release tests.
+## Validation for this migration
 
-## Original slice 1 scope and ongoing risks
+- Node 24.14.1 on Windows: 23 Node tests passed; parser, renderer, and browser-harness
+  syntax checks passed. The standard test command is recorded in README.md.
+- Codex in-app browser on Windows: 13 browser integration checks passed using static
+  HTTP hosting. These cover startup, file input, synthetic drop events, root/depth
+  controls, visibility, wheel/keyboard zoom, pan, fit, grid, pointer/scale overlays,
+  measurements/deletion/reset, resize, escaped filenames, empty/malformed inputs,
+  unsupported paths, overlapping selections, and missing PixiJS.
+- Five successive dense synthetic layouts each rendered 2,049 polygon instances.
+  Checks confirmed one canvas and destruction of prior shared graphics contexts.
+  This is a cleanup regression check, not proof of bounded memory for arbitrary files.
+- The test host applies `connect-src 'none'` to the viewer page, so application fetches
+  or API calls cannot be required for the successful browser checks.
+- Native file selection, cell/depth controls, measurement creation/deletion, grid,
+  fit, and visibility were also exercised with browser input on the nested static URL.
+  A fresh session loaded the path-style fixture with no console errors.
+- Windows launcher argument rejection passed; Git Bash syntax checking passed.
+  Opening a browser through either launcher remains unverified.
+- Direct file URLs were blocked by the browser automation policy. Double-click launch
+  was therefore not verified, and the restriction was not bypassed. macOS/Linux
+  launchers and other browser engines remain unverified.
 
-Slice 1 added the parser and parity harness without changing browser upload behavior, Python APIs, WSGI endpoints, or PixiJS rendering; slice 2 subsequently changed browser loading and preload delivery. Neither slice added an npm dependency or build step. The parity harness invokes Node.js from pytest, so Node is required for the automated suite as well as syntax checks. Parity fixtures cover the current viewer's supported geometry, but they are not proof of full GDSII compatibility. In particular, arbitrary curved/multi-segment path joins, text, boxes, nodes, properties, uncommon repetition encodings, and vendor extensions remain provisional until explicitly implemented and tested.
+Git attributes now preserve fixture JSON line endings and GDS binary bytes across
+platforms. JSON fixture hashes describe the normalized LF files; the manifest also
+preserves the original CRLF export hashes, verified before updating the checksums.
+The vendored PixiJS file was restored from checkout-added CRLFs to its
+upstream LF bytes, matching the previously recorded 818,297-byte size and SHA256.
+No PixiJS code was changed. Its upstream license notice is included in the distribution.
 
-Binary parsing must use big-endian record lengths/types and GDSII IBM-style real numbers. Database coordinates must be scaled into the library user units before model construction. Binary record parsing failures include byte offsets to help diagnose malformed files in browser errors.
+The former main commit, 083d771, is preserved on the python-launch branch for the
+Python launcher version and independent historical reference. Python is not required
+to run, package, or test this version.

@@ -4,6 +4,10 @@
   const host = document.getElementById("pixi-host");
   const fileInput = document.getElementById("file-input");
   const loadFileButton = document.getElementById("load-file-button");
+  const viewOptions = document.getElementById("view-options");
+  const cellSelect = document.getElementById("cell-select");
+  const depthInput = document.getElementById("depth-input");
+  const applyOptionsButton = document.getElementById("apply-options-button");
   const fitButton = document.getElementById("fit-button");
   const showAllButton = document.getElementById("show-all-button");
   const hideAllButton = document.getElementById("hide-all-button");
@@ -33,7 +37,10 @@
   let templateContextMap = new Map();
   let cellState = {};
   let layerState = {};
-  let loadedLayerKeys = new Set();
+  let currentLibrary = null;
+  let currentFilename = "";
+  let loadVersion = 0;
+  let renderQueue = Promise.resolve();
   let drawCenterX = 0;
   let drawCenterY = 0;
   let spanX = 1;
@@ -654,6 +661,9 @@
   }
 
   function setAllVisible(visible) {
+    if (!viewModel) {
+      return;
+    }
     Object.keys(cellState).forEach((key) => {
       cellState[key] = visible;
     });
@@ -668,11 +678,6 @@
       button.classList.toggle("is-off", !visible);
       button.setAttribute("aria-pressed", visible ? "true" : "false");
     });
-    const needsRender = visible && viewModel.layers.some((layer) => !loadedLayerKeys.has(layer.key));
-    if (needsRender) {
-      scheduleSceneRender();
-      return;
-    }
     applyVisibility();
     updateOverlays();
   }
@@ -766,10 +771,6 @@
       layerState[layer.key] = !layerState[layer.key];
       button.classList.toggle("is-off", !layerState[layer.key]);
       button.setAttribute("aria-pressed", layerState[layer.key] ? "true" : "false");
-      if (layerState[layer.key] && !loadedLayerKeys.has(layer.key)) {
-        scheduleSceneRender();
-        return;
-      }
       applyVisibility();
       updateOverlays();
     });
@@ -861,27 +862,6 @@
     }
   }
 
-  function mergeLayerPayload(layerPayload) {
-    if (!layerPayload) {
-      return;
-    }
-    for (const template of layerPayload.templates || []) {
-      if (!templateMap.has(template.id)) {
-        templateMap.set(template.id, template);
-        viewModel.templates.push(template);
-      }
-    }
-    buildTemplateContexts(layerPayload.templates || []);
-    for (const group of layerPayload.groups || []) {
-      if (!viewModel.groups.find((item) => item.id === group.id)) {
-        viewModel.groups.push(group);
-      }
-    }
-    if (layerPayload.layerKey) {
-      loadedLayerKeys.add(layerPayload.layerKey);
-    }
-  }
-
   async function ensureApp() {
     if (!window.PIXI || !window.PIXI.Application || !window.PIXI.Graphics) {
       throw new Error("PixiJS failed to load.");
@@ -890,13 +870,18 @@
       return;
     }
 
-    app = new PIXI.Application();
-    await app.init({
-      resizeTo: host,
-      backgroundAlpha: 0,
-      antialias: false,
-      preference: "webgl",
-    });
+    const nextApp = new PIXI.Application();
+    try {
+      await nextApp.init({
+        resizeTo: host,
+        backgroundAlpha: 0,
+        antialias: false,
+        preference: "webgl",
+      });
+    } catch (error) {
+      throw new Error(`The graphics renderer could not start: ${error.message || error}`);
+    }
+    app = nextApp;
     host.appendChild(app.canvas);
     gridGraphics = new PIXI.Graphics();
     cursorGraphics = new PIXI.Graphics();
@@ -1120,7 +1105,9 @@
     sceneRenderToken += 1;
     const token = sceneRenderToken;
     groupMap = new Map();
-    world.removeChildren();
+    for (const graphics of world.removeChildren()) {
+      graphics.destroy({ children: true, context: false });
+    }
     rebuildSceneBounds();
 
     const groupsByLayer = new Map();
@@ -1168,35 +1155,34 @@
     }
   }
 
-  function scheduleSceneRender() {
-    if (!viewModel || !world) {
-      return;
-    }
-    void renderSceneProgressively();
-  }
-
   async function setViewModel(nextViewModel) {
+    await ensureApp();
+    cellRenderToken += 1;
+    sceneRenderToken += 1;
+    for (const graphics of world.removeChildren()) {
+      graphics.destroy({ children: true, context: false });
+    }
+    for (const context of templateContextMap.values()) {
+      context.destroy();
+    }
+    templateContextMap.clear();
     viewModel = nextViewModel;
-    loadedLayerKeys = new Set((viewModel.layers || []).map((layer) => layer.key));
-    mergeLayerPayload({ groups: viewModel.groups || [], templates: viewModel.templates || [] });
     measurements = [];
     selectedMeasurementId = null;
     measureStart = null;
     measureEnd = null;
     measurePointer = null;
+    lastPointerActual = null;
+    lastPointerScreen = null;
+    dragState = null;
+    stopKeyboardZoom();
     document.title = viewModel.title;
     const titleNode = document.querySelector(".title");
     if (titleNode) {
       titleNode.textContent = viewModel.title;
     }
-    await ensureApp();
     await rebuildControls();
     await renderSceneProgressively();
-    clearWarning();
-  }
-
-  async function parseLocalGds(file) {
-    return parseArrayBufferGds(await file.arrayBuffer(), { title: `GDS Viewer: ${file.name}` });
   }
 
   function requireGdsParser() {
@@ -1214,41 +1200,43 @@
     return model;
   }
 
-  async function parseArrayBufferGds(arrayBuffer, options) {
-    const library = requireGdsParser().parseGds(arrayBuffer);
-    return buildLocalViewModel(library, options);
+  function setOptionsEnabled(enabled) {
+    cellSelect.disabled = !enabled;
+    depthInput.disabled = !enabled;
+    applyOptionsButton.disabled = !enabled;
   }
 
-  async function loadPreloadedGds() {
-    const configResponse = await fetch("/api/preload");
-    if (!configResponse.ok) {
-      throw new Error("Failed to fetch preload configuration.");
-    }
-    const config = await configResponse.json();
-    if (!config) {
-      return false;
-    }
-
-    showWarning("Loading preloaded GDS file...");
-    const bytesResponse = await fetch("/api/preloaded-gds");
-    const bytesPayload = await bytesResponse.arrayBuffer();
-    if (!bytesResponse.ok) {
-      let message = "Failed to fetch the preloaded GDS file.";
-      try {
-        message = JSON.parse(new TextDecoder().decode(bytesPayload)).error || message;
-      } catch (_) {
-        // keep the generic message
+  async function displayLibrary(library, filename, options, version) {
+    const model = buildLocalViewModel(library, { ...options, title: `GDS Viewer: ${filename}` });
+    // Serialize Pixi initialization/rendering; only the newest file or options win.
+    const job = renderQueue.catch(() => {}).then(async () => {
+      if (version !== loadVersion) {
+        return;
       }
-      throw new Error(message);
-    }
-
-    const model = await parseArrayBufferGds(bytesPayload, {
-      title: config.title || `GDS Viewer: ${config.filename}`,
-      cellName: config.cellName || null,
-      maxDepth: config.maxDepth ?? null,
+      await setViewModel(model);
+      // Keep controls paired with the last rendered library even if a later
+      // selection fails while this render is finishing.
+      currentLibrary = library;
+      currentFilename = filename;
+      clearChildren(cellSelect);
+      const allOption = document.createElement("option");
+      allOption.value = "";
+      allOption.textContent = "All top-level cells";
+      cellSelect.appendChild(allOption);
+      for (const cell of [...library.cells].sort((a, b) => a.name.localeCompare(b.name))) {
+        const option = document.createElement("option");
+        option.value = cell.name;
+        option.textContent = cell.name;
+        cellSelect.appendChild(option);
+      }
+      cellSelect.value = options.cellName || "";
+      depthInput.value = options.maxDepth == null ? "" : String(options.maxDepth);
+      if (version === loadVersion) {
+        clearWarning();
+      }
     });
-    await setViewModel(model);
-    return true;
+    renderQueue = job;
+    await job;
   }
 
   async function loadGdsFile(file) {
@@ -1259,14 +1247,56 @@
       showWarning("Only .gds files can be loaded.");
       return;
     }
+    const version = ++loadVersion;
+    setOptionsEnabled(false);
     showWarning("Loading GDS file...");
     try {
-      const model = await parseLocalGds(file);
-      await setViewModel(model);
+      const bytes = await file.arrayBuffer();
+      if (version !== loadVersion) {
+        return;
+      }
+      const library = requireGdsParser().parseGds(bytes);
+      await displayLibrary(library, file.name, {}, version);
     } catch (error) {
-      showWarning(String(error));
+      await renderQueue.catch(() => {});
+      if (version === loadVersion) {
+        showWarning(String(error));
+      }
+    } finally {
+      if (version === loadVersion) {
+        setOptionsEnabled(currentLibrary !== null);
+      }
     }
   }
+
+  viewOptions.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    if (!currentLibrary || applyOptionsButton.disabled) {
+      return;
+    }
+    const value = depthInput.value.trim();
+    const maxDepth = value === "" ? null : Number(value);
+    if (depthInput.validity.badInput || (maxDepth !== null && (!Number.isSafeInteger(maxDepth) || maxDepth < 0))) {
+      showWarning("Hierarchy depth must be a non-negative whole number, or blank for all levels.");
+      return;
+    }
+    const version = ++loadVersion;
+    const options = { cellName: cellSelect.value || null, maxDepth };
+    setOptionsEnabled(false);
+    showWarning("Applying view options...");
+    try {
+      await displayLibrary(currentLibrary, currentFilename, options, version);
+    } catch (error) {
+      await renderQueue.catch(() => {});
+      if (version === loadVersion) {
+        showWarning(String(error));
+      }
+    } finally {
+      if (version === loadVersion) {
+        setOptionsEnabled(true);
+      }
+    }
+  });
 
   function setDragDropActive(active) {
     if (!stageNode) {
@@ -1338,7 +1368,7 @@
     const target = event.target;
     if (target instanceof HTMLElement) {
       const tagName = target.tagName.toLowerCase();
-      if (tagName === "input" || tagName === "textarea" || target.isContentEditable) {
+      if (tagName === "input" || tagName === "textarea" || tagName === "select" || target.isContentEditable) {
         return;
       }
     }
@@ -1375,10 +1405,11 @@
   });
 
   try {
-    const loadedPreloaded = await loadPreloadedGds();
-    if (!loadedPreloaded) {
-      showWarning("No initial GDS is loaded yet. Use the Load GDS File button.");
+    requireGdsParser();
+    if (!window.PIXI || !window.PIXI.Application || !window.PIXI.Graphics) {
+      throw new Error("PixiJS failed to load. Keep the vendor folder beside index.html.");
     }
+    showWarning("Choose a GDS file or drop one onto the viewer. Files stay in your browser.");
   } catch (error) {
     showWarning(String(error));
   }

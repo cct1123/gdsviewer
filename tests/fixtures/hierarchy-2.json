@@ -1,0 +1,342 @@
+{
+  "title": "Reference fixture",
+  "cellName": "TOP",
+  "bounds": {
+    "xmin": -2.0,
+    "ymin": -1.0,
+    "xmax": 38.0,
+    "ymax": 25.0
+  },
+  "groups": [
+    {
+      "id": "root:0::1:0",
+      "cellId": "root:0",
+      "cellName": "TOP",
+      "layer": 1,
+      "datatype": 0,
+      "layerKey": "L1/D0",
+      "cssColor": "#5c7cfa",
+      "count": 1,
+      "templateId": "TOP::1:0",
+      "transform": [
+        1.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "offset": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "root:0/CHILD[0:0]/LEAF[0:0]::4:2",
+      "cellId": "root:0/CHILD[0:0]/LEAF[0:0]",
+      "cellName": "LEAF",
+      "layer": 4,
+      "datatype": 2,
+      "layerKey": "L4/D2",
+      "cssColor": "#f06595",
+      "count": 1,
+      "templateId": "LEAF::4:2",
+      "transform": [
+        1.2246467991473532e-16,
+        2.0,
+        2.0,
+        -1.2246467991473532e-16
+      ],
+      "offset": [
+        11.0,
+        7.0
+      ]
+    },
+    {
+      "id": "root:0/CHILD[0:0]/LEAF[0:0]::7:3",
+      "cellId": "root:0/CHILD[0:0]/LEAF[0:0]",
+      "cellName": "LEAF",
+      "layer": 7,
+      "datatype": 3,
+      "layerKey": "L7/D3",
+      "cssColor": "#339af0",
+      "count": 1,
+      "templateId": "LEAF::7:3",
+      "transform": [
+        1.2246467991473532e-16,
+        2.0,
+        2.0,
+        -1.2246467991473532e-16
+      ],
+      "offset": [
+        11.0,
+        7.0
+      ]
+    },
+    {
+      "id": "root:0/CHILD[0:1]/LEAF[0:0]::4:2",
+      "cellId": "root:0/CHILD[0:1]/LEAF[0:0]",
+      "cellName": "LEAF",
+      "layer": 4,
+      "datatype": 2,
+      "layerKey": "L4/D2",
+      "cssColor": "#f06595",
+      "count": 1,
+      "templateId": "LEAF::4:2",
+      "transform": [
+        1.2246467991473532e-16,
+        2.0,
+        2.0,
+        -1.2246467991473532e-16
+      ],
+      "offset": [
+        11.0,
+        17.0
+      ]
+    },
+    {
+      "id": "root:0/CHILD[0:1]/LEAF[0:0]::7:3",
+      "cellId": "root:0/CHILD[0:1]/LEAF[0:0]",
+      "cellName": "LEAF",
+      "layer": 7,
+      "datatype": 3,
+      "layerKey": "L7/D3",
+      "cssColor": "#339af0",
+      "count": 1,
+      "templateId": "LEAF::7:3",
+      "transform": [
+        1.2246467991473532e-16,
+        2.0,
+        2.0,
+        -1.2246467991473532e-16
+      ],
+      "offset": [
+        11.0,
+        17.0
+      ]
+    },
+    {
+      "id": "root:0/CHILD[0:2]/LEAF[0:0]::4:2",
+      "cellId": "root:0/CHILD[0:2]/LEAF[0:0]",
+      "cellName": "LEAF",
+      "layer": 4,
+      "datatype": 2,
+      "layerKey": "L4/D2",
+      "cssColor": "#f06595",
+      "count": 1,
+      "templateId": "LEAF::4:2",
+      "transform": [
+        1.2246467991473532e-16,
+        2.0,
+        2.0,
+        -1.2246467991473532e-16
+      ],
+      "offset": [
+        31.0,
+        7.0
+      ]
+    },
+    {
+      "id": "root:0/CHILD[0:2]/LEAF[0:0]::7:3",
+      "cellId": "root:0/CHILD[0:2]/LEAF[0:0]",
+      "cellName": "LEAF",
+      "layer": 7,
+      "datatype": 3,
+      "layerKey": "L7/D3",
+      "cssColor": "#339af0",
+      "count": 1,
+      "templateId": "LEAF::7:3",
+      "transform": [
+        1.2246467991473532e-16,
+        2.0,
+        2.0,
+        -1.2246467991473532e-16
+      ],
+      "offset": [
+        31.0,
+        7.0
+      ]
+    },
+    {
+      "id": "root:0/CHILD[0:3]/LEAF[0:0]::4:2",
+      "cellId": "root:0/CHILD[0:3]/LEAF[0:0]",
+      "cellName": "LEAF",
+      "layer": 4,
+      "datatype": 2,
+      "layerKey": "L4/D2",
+      "cssColor": "#f06595",
+      "count": 1,
+      "templateId": "LEAF::4:2",
+      "transform": [
+        1.2246467991473532e-16,
+        2.0,
+        2.0,
+        -1.2246467991473532e-16
+      ],
+      "offset": [
+        31.0,
+        17.0
+      ]
+    },
+    {
+      "id": "root:0/CHILD[0:3]/LEAF[0:0]::7:3",
+      "cellId": "root:0/CHILD[0:3]/LEAF[0:0]",
+      "cellName": "LEAF",
+      "layer": 7,
+      "datatype": 3,
+      "layerKey": "L7/D3",
+      "cssColor": "#339af0",
+      "count": 1,
+      "templateId": "LEAF::7:3",
+      "transform": [
+        1.2246467991473532e-16,
+        2.0,
+        2.0,
+        -1.2246467991473532e-16
+      ],
+      "offset": [
+        31.0,
+        17.0
+      ]
+    }
+  ],
+  "templates": [
+    {
+      "id": "LEAF::4:2",
+      "cellName": "LEAF",
+      "layer": 4,
+      "datatype": 2,
+      "layerKey": "L4/D2",
+      "cssColor": "#f06595",
+      "polygonCount": 1,
+      "polygons": [
+        {
+          "polygon": [
+            0.0,
+            3.5,
+            0.0,
+            2.5,
+            4.0,
+            2.5,
+            4.0,
+            3.5
+          ]
+        }
+      ]
+    },
+    {
+      "id": "LEAF::7:3",
+      "cellName": "LEAF",
+      "layer": 7,
+      "datatype": 3,
+      "layerKey": "L7/D3",
+      "cssColor": "#339af0",
+      "polygonCount": 1,
+      "polygons": [
+        {
+          "polygon": [
+            0.0,
+            0.0,
+            2.0,
+            0.0,
+            2.0,
+            1.0,
+            0.0,
+            1.0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "TOP::1:0",
+      "cellName": "TOP",
+      "layer": 1,
+      "datatype": 0,
+      "layerKey": "L1/D0",
+      "cssColor": "#5c7cfa",
+      "polygonCount": 1,
+      "polygons": [
+        {
+          "polygon": [
+            -2.0,
+            -1.0,
+            3.0,
+            -1.0,
+            3.0,
+            2.0,
+            -2.0,
+            2.0
+          ]
+        }
+      ]
+    }
+  ],
+  "cellTree": {
+    "roots": [
+      "TOP"
+    ],
+    "nodes": [
+      {
+        "id": "CHILD",
+        "name": "CHILD",
+        "children": [
+          "LEAF"
+        ]
+      },
+      {
+        "id": "LEAF",
+        "name": "LEAF",
+        "children": []
+      },
+      {
+        "id": "TOP",
+        "name": "TOP",
+        "children": [
+          "CHILD"
+        ]
+      }
+    ]
+  },
+  "cells": [
+    {
+      "id": "CHILD",
+      "name": "CHILD",
+      "children": [
+        "LEAF"
+      ]
+    },
+    {
+      "id": "LEAF",
+      "name": "LEAF",
+      "children": []
+    },
+    {
+      "id": "TOP",
+      "name": "TOP",
+      "children": [
+        "CHILD"
+      ]
+    }
+  ],
+  "layers": [
+    {
+      "key": "L1/D0",
+      "label": "L1/D0",
+      "layer": 1,
+      "datatype": 0,
+      "cssColor": "#5c7cfa"
+    },
+    {
+      "key": "L4/D2",
+      "label": "L4/D2",
+      "layer": 4,
+      "datatype": 2,
+      "cssColor": "#f06595"
+    },
+    {
+      "key": "L7/D3",
+      "label": "L7/D3",
+      "layer": 7,
+      "datatype": 3,
+      "cssColor": "#339af0"
+    }
+  ]
+}

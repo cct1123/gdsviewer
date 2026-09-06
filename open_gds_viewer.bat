@@ -1,22 +1,9 @@
 @echo off
 setlocal
-cd /d "%~dp0"
-
-if exist ".venv\Scripts\gdsviewer.exe" (
-  ".venv\Scripts\gdsviewer.exe" %*
-  exit /b %errorlevel%
+if not "%~1"=="" (
+  echo Open index.html, then select or drop a .gds file in the browser.
+  echo Root cell and hierarchy depth are available in View options.
+  exit /b 1
 )
-
-set "UV_EXE=uv"
-where uv >nul 2>nul
-if errorlevel 1 (
-  if exist "%USERPROFILE%\.local\bin\uv.exe" (
-    set "UV_EXE=%USERPROFILE%\.local\bin\uv.exe"
-  ) else (
-    echo uv is required. Install it from https://docs.astral.sh/uv/
-    exit /b 1
-  )
-)
-
-"%UV_EXE%" run gdsviewer %*
-endlocal
+start "" "%~dp0index.html"
+exit /b %errorlevel%

@@ -7,8 +7,10 @@
 - Source URL: https://cdn.jsdelivr.net/npm/pixi.js@8.20.0/dist/pixi.min.js
 - SHA256: `07cbe045435c2a487c2f28f9a3a9ee43069dbbec0c77585477bb6e63b5e125a8`
 - Size: 818,297 bytes
-- License: MIT (https://github.com/pixijs/pixijs/blob/dev/LICENSE)
+- License: MIT; included in [PIXI-LICENSE.txt](PIXI-LICENSE.txt), from the
+  [v8.20.0 source](https://raw.githubusercontent.com/pixijs/pixijs/v8.20.0/LICENSE).
 
-Loaded from `src/gdsviewer/gds_viewer.html` via a relative path (`./vendor/pixi.min.js`).
-This removes the runtime jsDelivr dependency; the viewer now renders fully offline.
+Loaded from `index.html` via a relative path (`./vendor/pixi.min.js`).
+The viewer does not contact jsDelivr at runtime.
+The Git attributes preserve the upstream LF bytes without checkout conversion.
 Upgrade deliberately: replace the file, re-record version/source/hash here, and rerun the gates.

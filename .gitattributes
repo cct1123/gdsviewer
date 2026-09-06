@@ -1,0 +1,11 @@
+*.js text eol=lf
+*.cjs text eol=lf
+*.json text eol=lf
+*.html text eol=lf
+*.md text eol=lf
+*.txt text eol=lf
+*.sh text eol=lf
+*.bat text eol=crlf
+*.gds binary
+# Preserve the upstream bytes and recorded SHA256 on every platform.
+vendor/pixi.min.js -text

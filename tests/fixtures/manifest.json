@@ -1,0 +1,135 @@
+{
+  "referenceCommit": "083d771",
+  "gdstk": "0.9.62",
+  "python": "3.14.3",
+  "scenarios": [
+    {
+      "name": "hierarchy-1",
+      "file": "hierarchy.gds",
+      "options": {
+        "title": "Reference fixture"
+      },
+      "expected": "hierarchy-1.json"
+    },
+    {
+      "name": "hierarchy-2",
+      "file": "hierarchy.gds",
+      "options": {
+        "title": "Reference fixture",
+        "cellName": "TOP"
+      },
+      "expected": "hierarchy-2.json"
+    },
+    {
+      "name": "hierarchy-3",
+      "file": "hierarchy.gds",
+      "options": {
+        "title": "Reference fixture",
+        "cellName": "LEAF"
+      },
+      "expected": "hierarchy-3.json"
+    },
+    {
+      "name": "hierarchy-4",
+      "file": "hierarchy.gds",
+      "options": {
+        "title": "Reference fixture",
+        "maxDepth": 0
+      },
+      "expected": "hierarchy-4.json"
+    },
+    {
+      "name": "hierarchy-5",
+      "file": "hierarchy.gds",
+      "options": {
+        "title": "Reference fixture",
+        "maxDepth": 1
+      },
+      "expected": "hierarchy-5.json"
+    },
+    {
+      "name": "hierarchy-6",
+      "file": "hierarchy.gds",
+      "options": {
+        "title": "Reference fixture",
+        "maxDepth": 2
+      },
+      "expected": "hierarchy-6.json"
+    },
+    {
+      "name": "roots-7",
+      "file": "roots.gds",
+      "options": {
+        "title": "Reference fixture"
+      },
+      "expected": "roots-7.json"
+    },
+    {
+      "name": "roots-8",
+      "file": "roots.gds",
+      "options": {
+        "title": "Reference fixture",
+        "cellName": "A"
+      },
+      "expected": "roots-8.json"
+    },
+    {
+      "name": "roots-9",
+      "file": "roots.gds",
+      "options": {
+        "title": "Reference fixture",
+        "cellName": "B"
+      },
+      "expected": "roots-9.json"
+    },
+    {
+      "name": "paths-10",
+      "file": "paths.gds",
+      "options": {
+        "title": "Reference fixture"
+      },
+      "expected": "paths-10.json"
+    },
+    {
+      "name": "empty-cell-11",
+      "file": "empty-cell.gds",
+      "options": {
+        "title": "Reference fixture"
+      },
+      "expected": "empty-cell-11.json"
+    }
+  ],
+  "sha256": {
+    "empty-cell-11.json": "5a21de4bb9c50f8749a41ec047caeb76f77b754a2715e1cabc3ca74a6cdc693c",
+    "empty-cell.gds": "3588486693f494208ac4d42626c6dff8ccd19227786e12e57a61778839c3baa3",
+    "empty-library.gds": "8352ac5db8a8af18bb24ee8fda285efbb11edd5919bacc1ac2c5fe390d5a2c9d",
+    "hierarchy-1.json": "280939b5479f6ab9dce47d89542cb1ffa3f2c4d4dd858dc224f5e9d1ac0058a5",
+    "hierarchy-2.json": "b05f8262c01fc1240b879e38bcbf6ba96281a9a7297d1dea4b441c05202025c3",
+    "hierarchy-3.json": "d9feef91f4acb2bae91885993818bbf4263e054fa572444fd726a27a1af8e98e",
+    "hierarchy-4.json": "d0a0b059d3439d161d0802a4ae53e00ed16d07c8aced0bc7cb7ad0567dd0ec9f",
+    "hierarchy-5.json": "932e2cc14306dec352f03462c92d35789081ff2756da71be7fa20632e88b8084",
+    "hierarchy-6.json": "280939b5479f6ab9dce47d89542cb1ffa3f2c4d4dd858dc224f5e9d1ac0058a5",
+    "hierarchy.gds": "f242a550e98d42845efd4cd5dbda7b3a7538a52e76e42863fa2739e6be9f454e",
+    "paths-10.json": "f085c190105c8238867955db50c53dd36f3c12e50140041defde6f0a940c9cbf",
+    "paths.gds": "e36c1ecc93c61e0385403851f6a5856950126c7a6f38261f4074499e8add15f7",
+    "roots-7.json": "0fdc9d45d29e7b0e5fa4865b051feec0c5aca8230aa2c0ddd2c474e15dd9031d",
+    "roots-8.json": "37f6b8ce6d3d1a1fe516e45d85afcc9c4aa611605c7f51f1a2f53668988327ca",
+    "roots-9.json": "b0dee0d2e8763141719888e6a68641dce31b5bbea672da12f14c66b8a165c073",
+    "roots.gds": "5e534e64ab3a20fc24010cdf80658067062d9d21a87895284da6622812bc1b07",
+    "round-path.gds": "3321379219b082c09a127bca8fee827b417d15dbe421241ad4550eec96048b88"
+  },
+  "originalJsonSha256": {
+    "empty-cell-11.json": "9ca918dc7163d72c945f938c3ee578435409dfc9d9f4f1d7292d887794f26d97",
+    "hierarchy-1.json": "243c910c5b95531162faa262b789b98d3739a6aa4b97690b1366ffa4a38593ec",
+    "hierarchy-2.json": "fa2971721190764f975e09f5dc37ca5e4ed619e3bac60fc02b28cd059ee3f84a",
+    "hierarchy-3.json": "30974f6d25bd1979dcf238a4ae0fcf22ef5e9a6806f2866a7475c69d4bc8b663",
+    "hierarchy-4.json": "0cf9009b54afe197114c60e1c51c4023f5b4877d9cea8ec2d8a21f0d34cdc392",
+    "hierarchy-5.json": "6ae092b3e0edeb8e7d957db2bdf31860cfe6ba460f722746f1f3812bfeb021c2",
+    "hierarchy-6.json": "243c910c5b95531162faa262b789b98d3739a6aa4b97690b1366ffa4a38593ec",
+    "paths-10.json": "bbc76736db317bc7dc02c313d262df976d7858864f0e790d88397f313c889952",
+    "roots-7.json": "19463bcae656b632dfd29c0215698f59f1251e186d15d9cd2fb5e6ec3d8a80fe",
+    "roots-8.json": "23246e748a53f7844b4ba0bfa7fbc8bb5737331fbff537e31760a770a00e57a0",
+    "roots-9.json": "df994409871ee0cfa0bd0a7b29c55ac6aa5512ca1e5a3890f57254293071c3c6"
+  },
+  "jsonLineEndings": "LF; originalJsonSha256 records the original Windows CRLF exports. Only line endings changed."
+}

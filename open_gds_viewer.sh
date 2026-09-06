@@ -1,20 +1,18 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-cd "${script_dir}"
-
-if [[ -x ".venv/bin/gdsviewer" ]]; then
-  exec ".venv/bin/gdsviewer" "$@"
-fi
-
-if [[ -x ".venv/Scripts/gdsviewer.exe" ]]; then
-  exec ".venv/Scripts/gdsviewer.exe" "$@"
-fi
-
-if ! command -v uv >/dev/null 2>&1; then
-  echo "uv is required. Install it from https://docs.astral.sh/uv/" >&2
+if (( $# > 0 )); then
+  echo "Open index.html, then select or drop a .gds file in the browser." >&2
+  echo "Root cell and hierarchy depth are available in View options." >&2
   exit 1
 fi
 
-exec uv run gdsviewer "$@"
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [[ "$(uname -s)" == "Darwin" ]]; then
+  exec open "${script_dir}/index.html"
+fi
+if command -v xdg-open >/dev/null 2>&1; then
+  exec xdg-open "${script_dir}/index.html"
+fi
+echo "Open ${script_dir}/index.html in a modern browser." >&2
+exit 1
