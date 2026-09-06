@@ -826,7 +826,7 @@
       }
       graphics.closePath();
       graphics.fill({ color, alpha: 0.26 });
-      graphics.stroke({ color: outlineColor, alpha: 0.45, width: 0.8 });
+      graphics.stroke({ color: outlineColor, alpha: 0.45, pixelLine: true });
     }
 
     graphics.eventMode = "none";
@@ -856,7 +856,7 @@
           flipped[index] = coords[index];
           flipped[index + 1] = -coords[index + 1];
         }
-        context.poly(flipped, true).fill({ color, alpha: 0.26 }).stroke({ color: outlineColor, alpha: 0.45, width: 0.8 });
+        context.poly(flipped, true).fill({ color, alpha: 0.26 }).stroke({ color: outlineColor, alpha: 0.45, pixelLine: true });
       }
       templateContextMap.set(template.id, context);
     }
