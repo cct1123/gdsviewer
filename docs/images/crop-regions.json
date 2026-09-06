@@ -1,0 +1,201 @@
+{
+  "sourceViewport": [
+    1280,
+    960
+  ],
+  "method": "Exact rectangular pixel crops; PNG output; original JPEG screenshots retained.",
+  "crops": [
+    {
+      "source": "01-open-viewer.jpg",
+      "name": "01-load-file.png",
+      "rect": [
+        24,
+        116,
+        284,
+        91
+      ],
+      "width": 426,
+      "alt": "Load GDS heading, Load GDS File button, and drag-and-drop hint"
+    },
+    {
+      "source": "03-zoom-and-pan.jpg",
+      "name": "03-fit-controls.png",
+      "rect": [
+        24,
+        417,
+        240,
+        46
+      ],
+      "width": 360,
+      "alt": "Fit View, Show All, and Hide All controls"
+    },
+    {
+      "source": "03-zoom-and-pan.jpg",
+      "name": "03-zoomed-layout.png",
+      "rect": [
+        447,
+        247,
+        710,
+        250
+      ],
+      "width": 710,
+      "alt": "Close-up of the enlarged and panned repeated shapes"
+    },
+    {
+      "source": "04-layer-visibility.jpg",
+      "name": "04-layer-controls.png",
+      "rect": [
+        24,
+        767,
+        283,
+        69
+      ],
+      "width": 425,
+      "alt": "Layer buttons with L7/D3 faded and turned off"
+    },
+    {
+      "source": "04-layer-visibility.jpg",
+      "name": "04-layer-status.png",
+      "rect": [
+        918,
+        891,
+        343,
+        42
+      ],
+      "width": 515,
+      "alt": "Status showing two of three layers and five visible polygons"
+    },
+    {
+      "source": "05-cell-visibility.jpg",
+      "name": "05-cell-controls.png",
+      "rect": [
+        24,
+        617,
+        271,
+        162
+      ],
+      "width": 407,
+      "alt": "Cell tree with TOP enabled and CHILD and LEAF faded"
+    },
+    {
+      "source": "05-cell-visibility.jpg",
+      "name": "05-cell-result.png",
+      "rect": [
+        331,
+        676,
+        155,
+        111
+      ],
+      "width": 233,
+      "alt": "The single remaining TOP rectangle"
+    },
+    {
+      "source": "06-root-cell.jpg",
+      "name": "06-root-options.png",
+      "rect": [
+        24,
+        202,
+        283,
+        200
+      ],
+      "width": 425,
+      "alt": "LEAF selected as Root cell with blank Hierarchy depth and Apply view options"
+    },
+    {
+      "source": "07-hierarchy-depth.jpg",
+      "name": "07-depth-options.png",
+      "rect": [
+        24,
+        220,
+        273,
+        196
+      ],
+      "width": 410,
+      "alt": "TOP selected with Hierarchy depth set to zero"
+    },
+    {
+      "source": "08-grid-and-scale.jpg",
+      "name": "08-grid-button.png",
+      "rect": [
+        104,
+        477,
+        53,
+        44
+      ],
+      "width": 106,
+      "alt": "The highlighted Grid button"
+    },
+    {
+      "source": "08-grid-and-scale.jpg",
+      "name": "08-grid-scale-detail.png",
+      "rect": [
+        327,
+        675,
+        276,
+        259
+      ],
+      "width": 414,
+      "alt": "Grid around the TOP rectangle and the 10.0 um scale bar"
+    },
+    {
+      "source": "09-measure-distance.jpg",
+      "name": "09-ruler-detail.png",
+      "rect": [
+        614,
+        284,
+        524,
+        92
+      ],
+      "width": 786,
+      "alt": "Horizontal ruler reading 20.0 um, dx 20.0 um, dy 0.0 nm"
+    },
+    {
+      "source": "09-measure-distance.jpg",
+      "name": "09-saved-ruler.png",
+      "rect": [
+        24,
+        806,
+        283,
+        128
+      ],
+      "width": 425,
+      "alt": "Measurements section with the saved 20.0 um ruler and Delete button"
+    },
+    {
+      "source": "10-pointer-coordinates.jpg",
+      "name": "10-pointer-detail.png",
+      "rect": [
+        555,
+        495,
+        209,
+        103
+      ],
+      "width": 314,
+      "alt": "Crosshair and zero-length preview at the first point of a new ruler"
+    },
+    {
+      "source": "10-pointer-coordinates.jpg",
+      "name": "10-coordinate-readout.png",
+      "rect": [
+        324,
+        849,
+        253,
+        85
+      ],
+      "width": 380,
+      "alt": "Coordinate readout showing x 12.0 um and y 9.01 um above the scale bar"
+    },
+    {
+      "source": "11-delete-measurement.jpg",
+      "name": "11-empty-measurements.png",
+      "rect": [
+        24,
+        839,
+        272,
+        94
+      ],
+      "width": 408,
+      "alt": "Measurements section with No measurements yet after deletion"
+    }
+  ]
+}
