@@ -1306,16 +1306,6 @@
   }
 
   loadFileButton.addEventListener("click", () => fileInput.click());
-  document.getElementById("load-demo-button").addEventListener("click", async () => {
-    const name = document.getElementById("demo-select").value;
-    const encoded = globalThis.GdsDemoData?.[name];
-    if (!encoded) {
-      showWarning("Example data is unavailable. Keep the examples folder beside index.html.");
-      return;
-    }
-    const bytes = Uint8Array.from(atob(encoded), (character) => character.charCodeAt(0));
-    await loadGdsFile(new File([bytes], name));
-  });
   fileInput.addEventListener("change", async () => {
     const [file] = fileInput.files || [];
     try {

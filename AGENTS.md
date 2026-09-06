@@ -32,8 +32,7 @@ not proof of complete GDSII compatibility; see README.md for limitations.
   pan/zoom/fit, measurements, grid, pointer readout, and scale bar. Serializes rendering
   and rejects stale file reads; releases old graphics when replacing the view.
 - `vendor/`: the pinned PixiJS asset and provenance/license notices.
-- `examples/yzuda/`: attributed source layouts and a generated offline demo payload.
-  Regenerate `demo-data.js` with `node examples/yzuda/build-demo.cjs`; do not hand-edit it.
+- `examples/yzuda/`: attributed layouts for README illustrations and documentation only.
 - `tests/parser.test.cjs`: compares the JavaScript model against saved independent
   reference fixtures and checks malformed inputs and unsupported paths.
 - `tests/static.test.cjs`: distribution structure, absence of backend calls, and static
