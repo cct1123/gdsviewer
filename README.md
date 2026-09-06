@@ -1,35 +1,43 @@
 # GDS Viewer
 
-`gdsviewer` is a small, standalone browser viewer for GDSII layout files. Python and
-[`gdstk`](https://heitzmann.github.io/gdstk/) parse the layout, while PixiJS renders
-layers, cell instances, measurements, a grid, and a scale bar in the browser.
+`gdsviewer` is a small, standalone browser viewer for GDSII layout files. A JavaScript
+parser reads layouts in the browser, while PixiJS renders layers, cell instances,
+measurements, a grid, and a scale bar. Python serves the viewer and optional preloaded
+files; the [`gdstk`](https://heitzmann.github.io/gdstk/)-backed Python API remains available.
 
 ## Set up
 
-Install [uv](https://docs.astral.sh/uv/), then run:
+Use Python 3.12 or newer and a modern browser. Install
+[uv](https://docs.astral.sh/uv/), then run:
 
 ```text
 uv sync
 ```
 
-The browser client currently loads PixiJS from jsDelivr, so opening the viewer requires
-an internet connection unless that script is already cached by the browser.
+Rendering requires no internet connection: PixiJS is vendored locally, and all scripts
+load from relative paths. Its version, source, checksum, license, and update procedure
+are recorded in [VENDORED.md](src/gdsviewer/vendor/VENDORED.md).
 
 The client-side migration is underway: a dependency-free JavaScript GDSII parser and
-view-model builder (`src/gdsviewer/gds_parser.js`) parses both browser-uploaded files
+view-model builder (`src/gdsviewer/gds_parser.js`) parses both browser-selected files
 and CLI-preloaded layouts entirely in the client. Its output is checked against the
-gdstk-backed Python model on generated layouts. The server only supplies static assets,
-a small preload configuration, the raw preloaded bytes, and the (soon-to-be-removed)
-upload endpoint. See `docs/javascript-migration.md` for the bounded migration sequence
+gdstk-backed Python model on generated layouts. The browser uses the server for static
+assets, a small preload configuration, and the raw preloaded bytes. The deprecated
+`POST /api/load-gds` and `GET /api/layer-data` endpoints remain for compatibility;
+the browser no longer calls them. `/api/initial-data` has been removed. See
+[the migration plan](docs/javascript-migration.md) for the bounded migration sequence
 and current format limits.
 
-Browser uploads are limited to 100 MiB. The browser and server still buffer each
-accepted file in memory. Uploaded documents are retained by the server only until the
-next slice removes the upload path; at most eight parsed documents are kept, evicting
-the oldest after a successful upload. Python callers can configure both positive limits
-with the application factory's `max_upload_bytes` and `max_documents` arguments. These
-limits bound upload size and document count, not parsed memory; one complex layout can
-still use substantial memory.
+Selected or dropped files are buffered and parsed locally without being uploaded to or
+retained by the server. Browser file loading currently has no explicit file-size limit.
+CLI-preloaded files are read by the server and sent to the browser for parsing.
+
+The deprecated server upload API has a default 100 MiB request limit and retains at most
+eight parsed documents, evicting the oldest when a successful upload exceeds that count.
+Python callers can configure these positive limits with the application factory's
+`max_upload_bytes` and `max_documents` arguments. They do not apply to browser-local
+file loading or CLI preload delivery, and they do not bound parsed memory; one complex
+layout can still use substantial memory.
 
 ## Run
 
@@ -45,7 +53,7 @@ Preload a layout:
 uv run gdsviewer path/to/layout.gds
 ```
 
-For layouts with several top-level cells, pass a cell explicitly:
+To display one specific top-level cell, pass it explicitly:
 
 ```text
 uv run gdsviewer path/to/layout.gds --cell TOP
@@ -69,6 +77,9 @@ serve_gds_viewer(initial_gds_path="layout.gds")
 ```
 
 ## Validate
+
+Install Node.js to run both the JavaScript syntax checks and the parser parity tests
+invoked by pytest. Node.js is not required to run the viewer.
 
 ```text
 uv run pytest
