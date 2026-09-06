@@ -4,6 +4,14 @@ A standalone GDSII viewer built with plain JavaScript and vendored PixiJS. Files
 parsed and rendered in your browser. No Python, uv, Node.js, backend API, or internet
 connection is required by the viewer.
 
+## Project objective
+
+Make local GDSII inspection dependable: correct supported geometry and units,
+consistent hierarchy controls, responsive navigation, and useful errors. Keep files
+in the browser and the viewer usable without installation, a build, or a backend.
+Prioritize correctness and usability over more formats or infrastructure.
+Contributor guidance is in [AGENTS.md](AGENTS.md).
+
 ![GDS Viewer displaying YZUDA's XOR gate example](docs/viewer-xor.png)
 
 ## Try the examples
@@ -86,6 +94,10 @@ node --check gds_viewer.js
 node --check tests/browser-smoke.js
 node --test tests/*.test.cjs
 ```
+
+If a sandbox blocks test child processes with `spawn EPERM`, Node 24 also supports
+`node --test --test-isolation=none tests/*.test.cjs`. Record use of this fallback;
+ordinary assertion failures still need diagnosis.
 
 The Node suite checks saved independent reference models, malformed inputs, and
 static asset delivery. Fixture provenance is in [tests/fixtures/README.md](tests/fixtures/README.md).
