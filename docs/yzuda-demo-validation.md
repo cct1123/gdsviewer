@@ -1,28 +1,53 @@
-# Documentation layout validation — 2026-09-06
+# Documentation and UI validation — 2026-09-08
 
-- Syntax checks passed for `gds_parser.js`, `gds_viewer.js`, and `tests/browser-smoke.js`.
-- Node 24.14.1: `node --test --test-isolation=none tests/*.test.cjs` passed all 25 tests.
-  This invocation avoids the sandbox's test-process spawning restriction.
-- Headless Microsoft Edge on Windows: all 14 browser harness checks passed,
-  including `.gds2` input/drop events, hierarchy options, visibility, navigation,
-  measurement, grid, scale, pointer readout, resize, stale loads, errors, and cleanup.
-- Verified that no example selector/button exists and startup requests no example
-  assets at `/`, `/viewer/`, and direct `file://` opening.
-- Loaded `xor.gds2` through the normal file input at all three locations: 4 visible
-  cells, 15 layer/datatype pairs, and 520 visible polygons.
-- `docs/viewer-xor.png` is a visually inspected 1440 × 1000 screenshot from `/viewer/`
-  with all layers visible and no example panel. The README and tutorial share it.
-- Native OS picker dialogs were not exercised; browser automation supplied files
-  through the normal file input. No macOS/Linux launcher checks were performed.
+The current [README](../README.md) and [picture guide](user-guide.md) show the glass
+interface, graphite/sage palette, and default major/minor grid. All captures use the
+unchanged public [YZUDA XOR file](../examples/yzuda/README.md).
 
-The later [picture-guide capture](images/README.md) uses the same XOR source with
-1-pixel borders for all loaded views. It records 11 full screenshots, 16 exact
-crops, and the observed counts, cell selections, grid scale, and ruler readings.
-The XOR file uses a 1 µm library user unit; other user units are not covered by
-these measurement checks and currently produce misleading physical-unit labels.
+## Checks
 
-The documentation files are not application dependencies. Removing the demo script
-also removes its startup base64 payload and decoding path. File parsing retains
-existing resource limitations; the external examples are not geometry correctness
-oracles. The `.gds2` extension and ENDLIB null-padding support remain available for
-user-selected files.
+- Syntax checks passed for `gds_parser.js`, `gds_viewer.js`, `liquid_glass.js`, and
+  `tests/browser-smoke.js`.
+- Node 24.14.1: all 26 tests passed with
+  `node --test --test-isolation=none tests/*.test.cjs`, the documented fallback for
+  the sandbox's test-process spawning restriction. This includes fixture hashes,
+  independent geometry references, notices, and root/subdirectory asset delivery.
+- All 17 browser harness checks passed in the Codex in-app browser against the real
+  Pixi renderer with synthetic layouts. They cover loading, hierarchy, visibility,
+  navigation, measurements, both grid levels, resize, failed/stale reads, repeated
+  reload cleanup, and glass fallback.
+- The resize check now waits for the requested viewport and matching canvas width
+  instead of assuming that resize completes within 150 ms. The width and clipping
+  assertions are unchanged.
+- Manually walked through the public XOR file in the Codex in-app browser on
+  Windows at `/viewer/`: 4 cells, 15 layer/datatype pairs, and 520 visible polygons.
+  Verified the illustrated layer/cell hiding, root/depth changes, zoom/pan, grid,
+  ruler creation, pointer preview, cancellation, and deletion.
+- The capture session recorded no browser script errors. Decorative WebGL was
+  active, and the viewer required no API or example preload.
+- Replaced 11 full screenshots, 16 close-ups, and the README hero with current PNG
+  captures at 1280 × 720. Each close-up was compared pixel for pixel with its source
+  region; captions, local links, and image references were checked.
+
+The [capture record](images/README.md) lists each state. Its
+[manifest](images/capture-manifest.json) identifies the source and image bytes.
+The ruler example reads **44.0 µm**, with zero vertical displacement; the pointer
+example reads **x 104 µm | y 59.8 µm**. These are observed UI readings, not reference
+circuit dimensions.
+
+## Limits and earlier checks
+
+The XOR file uses a 1 µm library user unit. The viewer still assumes that unit when
+formatting physical distances, so other user units can produce misleading labels.
+Text elements are not drawn, and these external layouts are illustrations rather
+than independent geometry or performance benchmarks.
+
+Direct-file loading was checked in headless Edge on Windows on 6 September 2026;
+it was not revalidated for this capture because this session's browser automation
+blocks direct-file navigation. Native OS picker dialogs, macOS/Linux launchers,
+and other browser engines were not checked in this update. Browser automation
+supplied the public XOR file through the normal file input.
+
+The documentation layouts remain optional files. They are not application runtime
+dependencies and are never loaded automatically. Parsing and hierarchy expansion
+retain the resource limits described in the README.

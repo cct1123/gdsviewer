@@ -17,6 +17,8 @@ source page. These files are documentation inputs, not independent geometry refe
 Text labels are skipped by the viewer; the screenshot shows supported geometry.
 
 These files support the README illustration and [tutorial](../../docs/layout-tutorial.md).
+The [picture guide](../../docs/user-guide.md) uses the current glass UI and default
+major/minor grid; its [capture record](../../docs/images/README.md) lists each state.
 Use the normal **Load GDS File** picker to open them. They are not loaded by the
 viewer at startup and are not required in an application distribution.
 

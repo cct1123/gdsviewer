@@ -1,201 +1,201 @@
 {
   "sourceViewport": [
-    1440,
-    1000
+    1280,
+    720
   ],
-  "method": "Exact rectangular crops of decoded JPEG screenshots; PNG output; no resampling.",
+  "method": "Exact rectangular crops of PNG browser screenshots; no resampling, sharpening, or retouching.",
   "crops": [
     {
-      "source": "01-open-viewer.jpg",
+      "source": "01-open-viewer.png",
       "name": "01-load-file.png",
       "rect": [
-        25,
-        122,
-        280,
-        100
+        35,
+        103,
+        253,
+        84
       ],
       "width": 390,
       "alt": "Load GDS File button and .gds / .gds2 hint"
     },
     {
-      "source": "03-zoom-and-pan.jpg",
+      "source": "03-zoom-and-pan.png",
       "name": "03-fit-controls.png",
       "rect": [
-        25,
-        435,
-        285,
-        48
+        945,
+        22,
+        302,
+        64
       ],
       "width": 390,
-      "alt": "Fit View, Show All, and Hide All buttons"
+      "alt": "Fit View, Measure, and the enabled Grid button"
     },
     {
-      "source": "03-zoom-and-pan.jpg",
+      "source": "03-zoom-and-pan.png",
       "name": "03-zoomed-layout.png",
       "rect": [
-        620,
-        150,
-        700,
-        400
+        360,
+        180,
+        800,
+        360
       ],
       "width": 700,
-      "alt": "A closer view of the XOR layout after zooming and panning"
+      "alt": "XOR geometry after zooming and panning"
     },
     {
-      "source": "04-layer-visibility.jpg",
+      "source": "04-layer-visibility.png",
       "name": "04-layer-controls.png",
       "rect": [
-        25,
-        717,
-        283,
-        274
+        35,
+        188,
+        249,
+        345
       ],
       "width": 390,
-      "alt": "Layer buttons with L47/D0 faded because it is hidden"
+      "alt": "Layer controls with L47/D0 hidden using a dashed border and hollow indicator"
     },
     {
-      "source": "04-layer-visibility.jpg",
+      "source": "04-layer-visibility.png",
       "name": "04-layer-status.png",
       "rect": [
-        1048,
-        929,
-        371,
-        50
+        903,
+        635,
+        340,
+        46
       ],
       "width": 540,
-      "alt": "Status after hiding layer L47/D0"
+      "alt": "14 of 15 layers and 512 visible polygons"
     },
     {
-      "source": "05-cell-visibility.jpg",
+      "source": "05-cell-visibility.png",
       "name": "05-cell-controls.png",
       "rect": [
-        25,
-        619,
-        282,
-        155
+        38,
+        212,
+        246,
+        283
       ],
       "width": 390,
-      "alt": "The cell tree with nand2 and its child branch hidden"
+      "alt": "Cell tree with nand2 and via hidden"
     },
     {
-      "source": "05-cell-visibility.jpg",
+      "source": "05-cell-visibility.png",
       "name": "05-cell-result.png",
       "rect": [
-        475,
-        740,
-        500,
-        125
+        520,
+        467,
+        532,
+        155
       ],
       "width": 650,
-      "alt": "A closer look at the wiring that remains after hiding nand2"
+      "alt": "Wiring remaining after hiding nand2"
     },
     {
-      "source": "06-root-cell.jpg",
+      "source": "06-root-cell.png",
       "name": "06-root-options.png",
       "rect": [
-        25,
-        225,
-        282,
-        195
+        36,
+        199,
+        249,
+        257
       ],
       "width": 390,
-      "alt": "nand2 selected as the root cell with all hierarchy levels"
+      "alt": "nand2 selected as root with all hierarchy levels"
     },
     {
-      "source": "07-hierarchy-depth.jpg",
+      "source": "07-hierarchy-depth.png",
       "name": "07-depth-options.png",
       "rect": [
-        25,
-        225,
-        282,
-        195
+        36,
+        199,
+        249,
+        257
       ],
       "width": 390,
       "alt": "abc2 selected with hierarchy depth zero"
     },
     {
-      "source": "08-grid-and-scale.jpg",
+      "source": "08-grid-and-scale.png",
       "name": "08-grid-button.png",
       "rect": [
-        101,
-        475,
-        61,
-        48
+        1159,
+        28,
+        84,
+        49
       ],
       "width": 100,
-      "alt": "Grid button enabled"
+      "alt": "Grid enabled"
     },
     {
-      "source": "08-grid-and-scale.jpg",
+      "source": "08-grid-and-scale.png",
       "name": "08-grid-scale-detail.png",
       "rect": [
-        325,
-        695,
-        410,
-        280
+        322,
+        477,
+        310,
+        207
       ],
       "width": 520,
-      "alt": "Grid and the 50.0 um scale bar"
+      "alt": "Major and minor grid lines with the 50.0 um scale bar"
     },
     {
-      "source": "09-measure-distance.jpg",
+      "source": "09-measure-distance.png",
       "name": "09-ruler-detail.png",
       "rect": [
-        460,
-        105,
-        355,
-        120
+        728,
+        310,
+        275,
+        112
       ],
-      "width": 620,
-      "alt": "Horizontal ruler between two matching contact regions"
+      "width": 550,
+      "alt": "Horizontal ruler reading 44.0 um, dx 44.0 um, dy 0.0 nm"
     },
     {
-      "source": "09-measure-distance.jpg",
+      "source": "09-measure-distance.png",
       "name": "09-saved-ruler.png",
       "rect": [
-        25,
-        843,
-        282,
-        135
+        36,
+        508,
+        249,
+        136
       ],
       "width": 390,
-      "alt": "Saved measurement and Delete button"
+      "alt": "Saved 44.0 um measurement and Delete button"
     },
     {
-      "source": "10-pointer-coordinates.jpg",
+      "source": "10-pointer-coordinates.png",
       "name": "10-pointer-detail.png",
       "rect": [
-        695,
-        345,
+        778,
         260,
-        125
+        210,
+        88
       ],
       "width": 470,
-      "alt": "Crosshair and preview at the first point of a new ruler"
+      "alt": "Crosshair and zero-length preview at the first ruler point"
     },
     {
-      "source": "10-pointer-coordinates.jpg",
+      "source": "10-pointer-coordinates.png",
       "name": "10-coordinate-readout.png",
       "rect": [
-        323,
-        887,
-        300,
-        90
+        325,
+        584,
+        210,
+        100
       ],
       "width": 400,
-      "alt": "The current layout x and y coordinates"
+      "alt": "x 104 um and y 59.8 um above the scale bar"
     },
     {
-      "source": "11-delete-measurement.jpg",
+      "source": "11-delete-measurement.png",
       "name": "11-empty-measurements.png",
       "rect": [
-        25,
-        870,
-        282,
-        110
+        36,
+        543,
+        249,
+        100
       ],
       "width": 390,
-      "alt": "No measurements yet after deleting the ruler"
+      "alt": "No measurements yet after deletion"
     }
   ]
 }

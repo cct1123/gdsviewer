@@ -7,7 +7,11 @@ individual cells, and measure distances. Your files stay on your computer.
 There is nothing to install or build. The drawing library is included, so you can
 use the viewer offline too.
 
-![YZUDA's XOR layout in GDS Viewer, with the cell tree and layer controls on the left](docs/viewer-xor.png)
+The glass sidebar keeps cell and layer controls beside the drawing. **Fit View**,
+**Measure**, and **Grid** sit above the canvas. The grid starts on, with stronger
+major lines and five lighter subdivisions per interval, and adapts as you zoom.
+
+![YZUDA's XOR layout in the glass UI with the cell tree and default major/minor grid](docs/viewer-xor.png)
 
 New to layout viewers? The [guide in pictures](docs/user-guide.md) walks through
 this same XOR layout, with close-ups of each control and the result of using it.
@@ -28,11 +32,12 @@ The viewer starts empty. To follow along with the pictures, open
 [YZUDA](https://www.yzuda.org/download/_GDSII_examples.html); its original filename
 ends in `.gds2`, which the viewer accepts. The example files are included for the
 documentation and are opened with the same picker as your own files.
-[Full screenshot of the empty viewer](docs/images/01-open-viewer.jpg).
+[Full screenshot of the empty viewer](docs/images/01-open-viewer.png).
 
 On macOS or Linux, open `index.html` with a browser, or use `./open_gds_viewer.sh`.
-Direct file opening has been checked in headless Edge on Windows. The native OS
-picker dialogs and macOS/Linux launchers have not been checked in this update.
+The current screenshots were captured in the Codex in-app browser on Windows using
+the optional local server. See the [validation record](docs/yzuda-demo-validation.md)
+for checked behavior and platform limits.
 
 ## Find your way around
 
@@ -43,16 +48,17 @@ picker dialogs and macOS/Linux launchers have not been checked in this update.
 | Return to the overview | Click **Fit View**. |
 | Hide a layer or cell | Click its name in the sidebar. Click again to bring it back. |
 | Restore everything you hid | Click **Show All**. |
-| Add a reference grid | Click **Grid**. The scale bar shows the current distance scale. |
+| Show or hide the reference grid | **Grid** starts on, with major lines and five minor subdivisions per interval. Click to toggle both. |
 | Open another file | Use **Load GDS File** again, or drop the file into the viewer. |
 
+**Fit View**, **Measure**, and **Grid** are in the toolbar above the canvas.
 The sidebar scrolls separately from the drawing. If you cannot see all the layers
 or the measurement list, scroll inside the sidebar.
 
-<img src="docs/images/crops/04-layer-controls.png" alt="XOR layer controls with L47/D0 faded because it is hidden" width="390">
+<img src="docs/images/crops/04-layer-controls.png" alt="XOR layer controls with L47/D0 hidden, using a dashed border and hollow indicator" width="390">
 
-A faded layer button means that layer is hidden. Here, **L47/D0** is off: that is
-layer 47, datatype 0. Nothing is deleted from the file.
+A muted layer button with a dashed border and hollow indicator means that layer is
+hidden. Here, **L47/D0** is off: layer 47, datatype 0. Nothing is deleted from the file.
 [See the visibility walkthrough](docs/user-guide.md#4-show-or-hide-layers-and-cells).
 
 ### Measure a distance
@@ -60,11 +66,11 @@ layer 47, datatype 0. Nothing is deleted from the file.
 Click **Measure** (or press **m**), then click two points. Hold **Ctrl** while
 choosing the second point to keep the ruler horizontal or vertical.
 
-<img src="docs/images/crops/09-ruler-detail.png" alt="A horizontal ruler on the XOR layout reading 30.1 um, with dy 0.0 nm" width="620">
+<img src="docs/images/crops/09-ruler-detail.png" alt="A horizontal ruler on the XOR layout reading 44.0 um, with dy 0.0 nm" width="550">
 
-This ruler spans two matching contact regions near the top of the XOR layout and
-reads **30.1 µm**. Your result may vary a little with the points you choose. The
-label also gives `dx`, the horizontal distance, and `dy`, the vertical distance.
+This ruler across the middle of the XOR layout reads **44.0 µm**. Your result
+depends on the points you choose. The label also gives `dx`, the horizontal
+distance, and `dy`, the vertical distance.
 [Follow the measurement steps](docs/user-guide.md#8-measure-a-distance).
 
 After the second click, the ruler is saved and normal dragging resumes. Click
@@ -77,6 +83,7 @@ measurement to remove it.
 A **cell** is a named group of shapes. It can contain copies of other cells; that
 nesting is the **hierarchy**. You can leave these settings alone at first:
 
+- Expand **Root cell & hierarchy** to access these settings.
 - **Root cell** chooses what to inspect. Keep **All top-level cells** for the full
   design, or choose a cell such as `nand2` in the XOR example.
 - **Hierarchy depth** controls how far into the nested cells to look. Leave it
@@ -156,10 +163,13 @@ Keep these files together when copying the viewer or putting it on a static web 
 index.html
 gds_parser.js
 gds_viewer.js
+liquid_glass.js
 vendor/
   pixi.min.js
   VENDORED.md
   PIXI-LICENSE.txt
+  LIQUIDGL-LICENSE.txt
+  LIQUID-GLASS-EFFECT-LICENSE.txt
 LICENSE
 ```
 
@@ -181,6 +191,7 @@ Development checks use Node.js (validated with 24.14.1). No npm packages are nee
 ```text
 node --check gds_parser.js
 node --check gds_viewer.js
+node --check liquid_glass.js
 node --check tests/browser-smoke.js
 node --test tests/*.test.cjs
 ```
@@ -192,9 +203,17 @@ delivery. See [fixture provenance](tests/fixtures/README.md).
 
 For browser checks, start the helper above and open its **Browser checks:** address.
 Click **Run browser checks** to exercise loading, navigation, visibility,
-measurements, resizing, errors, overlapping loads, and graphics cleanup. Also inspect
-the drawing and test the native picker manually on the browsers you support.
+major/minor grids, measurements, resizing, errors, overlapping loads, and graphics
+cleanup. Also inspect the drawing and test the native picker manually on the
+browsers you support.
 [The screenshot record](docs/images/README.md) describes how the guide was captured.
+
+The local liquid-glass renderer in `liquid_glass.js` refracts a decorative backdrop;
+it does not sample geometry, measurements, or page content. It redraws on UI
+interaction and resize, with no idle animation. Its separate WebGL canvas is capped
+at 1.5 million pixels and falls back to CSS if WebGL fails or reduced transparency
+is requested. Reduced motion disables pointer lighting. There are no remote
+textures or additional runtime dependencies. See [attribution and notices](vendor/VENDORED.md#liquid-glass-adaptations).
 
 PixiJS version, checksum, license, and update instructions are in
 [vendor/VENDORED.md](vendor/VENDORED.md).

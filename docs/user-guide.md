@@ -1,5 +1,9 @@
 # GDS Viewer: a guide in pictures
 
+The screenshots show the current glass interface with the major/minor grid enabled.
+**Fit View**, **Measure**, and **Grid** are above the canvas. Expand
+**Root cell & hierarchy** for view settings and **Navigation & shortcuts** for help.
+
 Let's explore the XOR layout together. You'll open the file, peel back a layer,
 look inside a cell, and place a ruler. You can follow the whole walkthrough or jump
 to the part you need. Each close-up links to a full screenshot for context.
@@ -22,16 +26,16 @@ you can also double-click `open_gds_viewer.bat`. Keep the JavaScript files and
 
 <img src="images/crops/01-load-file.png" alt="Load GDS File button and .gds / .gds2 file hint" width="390">
 
-[Full screenshot: empty viewer](images/01-open-viewer.jpg)
+[Full screenshot: empty viewer](images/01-open-viewer.png)
 
 An empty drawing area is normal. The file button is ready on the left; root-cell
 and depth controls become available after a file loads. Nothing opens automatically.
 
 If your browser will not open the page directly, try the
 [optional local server](../README.md#if-opening-the-html-directly-does-not-work).
-These screenshots use that server in Edge on Windows. Direct `file://` loading has
-also been checked in headless Edge; native OS picker dialogs and macOS/Linux
-launchers were not exercised in this update.
+These screenshots use that server in the Codex in-app browser on Windows.
+The [validation record](yzuda-demo-validation.md) separates the current checks from
+earlier direct-file tests and untested platforms.
 
 ## 2. Load the example layout
 
@@ -40,16 +44,16 @@ launchers were not exercised in this update.
 3. Choose **xor.gds2**.
 4. Click **Fit View**.
 
-![The XOR layout with all cells and layers visible](images/02-layout-overview.jpg)
+![The XOR layout with all cells and layers visible](images/02-layout-overview.png)
 
-The title now says **GDS Viewer: xor.gds2**. The status at the bottom right shows
+The workspace heading now says **xor.gds2**. The status at the bottom right shows
 **4 / 4 cells**, **15 / 15 layers**, and **520 visible polygons**. This is our
 starting point for the walkthrough. The source file calls its top cell `abc2`,
 even though the filename is `xor.gds2`.
 
-The left sidebar holds the controls. The large area on the right is the drawing,
-and the scale bar sits at its lower left. The sidebar scrolls on its own—scroll
-there if you cannot see all the layers or the measurement list.
+The left sidebar holds visibility and hierarchy controls; the canvas toolbar is
+above the drawing. The scale bar sits at the drawing's lower left. The sidebar
+scrolls on its own—scroll there if you cannot see all the layers or the measurement list.
 
 To open your own design, choose a supported `.gds` or `.gds2` file instead, or drag
 it into the drawing area. Loading another file replaces the view and clears its
@@ -60,11 +64,11 @@ measurements. Files stay in your browser.
 Point at an interesting part of the layout and scroll to zoom in. Drag to move the
 view. When you want the whole design back, click **Fit View**.
 
-<img src="images/crops/03-fit-controls.png" alt="Fit View, Show All, and Hide All buttons" width="390">
+<img src="images/crops/03-fit-controls.png" alt="Canvas toolbar with Fit View, Measure, and the enabled Grid button" width="390">
 
 <img src="images/crops/03-zoomed-layout.png" alt="A closer view of the XOR layout after zooming and panning" width="700">
 
-[Full screenshot: zoomed and panned layout](images/03-zoom-and-pan.jpg)
+[Full screenshot: zoomed and panned layout](images/03-zoom-and-pan.png)
 
 The shapes get larger, while their borders stay thin. Geometry outside the window
 is still there. **Fit View** brings it back into view, but does not restore hidden
@@ -83,13 +87,14 @@ example, means layer 47, datatype 0.
 Click **Show All**, then **Fit View**. Scroll down in the sidebar and click
 **L47/D0**, the light-blue layer.
 
-<img src="images/crops/04-layer-controls.png" alt="XOR layer controls with L47/D0 faded and turned off" width="390">
+<img src="images/crops/04-layer-controls.png" alt="L47/D0 hidden with a dashed border and hollow indicator" width="390">
 
 <img src="images/crops/04-layer-status.png" alt="Status showing 14 of 15 layers and 512 visible polygons" width="540">
 
-[Full screenshot: L47/D0 hidden](images/04-layer-visibility.jpg)
+[Full screenshot: L47/D0 hidden](images/04-layer-visibility.png)
 
-The button fades and its shapes disappear. There are now **14 / 15 visible layers**
+The button becomes muted, with a dashed border and hollow indicator, and its shapes
+disappear. There are now **14 / 15 visible layers**
 and **512 visible polygons**. Click the button again to restore the layer.
 
 ### Hide a cell branch
@@ -97,17 +102,17 @@ and **512 visible polygons**. Click the button again to restore the layer.
 A **cell** is a named group of shapes that can include other cells. Click
 **Show All** again, then click the **nand2** name under **Cells**.
 
-<img src="images/crops/05-cell-controls.png" alt="Cell tree with nand2 and via faded after hiding the branch" width="390">
+<img src="images/crops/05-cell-controls.png" alt="Cell tree with nand2 and via marked hidden by dashed borders" width="390">
 
 Some of the remaining wiring looks like this:
 
 <img src="images/crops/05-cell-result.png" alt="A closer look at the wiring remaining after hiding nand2" width="650">
 
-[Full screenshot: nand2 branch hidden](images/05-cell-visibility.jpg)
+[Full screenshot: nand2 branch hidden](images/05-cell-visibility.png)
 
 The repeated `nand2` geometry disappears along with its `via` child. Visibility is
 shared by cell name, so `via` is hidden in its other placements too. You will see
-both names faded in the tree. The result is **2 / 4 visible cells** and
+both names marked hidden in the tree. The result is **2 / 4 visible cells** and
 **166 visible polygons**.
 
 Click a cell's **name** to change visibility. The small triangle beside it expands
@@ -118,13 +123,14 @@ never delete anything from the file. Click **Show All** before continuing.
 
 To see what one `nand2` cell contains, choose it as the root:
 
-1. Select **nand2** in **Root cell**.
-2. Leave **Hierarchy depth** empty.
-3. Click **Apply view options**.
+1. Expand **Root cell & hierarchy**.
+2. Select **nand2** in **Root cell**.
+3. Leave **Hierarchy depth** empty.
+4. Click **Apply view options**.
 
 <img src="images/crops/06-root-options.png" alt="nand2 selected as Root cell, with the depth field empty" width="390">
 
-[Full screenshot: nand2 on its own](images/06-root-cell.jpg)
+[Full screenshot: nand2 on its own](images/06-root-cell.png)
 
 You now see a single `nand2` layout and its nested `via` geometry, rather than all
 of its placements in the XOR design. The status shows **107 visible polygons**.
@@ -140,7 +146,7 @@ select **abc2**, enter **0** in **Hierarchy depth**, and apply.
 
 <img src="images/crops/07-depth-options.png" alt="abc2 selected with hierarchy depth set to zero" width="390">
 
-[Full screenshot: abc2 at depth zero](images/07-hierarchy-depth.jpg)
+[Full screenshot: abc2 at depth zero](images/07-hierarchy-depth.png)
 
 Only the shapes belonging directly to `abc2` remain: **28 polygons on 4 layers**.
 The nested gate and via cells are left out of this view.
@@ -158,17 +164,19 @@ loading; it cannot prevent every slow or oversized file load.
 
 ## 7. Use the grid and scale bar
 
-With the full layout restored, click **Grid**.
+The grid starts on, with stronger major lines and five lighter subdivisions per
+interval. If you have hidden it, click **Grid** to restore both levels.
 
 <img src="images/crops/08-grid-button.png" alt="The highlighted Grid button" width="100">
 
 <img src="images/crops/08-grid-scale-detail.png" alt="Grid lines and the 50.0 um scale bar below the XOR layout" width="520">
 
-[Full screenshot: grid and scale bar](images/08-grid-and-scale.jpg)
+[Full screenshot: grid and scale bar](images/08-grid-and-scale.png)
 
-Faint grid lines appear behind the layout. The scale bar in this view reads
-**50.0 um**; it changes as you zoom. Click **Grid** again to turn it off before the
-next step.
+Grid lines appear behind the layout and adapt their spacing as you zoom. The scale
+bar here reads **50.0 um**; it changes as you zoom. Click **Grid** to hide both
+levels if you prefer. The toggle keeps your choice when another file is loaded;
+a page refresh starts with the grid enabled again. The following pictures keep it on.
 
 `um` means micrometres (µm), and `nm` means nanometres. There are 1,000 nm in 1 µm.
 Read these units instead of comparing the sizes of shapes across screenshots.
@@ -178,17 +186,18 @@ before measuring a file that uses different units.
 
 ## 8. Measure a distance
 
-Let's measure between two matching contact regions near the upper-left of the layout.
+Let's place a horizontal ruler across the middle of the layout.
 
 1. Click **Measure**, or press **m**.
-2. Click near the centre of the right-hand contact region in the pair shown below.
-3. Hold **Ctrl** and click the matching region to its left at the same height.
+2. Click a first point near the right end of the ruler shown below.
+3. Hold **Ctrl** and click a second point to its left. Ctrl locks the ruler to
+   the horizontal or vertical direction, whichever is closer to your movement.
 
-<img src="images/crops/09-ruler-detail.png" alt="Horizontal XOR ruler reading 30.1 um, dx 30.1 um, dy 0.0 nm" width="620">
+<img src="images/crops/09-ruler-detail.png" alt="Horizontal XOR ruler reading 44.0 um, dx 44.0 um, dy 0.0 nm" width="550">
 
-[Full screenshot: completed ruler](images/09-measure-distance.jpg)
+[Full screenshot: completed ruler](images/09-measure-distance.png)
 
-Our ruler reads **30.1 um**, with **dx 30.1 um** and **dy 0.0 nm**. `dx` is the
+Our ruler reads **44.0 um**, with **dx 44.0 um** and **dy 0.0 nm**. `dx` is the
 horizontal distance; `dy` is the vertical distance. Yours may differ slightly
 because it depends on where you click. This is a walkthrough measurement, not a
 reference dimension for the circuit.
@@ -196,7 +205,7 @@ reference dimension for the circuit.
 After the second click, measurement mode ends and normal dragging resumes. Scroll
 to **Measurements** near the bottom of the sidebar to find the saved ruler:
 
-<img src="images/crops/09-saved-ruler.png" alt="Measurements section with a saved 30.1 um ruler and its Delete button" width="390">
+<img src="images/crops/09-saved-ruler.png" alt="Measurements section with a saved 44.0 um ruler and its Delete button" width="390">
 
 Click **Measure** again to start another ruler. While placing one, you can pan
 with a right-button drag.
@@ -210,11 +219,11 @@ Leave the second point unset for now.
 
 The bottom-left readout shows the current layout coordinates:
 
-<img src="images/crops/10-coordinate-readout.png" alt="Readout showing x 62.0 um and y 55.3 um above the scale bar" width="400">
+<img src="images/crops/10-coordinate-readout.png" alt="Readout showing x 104 um and y 59.8 um above the scale bar" width="400">
 
-[Full screenshot: crosshair and coordinates](images/10-pointer-coordinates.jpg)
+[Full screenshot: crosshair and coordinates](images/10-pointer-coordinates.png)
 
-Here the readout is **x 62.0 um | y 55.3 um**. Your values will follow your pointer.
+Here the readout is **x 104 um | y 59.8 um**. Your values will follow your pointer.
 The new ruler starts at zero length until you move to another point, and the
 previously saved ruler stays in place.
 
@@ -232,7 +241,7 @@ After deleting it, the list looks like this:
 
 <img src="images/crops/11-empty-measurements.png" alt="Measurements section saying No measurements yet" width="390">
 
-[Full screenshot: measurement removed](images/11-delete-measurement.jpg)
+[Full screenshot: measurement removed](images/11-delete-measurement.png)
 
 The ruler disappears from both the drawing and the list. The XOR geometry remains.
 

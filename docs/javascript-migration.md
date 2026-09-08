@@ -1,5 +1,10 @@
 # Python-free migration record
 
+This is the historical migration record; its test totals and platform checks
+describe that migration. For the current UI, asset list, and validation, see the
+[README](../README.md), [picture guide](user-guide.md), and
+[current validation record](yzuda-demo-validation.md).
+
 ## Result
 
 The application is now a static folder: index.html, gds_parser.js, gds_viewer.js, and

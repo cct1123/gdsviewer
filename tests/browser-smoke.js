@@ -58,6 +58,7 @@ runButton.addEventListener("click", async () => {
       await until(() => ready() && warning() === "", "apply options");
     };
     const host = get("pixi-host");
+    const glassSurface = get("liquid-glass-surface");
     const pointer = (type, x, y, button = 0) => host.dispatchEvent(new win.PointerEvent(type, {
       bubbles: true, clientX: x, clientY: y, button,
     }));
@@ -65,6 +66,7 @@ runButton.addEventListener("click", async () => {
     await check("static startup and safe empty controls", async () => {
       assert(/Choose a GDS/.test(warning()), warning());
       assert(!ready(), "View options enabled without a file");
+      assert(get("grid-button").classList.contains("is-active") && get("grid-button").getAttribute("aria-pressed") === "true", "Grid is not enabled by default");
       get("show-all-button").click();
       get("hide-all-button").click();
       get("fit-button").click();
@@ -73,13 +75,53 @@ runButton.addEventListener("click", async () => {
     await check("file picker renders hierarchy", async () => {
       await load(bytes.hierarchy, "hierarchy.gds");
       assert(/Visible polygons: 9$/.test(status()), status());
-      assert(doc.querySelectorAll("canvas").length === 1, "Missing or duplicate canvas");
+      assert(host.querySelectorAll("canvas").length === 1, "Missing or duplicate layout canvas");
+      assert(doc.querySelectorAll("canvas").length === 1 + Number(Boolean(glassSurface)), "Unexpected canvas outside the viewer");
       assert(get("cell-select").options.length === 5, "Missing cell options");
+      assert(win.getComputedStyle(doc.querySelector(".empty-state")).display === "none", "Welcome artwork covers the loaded canvas");
     });
     await check("gds2 extension loads through picker and drop", async () => {
+      get("grid-button").click();
       await load(bytes.hierarchy, "hierarchy.GDS2");
       await load(bytes.hierarchy, "hierarchy.gds2", true);
       assert(/Visible polygons: 9$/.test(status()), status());
+      assert(get("grid-button").getAttribute("aria-pressed") === "false", "Reload reset the user's grid choice");
+      get("grid-button").click();
+    });
+    await check("major and minor grid lines share evenly divided intervals", async () => {
+      const prototype = win.PIXI.Graphics.prototype;
+      const moveTo = prototype.moveTo;
+      const stroke = prototype.stroke;
+      const passes = [];
+      let starts = [];
+      prototype.moveTo = function (x, y) { starts.push([x, y]); return moveTo.call(this, x, y); };
+      prototype.stroke = function (style) {
+        passes.push({ starts, alpha: style.alpha });
+        starts = [];
+        return stroke.call(this, style);
+      };
+      try {
+        get("fit-button").click();
+        assert(passes.length === 2, "Grid did not draw two levels");
+        const [minor, major] = passes.sort((a, b) => a.alpha - b.alpha);
+        assert(major.alpha > minor.alpha, "Grid levels have the same contrast");
+        for (const axis of [0, 1]) {
+          const positions = (pass) => pass.starts.filter((point) => point[1 - axis] === 0).map((point) => point[axis]).sort((a, b) => a - b);
+          const [first, second] = positions(major);
+          assert(Number.isFinite(second), "Major lines are missing");
+          const between = positions(minor).filter((value) => value > first && value < second);
+          assert(between.length === 4, "Major interval does not have five subdivisions");
+          between.forEach((value, index) => assert(Math.abs(value - first - (second - first) * (index + 1) / 5) <= 1, "Minor divisions are uneven"));
+        }
+        passes.length = 0;
+        get("grid-button").click();
+        get("fit-button").click();
+        assert(passes.length === 0, "Hidden grid still draws lines");
+        get("grid-button").click();
+      } finally {
+        prototype.moveTo = moveTo;
+        prototype.stroke = stroke;
+      }
     });
     await check("root selection and depth controls", async () => {
       await apply("TOP", "0");
@@ -120,7 +162,9 @@ runButton.addEventListener("click", async () => {
       assert(scale() !== fitted, "Keyboard zoom did not change scale");
       get("fit-button").click();
       get("grid-button").click();
-      assert(get("grid-button").classList.contains("is-active"), "Grid toggle failed");
+      assert(!get("grid-button").classList.contains("is-active") && get("grid-button").getAttribute("aria-pressed") === "false", "Grid did not turn off");
+      get("grid-button").click();
+      assert(get("grid-button").classList.contains("is-active") && get("grid-button").getAttribute("aria-pressed") === "true", "Grid did not turn back on");
       get("measure-button").click();
       pointer("pointermove", x, y);
       const before = get("pointer-status").textContent;
@@ -145,12 +189,20 @@ runButton.addEventListener("click", async () => {
       assert(doc.querySelectorAll(".measurement-item").length === 0, "Options retained stale measurements");
     });
     await check("resize preserves a correctly sized canvas", async () => {
-      frame.style.width = "850px";
-      await pause(150);
-      const canvas = doc.querySelector("canvas");
-      assert(Math.abs(canvas.getBoundingClientRect().width - host.clientWidth) <= 1, "Canvas did not resize");
+      for (const width of [850, 620]) {
+        frame.style.width = `${width}px`;
+        const canvas = host.querySelector("canvas");
+        await until(() => win.innerWidth === width && Math.abs(canvas.getBoundingClientRect().width - host.clientWidth) <= 1, `canvas resize at ${width}px`);
+        assert(Math.abs(canvas.getBoundingClientRect().width - host.clientWidth) <= 1, "Canvas did not resize");
+        assert(host.clientWidth > 0 && host.clientHeight > 0, "Canvas collapsed");
+        assert(doc.documentElement.scrollWidth <= win.innerWidth, `Page overflows at ${width}px`);
+        for (const id of ["fit-button", "measure-button", "grid-button"]) {
+          const rect = get(id).getBoundingClientRect();
+          assert(rect.left >= 0 && rect.right <= win.innerWidth && rect.top >= 0 && rect.bottom <= win.innerHeight, `${id} is clipped at ${width}px`);
+        }
+      }
       frame.style.width = "1100px";
-      await pause(150);
+      await until(() => win.innerWidth === 1100 && Math.abs(host.querySelector("canvas").getBoundingClientRect().width - host.clientWidth) <= 1, "canvas resize at 1100px");
     });
     await check("drop loading, multiple roots, and filename escaping", async () => {
       await load(bytes.roots, "layout <img src=x>.gds", true);
@@ -170,6 +222,7 @@ runButton.addEventListener("click", async () => {
         selectFile(data, name);
         await until(() => ready() && message.test(warning()), `error for ${name}`);
         assert(doc.title === "GDS Viewer: empty-cell.gds", "Failed load replaced the view");
+        assert(doc.querySelector(".title").textContent === "empty-cell.gds", "Failed load replaced the displayed filename");
       }
     });
     await check("latest selected file wins over a slow earlier read", async () => {
@@ -227,11 +280,63 @@ runButton.addEventListener("click", async () => {
         for (let index = 0; index < 5; index += 1) {
           await load(dense, `dense-${index}.gds`);
           assert(/Visible polygons: 2049$/.test(status()), status());
-          assert(doc.querySelectorAll("canvas").length === 1, "Canvas accumulated across reloads");
+          assert(host.querySelectorAll("canvas").length === 1, "Layout canvas accumulated across reloads");
+          assert(get("liquid-glass-surface") === glassSurface, "Decorative renderer recreated during file loading");
+          assert(doc.querySelectorAll("canvas").length === 1 + Number(Boolean(glassSurface)), "Canvas accumulated across reloads");
         }
         assert(destroyed >= 12, `Old graphics contexts were not released: ${destroyed}`);
       } finally {
         prototype.destroy = destroy;
+      }
+    });
+    await check("liquid glass is bounded, idle during layout pan, and safe after context loss", async () => {
+      assert(glassSurface, "Liquid-glass WebGL renderer did not initialize");
+      assert(glassSurface.width * glassSurface.height <= 1500000, "Decorative framebuffer exceeds budget");
+      assert(win.getComputedStyle(glassSurface).pointerEvents === "none", "Glass canvas intercepts input");
+      const gl = glassSurface.getContext("webgl");
+      await pause(300);
+      let draws = 0;
+      const original = gl.drawArrays;
+      gl.drawArrays = function (...args) { draws += 1; return original.apply(this, args); };
+      try {
+        const rect = host.getBoundingClientRect();
+        pointer("pointerdown", rect.left + 120, rect.top + 150);
+        for (let index = 0; index < 12; index++) {
+          pointer("pointermove", rect.left + 120 + index * 5, rect.top + 150);
+          await pause(16);
+        }
+        pointer("pointerup", rect.left + 175, rect.top + 150);
+        assert(draws === 0, `Glass redrew ${draws} times during layout navigation`);
+      } finally {
+        gl.drawArrays = original;
+      }
+      const loseContext = gl.getExtension("WEBGL_lose_context");
+      assert(loseContext, "Context-loss extension is unavailable in this browser");
+      loseContext.loseContext();
+      await until(() => !get("liquid-glass-surface"), "glass context-loss cleanup");
+      assert(doc.querySelector(".viewer").dataset.glass === "fallback", "CSS fallback did not activate");
+      get("fit-button").click();
+      get("hide-all-button").click();
+      assert(/Visible polygons: 0$/.test(status()), "Fallback lost viewer controls");
+      get("show-all-button").click();
+      assert(/Visible polygons: 2049$/.test(status()), "Fallback lost geometry");
+    });
+    await check("unavailable decorative WebGL leaves startup controls visible", async () => {
+      const fallback = document.createElement("iframe");
+      document.body.appendChild(fallback);
+      try {
+        const html = await (await fetch("../index.html")).text();
+        const loaded = new Promise((resolve) => fallback.addEventListener("load", resolve, { once: true }));
+        const noGlassContext = '<script>const getContext = HTMLCanvasElement.prototype.getContext; HTMLCanvasElement.prototype.getContext = function (...args) { return this.id === "liquid-glass-surface" ? null : getContext.apply(this, args); };<\/script>';
+        fallback.srcdoc = html.replace("<head>", '<head><base href="../">').replace('<script src="./liquid_glass.js"></script>', noGlassContext + '<script src="./liquid_glass.js"></script>');
+        await loaded;
+        const fallbackDoc = fallback.contentDocument;
+        assert(!fallbackDoc.getElementById("liquid-glass-surface"), "Failed decorative canvas was retained");
+        assert(fallbackDoc.querySelector(".viewer").dataset.glass === "fallback", "Decorative WebGL failure did not select CSS");
+        assert(!fallbackDoc.getElementById("load-file-button").disabled, "Decorative failure disabled loading");
+        assert(/Choose a GDS/.test(fallbackDoc.getElementById("warning").textContent), "Decorative error interrupted viewer startup");
+      } finally {
+        fallback.remove();
       }
     });
     await check("missing PixiJS produces an actionable startup error", async () => {

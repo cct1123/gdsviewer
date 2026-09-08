@@ -6,6 +6,7 @@ const assets = new Map([
   ["index.html", "text/html; charset=utf-8"],
   ["gds_parser.js", "application/javascript; charset=utf-8"],
   ["gds_viewer.js", "application/javascript; charset=utf-8"],
+  ["liquid_glass.js", "application/javascript; charset=utf-8"],
   ["vendor/pixi.min.js", "application/javascript; charset=utf-8"],
   ["tests/browser.html", "text/html; charset=utf-8"],
   ["tests/browser-smoke.js", "application/javascript; charset=utf-8"],

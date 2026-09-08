@@ -1,0 +1,58 @@
+{
+  "capturedOn": "2026-09-08",
+  "browser": "Codex in-app browser on Windows",
+  "viewport": [
+    1280,
+    720
+  ],
+  "deviceScaleFactor": 1,
+  "baseCommit": "d6520bf091611c28b84c565a0e88279c75b69db8",
+  "sourceState": "Uncommitted working tree; source hashes identify the captured UI.",
+  "hashAlgorithm": "SHA256; normalize CRLF to LF for the files in normalizedTextSources; hash all other files as stored.",
+  "normalizedTextSources": [
+    "index.html",
+    "gds_parser.js",
+    "gds_viewer.js",
+    "liquid_glass.js"
+  ],
+  "glass": "webgl",
+  "grid": "Enabled in every loaded view; five subdivisions per major interval.",
+  "sources": {
+    "index.html": "715b6c893c8ab41ba87a6b087c9b4fe673c896ff84970819edab762e7940ef48",
+    "gds_parser.js": "eaca8f05ba75d8a65c337b4d581db13cb3206d0e39aa35caac3bc6ee80990ced",
+    "gds_viewer.js": "f943d824b5f712c2cca953b6c1990bce1eca04425592f5f924fd8a19c7f899b3",
+    "liquid_glass.js": "957313fcc69aefc6a0034ae128e2616c3cb1ba5e78ac5fc8321393513430fdc7",
+    "vendor/pixi.min.js": "07cbe045435c2a487c2f28f9a3a9ee43069dbbec0c77585477bb6e63b5e125a8",
+    "examples/yzuda/xor.gds2": "50a0e3919d4e780ef4783428489f5aec96f88cf91609a58a19752564820a2b79"
+  },
+  "images": {
+    "docs/images/01-open-viewer.png": "7101f2aa49881d7451fbd0fd68c59a5c2e81cb64000c71be3e7e0190e584e244",
+    "docs/images/02-layout-overview.png": "f13af2792a9ffb6b52d42ca38b2c8736e0ad0841f9e945f81ed03577e6611158",
+    "docs/images/03-zoom-and-pan.png": "4765f2427d48dee697df2cd6ab026b769bd39a04d9e77b1d330e6d6ca8907f2e",
+    "docs/images/04-layer-visibility.png": "6f7af10c513f3d94f9918e91020725e91fde694e18485382e75a3cb705e63b56",
+    "docs/images/05-cell-visibility.png": "ba530718f042818de664a17d4496f6dd9cde79ceae4d31199d126f3862de58c6",
+    "docs/images/06-root-cell.png": "9dc9eb365790692bf8b363227d5d13137498e2fa4e85a3e2299829d835ed5284",
+    "docs/images/07-hierarchy-depth.png": "4f0ad47c34cd01acc528f16413ecbefcd043361307e6ca57b81a3c4a942285ac",
+    "docs/images/08-grid-and-scale.png": "fe38ad03fa3ca3d8a3976fd89e9f506755b5da3b4671fd6b84c6bfbbe4092c98",
+    "docs/images/09-measure-distance.png": "e9b25118e2887d2d72d84f1be3549fda01d8533bb48464ac1d0165f0bcd450b3",
+    "docs/images/10-pointer-coordinates.png": "bc35a479b0904712bdef41178a468d8bcc53f14d24955c0d2c4916aeca65b58b",
+    "docs/images/11-delete-measurement.png": "5e29281e79c57ff6160c3db3eaf365cfab9f9109727c5d8a4655d6243766666b",
+    "docs/images/crops/01-load-file.png": "75731c9fc321cda84ae547610d35d70a7188f5f50a0247ae7325342d186e1370",
+    "docs/images/crops/03-fit-controls.png": "2d742f74ae77a0d3beae20477a6aeac1fb1487a1a5a723624671d114fcd7913e",
+    "docs/images/crops/03-zoomed-layout.png": "f1b76683ece8d7eab7ecb9b32e6eb06d6b6d61cd8a98fd962b65cd817de031ba",
+    "docs/images/crops/04-layer-controls.png": "1feac413cf3e7ffbda33ee6e714947f2ac93e9ea566d75ad952d31e1b7cfbac4",
+    "docs/images/crops/04-layer-status.png": "03969c9b10562a611872a0f02b54906fe3cd3293c82250f906e23250e70ea354",
+    "docs/images/crops/05-cell-controls.png": "b2843dc0449b8a06f75c6e944865340be5b06cdafee1e453fb340cf2fa57473c",
+    "docs/images/crops/05-cell-result.png": "036fba9a46b67c39ed59149afdd16acaf542293646440817446b58cf15ad3300",
+    "docs/images/crops/06-root-options.png": "9de5ada60a9352b61f35de037e4649996e3b10a6a11cb3bc63c8250f75ebaca1",
+    "docs/images/crops/07-depth-options.png": "e71002809b7c3b982b11e08c1f65883689696aa5ca083ddada1e16862653a6b5",
+    "docs/images/crops/08-grid-button.png": "bc2bc2a95313f909ab16aa6b166283b279787f5fe3518ae7835242e290f5a4ef",
+    "docs/images/crops/08-grid-scale-detail.png": "65d4fc98b21c8952c4e293149c81f6c7a8867133786e2e729133132f75f10840",
+    "docs/images/crops/09-ruler-detail.png": "c6e3f326af3e5ecc5e6ad623868a35c5fbef3a1e7191f74b38c7e92e00be2297",
+    "docs/images/crops/09-saved-ruler.png": "d582fc74bf38908373d4a7a7b59bc6a8f54c87cc9de9431c88d918f6b3f1a933",
+    "docs/images/crops/10-pointer-detail.png": "9fc2a962514032b7be919c7f28b0a21d39bee1e1cf666e486ebab417b89bf6a6",
+    "docs/images/crops/10-coordinate-readout.png": "a14a1d0c99aaeb91b1e98eacc90cb4675667370337f0dff143932416e440152e",
+    "docs/images/crops/11-empty-measurements.png": "1e19a8155b4dfda442802532d4bde174aab520ef1adec15c26db5696869c6383",
+    "docs/viewer-xor.png": "f13af2792a9ffb6b52d42ca38b2c8736e0ad0841f9e945f81ed03577e6611158"
+  }
+}

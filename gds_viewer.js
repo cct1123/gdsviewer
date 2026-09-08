@@ -49,7 +49,7 @@
   let cellHandlersBound = false;
   let sceneRenderToken = 0;
   let measureMode = false;
-  let gridVisible = false;
+  let gridVisible = true;
   let measureStart = null;
   let measureEnd = null;
   let measurePointer = null;
@@ -219,7 +219,9 @@
     return bestPoint;
   }
 
-  function showWarning(message) {
+  function showWarning(message, tone = "warning") {
+    warningNode.classList.toggle("is-info", tone === "info" || tone === "welcome");
+    warningNode.classList.toggle("is-welcome", tone === "welcome");
     warningNode.style.display = "block";
     warningNode.textContent = message;
   }
@@ -527,7 +529,7 @@
     const maxWorld = toActualPoint(width, 0);
     const targetPixels = 72;
     const targetUm = targetPixels / pixelsPerUm;
-    const exponent = Math.floor(Math.log10(Math.max(targetUm, 1e-9)));
+    const exponent = Math.floor(Math.log10(targetUm));
     const base = 10 ** exponent;
     const candidates = [1, 2, 5, 10];
     let spacing = base;
@@ -538,22 +540,34 @@
       }
     }
 
-    const startX = Math.floor(minWorld.x / spacing) * spacing;
-    const endX = Math.ceil(maxWorld.x / spacing) * spacing;
-    const startY = Math.floor(minWorld.y / spacing) * spacing;
-    const endY = Math.ceil(maxWorld.y / spacing) * spacing;
+    // Five subdivisions keep minor lines at least ~14 screen pixels apart.
+    const minorSpacing = spacing / 5;
+    if (!Number.isFinite(minorSpacing) || minorSpacing <= 0) return;
+    const startX = Math.ceil(minWorld.x / minorSpacing);
+    const endX = Math.floor(maxWorld.x / minorSpacing);
+    const startY = Math.ceil(minWorld.y / minorSpacing);
+    const endY = Math.floor(maxWorld.y / minorSpacing);
+    if (![startX, endX, startY, endY].every(Number.isSafeInteger)) {
+      return;
+    }
 
-    for (let x = startX; x <= endX + spacing * 0.5; x += spacing) {
-      const screenX = toScreenPoint(x, 0).x;
-      gridGraphics.moveTo(screenX, 0);
-      gridGraphics.lineTo(screenX, height);
+    // Integer indices anchor both levels to the same world origin and avoid
+    // accumulating coordinate error while panning through negative coordinates.
+    for (const major of [false, true]) {
+      for (let index = startX; index <= endX; index += 1) {
+        if ((index % 5 === 0) !== major) continue;
+        const screenX = Math.round(toScreenPoint(index * minorSpacing, 0).x) + 0.5;
+        gridGraphics.moveTo(screenX, 0);
+        gridGraphics.lineTo(screenX, height);
+      }
+      for (let index = startY; index <= endY; index += 1) {
+        if ((index % 5 === 0) !== major) continue;
+        const screenY = Math.round(toScreenPoint(0, index * minorSpacing).y) + 0.5;
+        gridGraphics.moveTo(0, screenY);
+        gridGraphics.lineTo(width, screenY);
+      }
+      gridGraphics.stroke({ color: 0x7c877d, alpha: major ? 0.30 : 0.13, width: 1 });
     }
-    for (let y = startY; y <= endY + spacing * 0.5; y += spacing) {
-      const screenY = toScreenPoint(0, y).y;
-      gridGraphics.moveTo(0, screenY);
-      gridGraphics.lineTo(width, screenY);
-    }
-    gridGraphics.stroke({ color: 0xbfc6d4, alpha: 0.35, width: 1 });
   }
 
   function updateOverlays() {
@@ -807,7 +821,7 @@
 
     const graphics = new PIXI.Graphics();
     const color = hexToNumber(group.cssColor);
-    const outlineColor = 0x8a93a3;
+    const outlineColor = 0x526477;
     const [a, b, c, d] = group.transform;
     const [ox, oy] = group.offset;
 
@@ -825,8 +839,8 @@
         graphics.lineTo(x, -y);
       }
       graphics.closePath();
-      graphics.fill({ color, alpha: 0.26 });
-      graphics.stroke({ color: outlineColor, alpha: 0.45, pixelLine: true });
+      graphics.fill({ color, alpha: 0.32 });
+      graphics.stroke({ color: outlineColor, alpha: 0.65, pixelLine: true });
     }
 
     graphics.eventMode = "none";
@@ -845,7 +859,7 @@
       }
       const context = new PIXI.GraphicsContext();
       const color = hexToNumber(template.cssColor);
-      const outlineColor = 0x8a93a3;
+      const outlineColor = 0x526477;
       for (const item of template.polygons || []) {
         const coords = item.polygon;
         if (!coords || coords.length < 6) {
@@ -856,7 +870,7 @@
           flipped[index] = coords[index];
           flipped[index + 1] = -coords[index + 1];
         }
-        context.poly(flipped, true).fill({ color, alpha: 0.26 }).stroke({ color: outlineColor, alpha: 0.45, pixelLine: true });
+        context.poly(flipped, true).fill({ color, alpha: 0.32 }).stroke({ color: outlineColor, alpha: 0.65, pixelLine: true });
       }
       templateContextMap.set(template.id, context);
     }
@@ -1179,7 +1193,8 @@
     document.title = viewModel.title;
     const titleNode = document.querySelector(".title");
     if (titleNode) {
-      titleNode.textContent = viewModel.title;
+      titleNode.textContent = viewModel.title.replace(/^GDS Viewer: /, "");
+      titleNode.title = viewModel.title;
     }
     await rebuildControls();
     await renderSceneProgressively();
@@ -1249,7 +1264,7 @@
     }
     const version = ++loadVersion;
     setOptionsEnabled(false);
-    showWarning("Loading GDS file...");
+    showWarning("Loading GDS file...", "info");
     try {
       const bytes = await file.arrayBuffer();
       if (version !== loadVersion) {
@@ -1283,7 +1298,7 @@
     const version = ++loadVersion;
     const options = { cellName: cellSelect.value || null, maxDepth };
     setOptionsEnabled(false);
-    showWarning("Applying view options...");
+    showWarning("Applying view options...", "info");
     try {
       await displayLibrary(currentLibrary, currentFilename, options, version);
     } catch (error) {
@@ -1359,6 +1374,7 @@
   gridButton.addEventListener("click", () => {
     gridVisible = !gridVisible;
     gridButton.classList.toggle("is-active", gridVisible);
+    gridButton.setAttribute("aria-pressed", String(gridVisible));
     updateGridOverlay();
   });
   window.addEventListener("keydown", (event) => {
@@ -1409,7 +1425,7 @@
     if (!window.PIXI || !window.PIXI.Application || !window.PIXI.Graphics) {
       throw new Error("PixiJS failed to load. Keep the vendor folder beside index.html.");
     }
-    showWarning("Choose a GDS file or drop one onto the viewer. Files stay in your browser.");
+    showWarning("Choose a GDS file or drop one onto the viewer. Files stay in your browser.", "welcome");
   } catch (error) {
     showWarning(String(error));
   }

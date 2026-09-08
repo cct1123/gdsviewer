@@ -6,414 +6,341 @@
   <title>GDS Viewer</title>
   <style>
     :root {
-      --viewer-bg: #f5ecf6;
-      --viewer-surface: #fffafc;
-      --viewer-panel: #f8f1f7;
-      --viewer-panel-accent: #eadff0;
-      --viewer-border: #d9c9dd;
-      --viewer-text: #2d2a38;
-      --viewer-muted: #6d687c;
-      --viewer-accent: #6f8fc7;
-      --viewer-accent-soft: #e7eefb;
-      --viewer-accent-strong: #4969a3;
-      --viewer-shadow: rgba(77, 59, 99, 0.12);
+      color-scheme: light;
+      --viewer-text: #272b28;
+      --viewer-muted: #666d66;
+      --viewer-accent: #4d6558;
+      --viewer-accent-strong: #344c3d;
+      --viewer-accent-soft: #e2e9e2;
+      --viewer-border: rgba(43, 49, 43, 0.12);
+      --viewer-glass: rgba(255, 255, 255, 0.68);
+      --viewer-shadow: 0 8px 24px rgba(34, 39, 34, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.9);
     }
+    * { box-sizing: border-box; }
     body {
       margin: 0;
-      padding: 16px;
+      padding: 14px;
       background:
-        radial-gradient(circle at top, rgba(255, 255, 255, 0.65), transparent 42%),
-        linear-gradient(180deg, #fdf5fb, var(--viewer-bg));
-      font-family: "Segoe UI", "Aptos", Helvetica, Arial, sans-serif;
+        radial-gradient(ellipse at 0% 5%, #e1e3de 0, transparent 50%),
+        radial-gradient(ellipse at 90% 100%, #ddded8 0, transparent 52%),
+        linear-gradient(135deg, #eeefea, #e5e7e1 60%, #edece5);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 13px;
       color: var(--viewer-text);
+      -webkit-font-smoothing: antialiased;
     }
-    .viewer {
-      box-sizing: border-box;
-      display: grid;
-      grid-template-columns: 300px minmax(0, 1fr);
-      height: calc(100vh - 32px);
+    button, input, select { font: inherit; }
+    button, summary, label { -webkit-tap-highlight-color: transparent; }
+    button, input[type="text"], input[type="number"], select {
       border: 1px solid var(--viewer-border);
       border-radius: 12px;
+      background: rgba(255, 255, 255, 0.74);
+      color: var(--viewer-text);
+      padding: 9px 12px;
+      min-height: 36px;
+    }
+    button {
+      cursor: pointer;
+      font-weight: 500;
+      box-shadow: 0 1px 2px rgba(34, 39, 34, 0.03);
+      transition: background 140ms ease, box-shadow 140ms ease, border-color 140ms ease;
+    }
+    button:hover { background: #fff; border-color: rgba(61, 75, 63, 0.26); box-shadow: 0 3px 8px rgba(34, 39, 34, 0.07); }
+    button:active { background: #e1e5df; }
+    button.is-active { background: var(--viewer-accent-soft); border-color: #9fab9f; color: var(--viewer-accent-strong); }
+    button:disabled, input:disabled, select:disabled { opacity: 0.5; cursor: default; box-shadow: none; }
+    button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible {
+      outline: 3px solid rgba(66, 91, 73, 0.65);
+      outline-offset: 3px;
+    }
+    svg { width: 18px; height: 18px; flex: 0 0 auto; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+    .viewer {
+      display: grid;
+      grid-template-columns: 290px minmax(0, 1fr);
+      height: calc(100vh - 28px);
+      height: calc(100dvh - 28px);
       overflow: hidden;
-      background: var(--viewer-surface);
-      box-shadow: 0 14px 36px var(--viewer-shadow);
+      border: 1px solid rgba(255, 255, 255, 0.88);
+      border-radius: 28px;
+      background: rgba(244, 245, 240, 0.66);
+      box-shadow: 0 24px 70px rgba(40, 44, 38, 0.12), 0 2px 8px rgba(40, 44, 38, 0.04);
     }
     .sidebar {
       display: flex;
       flex-direction: column;
-      background: var(--viewer-panel);
-      border-right: 1px solid var(--viewer-border);
-      padding: 16px;
-      overflow: auto;
-      min-height: 0;
-    }
-    .title {
-      margin: 0 0 6px 0;
-      font-size: 18px;
-      font-weight: 700;
-      overflow-wrap: anywhere;
-      word-break: break-word;
-    }
-    .subtitle {
-      margin: 0 0 14px 0;
-      font-size: 13px;
-      color: var(--viewer-muted);
-    }
-    .toolbar {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 14px;
-    }
-    button, input[type="text"], input[type="number"], select {
-      border: 1px solid var(--viewer-border);
-      background: rgba(255, 251, 255, 0.96);
-      border-radius: 8px;
-      padding: 8px 10px;
-      font-size: 12px;
-      color: var(--viewer-text);
-    }
-    button {
-      cursor: pointer;
-    }
-    button:hover {
-      border-color: #c5b0d2;
-      background: #fffefe;
-    }
-    button.is-active {
-      background: var(--viewer-accent-soft);
-      border-color: #98afc4;
-      color: var(--viewer-accent-strong);
-    }
-    .section {
-      margin-top: 16px;
-    }
-    .cell-section {
-      flex: 1 0 150px;
-      min-height: 150px;
-      display: flex;
-      flex-direction: column;
-    }
-    .cell-section-body {
+      gap: 0;
+      padding: 24px 18px 20px;
       min-height: 0;
       overflow: auto;
-      padding-right: 4px;
+      background: rgba(247, 248, 243, 0.56);
+      border-right: 1px solid rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(28px) saturate(105%);
+      -webkit-backdrop-filter: blur(28px) saturate(105%);
+      scrollbar-width: thin;
+      scrollbar-color: #bbc1b8 transparent;
     }
-    .section h3 {
-      margin: 0 0 8px 0;
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--viewer-muted);
-    }
-    .section-hint {
-      margin: -2px 0 10px 0;
-      font-size: 12px;
-      color: var(--viewer-muted);
-      line-height: 1.4;
-    }
-    .tree-list {
-      display: grid;
-      gap: 6px;
-    }
-    label {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 13px;
-    }
-    .tree-node {
-      display: grid;
-      gap: 6px;
-    }
-    .tree-folder {
-      display: grid;
-      gap: 6px;
-    }
-    .tree-summary {
-      list-style: none;
-      cursor: pointer;
-    }
-    .tree-summary::-webkit-details-marker {
-      display: none;
-    }
-    .tree-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      min-width: 0;
-    }
-    .cell-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      border: 1px solid var(--viewer-border);
-      background: #fff;
-      border-radius: 999px;
-      padding: 6px 10px;
-      font-size: 12px;
-      cursor: pointer;
-      transition: opacity 120ms ease, transform 120ms ease, box-shadow 120ms ease;
-    }
-    .cell-chip:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 3px 10px rgba(96, 78, 116, 0.1);
-    }
-    .cell-chip.is-off {
-      opacity: 0.35;
-    }
-    .tree-children {
-      display: grid;
-      gap: 6px;
-      margin-left: 18px;
-      padding-left: 10px;
-      border-left: 1px solid var(--viewer-panel-accent);
-    }
-    .fold-marker {
-      width: 12px;
-      color: var(--viewer-muted);
-      font-size: 11px;
-      text-align: center;
-      flex: 0 0 auto;
-    }
-    .layer-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-    .measurement-list {
-      display: grid;
-      gap: 8px;
-    }
-    .measurement-item {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
-      gap: 8px;
-      align-items: center;
-      padding: 8px 10px;
-      border: 1px solid var(--viewer-border);
-      border-radius: 10px;
-      background: #fff;
-      font-size: 12px;
-    }
-    .measurement-item.is-selected {
-      border-color: #9eb0c0;
-      background: #e8eef2;
-    }
-    .measurement-main {
-      min-width: 0;
-      cursor: pointer;
-    }
-    .measurement-title {
-      font-weight: 600;
-      color: var(--viewer-text);
-    }
-    .measurement-detail {
-      color: var(--viewer-muted);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .measurement-delete {
-      padding: 6px 8px;
-    }
-    .layer-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      border: 1px solid var(--viewer-border);
-      background: #fff;
-      border-radius: 999px;
-      padding: 6px 10px;
-      font-size: 12px;
-      cursor: pointer;
-      transition: opacity 120ms ease, transform 120ms ease, box-shadow 120ms ease;
-    }
-    .layer-chip:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 3px 10px rgba(96, 78, 116, 0.1);
-    }
-    .layer-chip.is-off {
-      opacity: 0.35;
-    }
-    .chip {
-      width: 14px;
-      height: 14px;
-      border-radius: 999px;
-      flex: 0 0 auto;
-      border: 1px solid rgba(0, 0, 0, 0.12);
-    }
-    .file-row {
-      display: grid;
-      gap: 8px;
-    }
-    .load-options {
-      display: grid;
-      gap: 8px;
-      margin-bottom: 14px;
-    }
-    .load-options label {
-      display: grid;
-      gap: 4px;
-      font-size: 12px;
-    }
-    .load-options input, .load-options select {
-      width: 100%;
-      min-width: 0;
-      box-sizing: border-box;
-    }
-    button:disabled, input:disabled, select:disabled {
-      opacity: 0.55;
-      cursor: default;
-    }
-    .stage {
-      position: relative;
-      overflow: hidden;
-      background:
-        radial-gradient(circle at top, rgba(255, 255, 255, 0.82), transparent 34%),
-        linear-gradient(180deg, #fff9fd, #f3e8f3);
-      min-height: 0;
-    }
-    .stage.is-dragover::after {
-      content: "Drop .gds file to load";
-      position: absolute;
-      inset: 16px;
+    .brand { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
+    .app-icon, .empty-icon {
       display: grid;
       place-items: center;
-      border: 2px dashed #aeb8df;
-      border-radius: 12px;
-      background: rgba(236, 241, 252, 0.92);
-      color: var(--viewer-accent-strong);
-      font-size: 14px;
-      font-weight: 600;
-      letter-spacing: 0.02em;
-      pointer-events: none;
-      z-index: 3;
+      background: linear-gradient(145deg, #626760, #3c423c 55%, #292f2a);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.65);
+      box-shadow: 0 6px 16px rgba(36, 42, 35, 0.15), inset 0 1px 1px rgba(255, 255, 255, 0.5);
     }
-    .pixi-host {
+    .app-icon { width: 42px; height: 42px; border-radius: 13px; flex: 0 0 auto; }
+    .app-icon svg { width: 25px; height: 25px; }
+    .brand-copy { min-width: 0; }
+    .brand-title { margin: 0; font-size: 17px; font-weight: 650; letter-spacing: -0.5px; overflow-wrap: anywhere; }
+    .subtitle { margin: 4px 0 0; font-size: 11px; color: var(--viewer-muted); }
+    .section { margin-top: 20px; }
+    .section h3 { margin: 0 0 10px; font-size: 12px; font-weight: 650; color: #505a50; letter-spacing: 0.01em; }
+    .section-hint { margin: 8px 0 12px; color: var(--viewer-muted); font-size: 11px; line-height: 1.55; }
+    .load-section { margin-top: 0; }
+    .load-section h3 { display: none; }
+    .file-row { display: grid; gap: 8px; }
+    #load-file-button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 42px;
+      background: linear-gradient(180deg, #3d443d, #2f362f);
+      border-color: rgba(32, 39, 32, 0.3);
+      color: #fff;
+      font-weight: 600;
+      box-shadow: 0 4px 10px rgba(36, 42, 35, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    }
+    #load-file-button:hover { background: linear-gradient(180deg, #4b534a, #3a433a); }
+    .load-section .section-hint { text-align: center; font-size: 10px; margin-bottom: 14px; }
+    .view-settings, .help { border-top: 1px solid var(--viewer-border); }
+    .view-settings > summary, .help > summary {
+      cursor: pointer;
+      color: #566056;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 13px 2px;
+    }
+    .load-options { display: grid; gap: 10px; padding: 0 2px 10px; }
+    .load-options label { display: grid; gap: 6px; font-size: 11px; color: var(--viewer-muted); }
+    .load-options input, .load-options select { width: 100%; min-width: 0; }
+    .load-options .section-hint { margin: 0; }
+    .help .section-hint { margin-top: 0; }
+    code { font-family: ui-monospace, Consolas, monospace; font-size: 0.95em; }
+    .visibility-tools { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; margin-bottom: 6px; border-radius: 14px; background: rgba(89, 102, 86, 0.07); }
+    .visibility-tools button { min-height: 30px; padding: 5px 8px; font-size: 11px; border-color: transparent; background: rgba(255, 255, 255, 0.72); border-radius: 10px; }
+    .cell-section { flex: 0 0 auto; min-height: 0; border-top: 1px solid var(--viewer-border); padding-top: 18px; margin-top: 8px; }
+    .cell-section-body { min-height: 0; }
+    .tree-list, .tree-node, .tree-folder { display: grid; gap: 4px; }
+    .tree-summary { list-style: none; cursor: pointer; }
+    .tree-summary::-webkit-details-marker { display: none; }
+    .tree-row { display: flex; align-items: center; gap: 4px; min-width: 0; }
+    .fold-marker { width: 12px; flex: 0 0 auto; color: var(--viewer-muted); font-size: 11px; text-align: center; }
+    .tree-children { display: grid; gap: 4px; margin-left: 16px; padding-left: 8px; border-left: 1px solid var(--viewer-border); }
+    .cell-chip, .layer-chip { display: flex; align-items: center; gap: 7px; min-height: 33px; padding: 6px 9px; font-size: 11px; font-weight: 500; background: rgba(255, 255, 255, 0.52); }
+    .cell-chip { flex: 1; min-width: 0; text-align: left; overflow-wrap: anywhere; border-color: transparent; }
+    .cell-chip::after, .layer-chip::after { content: ""; width: 5px; height: 5px; border-radius: 50%; border: 1px solid var(--viewer-accent); background: var(--viewer-accent); margin-left: auto; flex: 0 0 auto; }
+    .cell-chip.is-off, .layer-chip.is-off { color: var(--viewer-muted); background: rgba(223, 227, 220, 0.45); border: 1px dashed #aab4a5; }
+    .cell-chip.is-off::after, .layer-chip.is-off::after { background: transparent; border-color: var(--viewer-muted); }
+    .layer-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+    .layer-chip { min-width: 0; }
+    .chip { width: 12px; height: 12px; border-radius: 4px; flex: 0 0 auto; border: 1px solid rgba(0, 0, 0, 0.08); }
+    .layer-chip.is-off .chip { opacity: 0.3; }
+    .tree-list:empty::after, .layer-list:empty::after { content: "Available after opening a layout"; font-size: 11px; color: var(--viewer-muted); padding: 4px 0; grid-column: 1 / -1; }
+    .measurement-list { display: grid; gap: 8px; color: var(--viewer-muted); font-size: 12px; }
+    .measurement-item { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: center; padding: 10px; border: 1px solid var(--viewer-border); border-radius: 14px; background: rgba(255, 255, 255, 0.65); font-size: 11px; }
+    .measurement-item.is-selected { border-color: #9fab9f; background: var(--viewer-accent-soft); }
+    .measurement-main { min-width: 0; cursor: pointer; }
+    .measurement-title { font-weight: 600; color: var(--viewer-text); }
+    .measurement-detail { color: var(--viewer-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .measurement-delete { padding: 5px 8px; min-height: 30px; font-size: 11px; }
+    .sidebar-footer { display: flex; align-items: center; gap: 6px; margin-top: auto; padding-top: 24px; color: var(--viewer-muted); font-size: 10px; }
+    .sidebar-footer svg { width: 13px; height: 13px; }
+    .workspace { display: grid; grid-template-rows: auto minmax(0, 1fr); min-height: 0; min-width: 0; padding: 0 12px 12px; }
+    .workspace-header { display: flex; justify-content: space-between; align-items: center; gap: 12px; min-height: 76px; padding: 12px 10px; }
+    .workspace-heading { min-width: 0; }
+    .title { margin: 0; font-size: 14px; font-weight: 600; letter-spacing: -0.25px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .workspace-caption { margin-top: 4px; font-size: 10px; color: var(--viewer-muted); }
+    .toolbar { flex: 0 0 auto; display: flex; align-items: center; gap: 4px; padding: 4px; border: 1px solid rgba(255, 255, 255, 0.95); border-radius: 17px; background: var(--viewer-glass); box-shadow: var(--viewer-shadow); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+    .toolbar button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; background: transparent; border-color: transparent; box-shadow: none; padding: 8px 11px; font-size: 12px; }
+    .toolbar button:hover { background: #fff; }
+    .toolbar button.is-active { background: var(--viewer-accent-soft); color: var(--viewer-accent-strong); border-color: rgba(66, 91, 73, 0.16); }
+    .toolbar-divider { width: 1px; height: 20px; margin: 0 3px; background: var(--viewer-border); }
+    .stage { position: relative; overflow: hidden; min-height: 0; min-width: 0; background: #fff; border: 1px solid rgba(122, 133, 116, 0.16); border-radius: 22px; box-shadow: 0 2px 10px rgba(37, 42, 35, 0.025); }
+    .pixi-host { width: 100%; height: 100%; display: block; background: #fff; }
+    .empty-state { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 32px; text-align: center; pointer-events: none; background: radial-gradient(ellipse at 50% 45%, #f6f7f3, transparent 62%); }
+    .empty-icon { width: 76px; height: 76px; border-radius: 23px; margin-bottom: 25px; }
+    .empty-icon svg { width: 40px; height: 40px; stroke-width: 1.25; }
+    .empty-state h1 { margin: 0 0 12px; font-size: clamp(22px, 2.6vw, 36px); font-weight: 600; letter-spacing: -1.2px; line-height: 1.15; }
+    .empty-state p { max-width: 310px; margin: 0; font-size: 13px; line-height: 1.7; color: var(--viewer-muted); }
+    .file-formats { display: flex; gap: 7px; margin-top: 22px; }
+    .file-formats span { padding: 5px 10px; border: 1px solid var(--viewer-border); border-radius: 8px; color: #737d6d; font-size: 10px; background: rgba(255, 255, 255, 0.65); }
+    .stage:has(canvas) .empty-state { display: none; }
+    .stage.is-dragover::after { content: "Drop your GDS layout here"; position: absolute; inset: 14px; display: grid; place-items: center; border: 2px dashed #9eaf98; border-radius: 20px; background: rgba(238, 243, 233, 0.94); color: var(--viewer-accent-strong); font-size: 18px; font-weight: 600; pointer-events: none; z-index: 4; }
+    .status, .warning, .pointer-status, .scale-bar, .measure-readout {
+      position: absolute;
+      z-index: 2;
+      border: 1px solid rgba(116, 130, 111, 0.18);
+      border-radius: 12px;
+      padding: 9px 12px;
+      background: rgba(255, 255, 255, 0.84);
+      box-shadow: var(--viewer-shadow);
+      backdrop-filter: blur(16px) saturate(105%);
+      -webkit-backdrop-filter: blur(16px) saturate(105%);
+      color: #576152;
+      font-size: 11px;
+      font-variant-numeric: tabular-nums;
+    }
+    .status { right: 14px; bottom: 14px; max-width: calc(100% - 28px); }
+    .status:empty { display: none; }
+    .warning { display: none; left: 14px; top: 14px; max-width: min(420px, calc(100% - 28px)); background: rgba(255, 246, 226, 0.96); border-color: #e0c48f; color: #72521d; }
+    .warning.is-info { background: rgba(243, 246, 238, 0.9); color: #56684f; border-color: rgba(110, 135, 96, 0.2); }
+    .warning.is-welcome { top: auto; bottom: 22px; left: 50%; transform: translateX(-50%); text-align: center; width: max-content; max-width: calc(100% - 40px); box-shadow: none; border-color: transparent; background: transparent; font-size: 10px; }
+    .pointer-status { display: none; left: 14px; bottom: 65px; pointer-events: none; }
+    .scale-bar { display: none; left: 14px; bottom: 14px; gap: 5px; }
+    .scale-bar-line { height: 7px; border-left: 2px solid #616e5b; border-right: 2px solid #616e5b; border-bottom: 2px solid #616e5b; }
+    .measure-readout { display: none; pointer-events: none; transform: translate(-50%, -120%); white-space: nowrap; }
+    /* Layered rim highlights adapted from Kevin Ramirez's liquid-glass-effect.
+       Attribution and licenses: vendor/VENDORED.md. */
+    .viewer {
+      position: relative;
+      isolation: isolate;
+      background: rgba(244, 245, 240, 0.30);
+    }
+    #liquid-glass-surface {
+      position: absolute;
+      inset: 0;
       width: 100%;
       height: 100%;
-      display: block;
-      background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(249, 242, 248, 0.95)),
-        repeating-linear-gradient(
-          0deg,
-          transparent 0,
-          transparent 27px,
-          rgba(95, 96, 133, 0.03) 27px,
-          rgba(95, 96, 133, 0.03) 28px
-        );
-    }
-    .status, .warning {
-      position: absolute;
-      z-index: 2;
-      border-radius: 8px;
-      padding: 8px 10px;
-      font-size: 12px;
-    }
-    .status {
-      right: 12px;
-      bottom: 12px;
-      background: rgba(255, 251, 255, 0.94);
-      border: 1px solid var(--viewer-border);
-      color: var(--viewer-muted);
-    }
-    .pointer-status {
-      position: absolute;
-      left: 12px;
-      bottom: 52px;
-      z-index: 2;
-      display: none;
-      border-radius: 8px;
-      padding: 8px 10px;
-      font-size: 12px;
-      background: rgba(255, 251, 255, 0.94);
-      border: 1px solid var(--viewer-border);
-      color: var(--viewer-muted);
       pointer-events: none;
+      z-index: -1;
     }
-    .warning {
-      left: 12px;
-      top: 12px;
-      max-width: 380px;
-      display: none;
-      background: rgba(255, 242, 214, 0.97);
-      border: 1px solid #d7b978;
-      color: #71551f;
+    .sidebar {
+      position: relative;
+      margin: 12px 0 12px 12px;
+      padding: 20px 16px;
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      border-radius: 23px;
+      background: rgba(245, 247, 241, 0.52);
+      box-shadow: 0 8px 26px rgba(37, 42, 35, 0.10), inset 0 4px 18px rgba(255, 255, 255, 0.3);
+      backdrop-filter: blur(3px) saturate(105%);
+      -webkit-backdrop-filter: blur(3px) saturate(105%);
     }
-    .scale-bar {
+    .toolbar {
+      position: relative;
+      background: rgba(255, 255, 255, 0.38);
+      box-shadow: 0 6px 22px rgba(37, 42, 35, 0.14), inset 0 2px 8px rgba(255, 255, 255, 0.4);
+      backdrop-filter: blur(2px) saturate(105%);
+      -webkit-backdrop-filter: blur(2px) saturate(105%);
+    }
+    .sidebar::before, .toolbar::before {
+      content: "";
       position: absolute;
-      left: 12px;
-      bottom: 12px;
-      z-index: 2;
-      display: none;
-      gap: 6px;
-      padding: 8px 10px;
-      border-radius: 8px;
-      background: rgba(255, 251, 255, 0.94);
-      border: 1px solid var(--viewer-border);
-      color: var(--viewer-muted);
-      font-size: 12px;
-    }
-    .scale-bar-line {
-      height: 8px;
-      border-left: 2px solid #5e5b6f;
-      border-right: 2px solid #5e5b6f;
-      border-bottom: 2px solid #5e5b6f;
-      box-sizing: border-box;
-    }
-    .measure-readout {
-      position: absolute;
-      z-index: 2;
-      display: none;
-      padding: 8px 10px;
-      border-radius: 8px;
-      background: rgba(255, 251, 255, 0.96);
-      border: 1px solid var(--viewer-border);
-      color: var(--viewer-muted);
-      font-size: 12px;
+      inset: 0;
+      border-radius: inherit;
+      corner-shape: inherit;
       pointer-events: none;
-      transform: translate(-50%, -120%);
-      white-space: nowrap;
+      box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.6), inset -1px -1px 0 rgba(255, 255, 255, 0.35), inset 0 -8px 14px -12px #fff;
+    }
+    .viewer[data-glass="webgl"] .sidebar,
+    .viewer[data-glass="webgl"] .toolbar {
+      background: rgba(255, 255, 255, 0.12);
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+    }
+    .toolbar button:hover { background: rgba(255, 255, 255, 0.62); }
+    .status, .pointer-status, .scale-bar, .measure-readout {
+      box-shadow: 0 7px 22px rgba(37, 42, 35, 0.12), inset 1px 1px 0 #fff, inset -1px -1px 0 rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(3px) saturate(105%);
+      -webkit-backdrop-filter: blur(3px) saturate(105%);
+    }
+    @supports (corner-shape: squircle) {
+      .viewer, .sidebar, .stage, .toolbar, .app-icon, .empty-icon, .visibility-tools,
+      button, input, select, .measurement-item, .status, .warning, .pointer-status, .scale-bar, .measure-readout { corner-shape: squircle; }
+    }
+    @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+      .sidebar { background: #edf0e8; }
+      .toolbar, .status, .warning.is-info, .pointer-status, .scale-bar, .measure-readout { background: #f8faf4; }
+    }
+    @media (prefers-reduced-motion: reduce) { button { transition: none; } }
+    @media (prefers-reduced-transparency: reduce) {
+      .viewer .sidebar, .viewer .toolbar, .status, .pointer-status, .scale-bar, .measure-readout { background: #f5f7f0; backdrop-filter: none; -webkit-backdrop-filter: none; }
+    }
+    @media (max-width: 900px) {
+      body { padding: 8px; }
+      .viewer { grid-template-columns: 250px minmax(0, 1fr); height: calc(100vh - 16px); height: calc(100dvh - 16px); border-radius: 22px; }
+      .sidebar { padding: 20px 14px; }
+      .workspace-header { flex-wrap: wrap; gap: 10px; }
+      .workspace-heading { width: 100%; }
+      .workspace-caption { display: none; }
+      .toolbar button { padding: 7px 9px; }
+    }
+    @media (max-width: 620px) {
+      body { padding: 0; }
+      .viewer { grid-template-columns: 190px minmax(0, 1fr); height: 100vh; height: 100dvh; border-radius: 0; border: 0; }
+      .sidebar { margin: 6px 0 6px 6px; padding: 16px 10px; }
+      .brand { gap: 8px; }
+      .app-icon { width: 32px; height: 32px; border-radius: 10px; }
+      .brand-title { font-size: 15px; }
+      .subtitle { font-size: 10px; }
+      .layer-list { grid-template-columns: 1fr; }
+      .workspace { padding: 0 6px 6px; }
+      .workspace-header { padding: 12px 4px; }
+      .toolbar { flex-wrap: wrap; }
+      .toolbar button { font-size: 11px; gap: 4px; padding: 5px 7px; }
+      .toolbar-divider { display: none; }
+      .empty-state { padding: 16px; }
+      .empty-state h1 { font-size: 22px; }
+      .empty-state p { font-size: 11px; }
+      .status { bottom: 66px; font-size: 10px; }
+      .pointer-status { bottom: 125px; }
     }
   </style>
 </head>
 <body>
   <div class="viewer">
-    <aside class="sidebar">
-      <h2 class="title">GDS Viewer</h2>
-      <p class="subtitle">Inspect GDS layouts, toggle layers and cells, and measure geometry.</p>
+    <aside class="sidebar" data-liquid-pane>
+      <div class="brand">
+        <div class="app-icon" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 12 9 5 9-5M3 16l9 5 9-5"/></svg></div>
+        <div class="brand-copy">
+          <h2 class="brand-title">GDS Viewer</h2>
+          <p class="subtitle">Local layout inspection</p>
+        </div>
+      </div>
 
-      <div class="section">
+      <div class="section load-section">
         <h3>Load GDS</h3>
         <div class="file-row">
-          <button id="load-file-button" type="button">Load GDS File</button>
+          <button id="load-file-button" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v10H3V7Z"/><path d="M9 13h6m-3-3v6"/></svg>Load GDS File</button>
           <input id="file-input" type="file" accept=".gds,.gds2" hidden>
         </div>
-        <p class="section-hint">Use the picker or drag a <code>.gds</code> / <code>.gds2</code> file onto the viewer.</p>
+        <p class="section-hint">Or drop a .gds / .gds2 file onto the canvas.</p>
       </div>
 
-      <form id="view-options" class="load-options">
-        <label for="cell-select">Root cell
-          <select id="cell-select" disabled>
-            <option value="">All top-level cells</option>
-          </select>
-        </label>
-        <label for="depth-input">Hierarchy depth
-          <input id="depth-input" type="number" min="0" step="1" placeholder="All levels" disabled>
-        </label>
-        <button id="apply-options-button" type="submit" disabled>Apply view options</button>
-        <p class="section-hint">Depth 0 shows only root geometry. Applying options resets measurements.</p>
-      </form>
+      <details class="view-settings">
+        <summary>Root cell &amp; hierarchy</summary>
+        <form id="view-options" class="load-options">
+          <label for="cell-select">Root cell
+            <select id="cell-select" disabled>
+              <option value="">All top-level cells</option>
+            </select>
+          </label>
+          <label for="depth-input">Hierarchy depth
+            <input id="depth-input" type="number" min="0" step="1" placeholder="All levels" disabled>
+          </label>
+          <button id="apply-options-button" type="submit" disabled>Apply view options</button>
+          <p class="section-hint">Depth 0 shows only root geometry. Applying options resets measurements.</p>
+        </form>
+      </details>
 
-      <div class="toolbar">
-        <button id="fit-button" type="button">Fit View</button>
+      <div class="visibility-tools" aria-label="Visibility">
         <button id="show-all-button" type="button">Show All</button>
         <button id="hide-all-button" type="button">Hide All</button>
-        <button id="measure-button" type="button">Measure</button>
-        <button id="grid-button" type="button">Grid</button>
       </div>
-      <p class="section-hint">Measure: press <code>m</code>, left click two points, hold <code>Ctrl</code> to lock horizontal or vertical, right drag to pan. Zoom: hold <code>z</code> to zoom in and hold <code>x</code> to zoom out at the mouse location.</p>
+      <details class="help">
+        <summary>Navigation &amp; shortcuts</summary>
+        <p class="section-hint">Measure: press <code>m</code>, left click two points, hold <code>Ctrl</code> to lock horizontal or vertical, right drag to pan. Zoom: hold <code>z</code> to zoom in and hold <code>x</code> to zoom out at the mouse location.</p>
+      </details>
 
       <div class="section cell-section">
         <h3>Cells</h3>
@@ -431,24 +358,46 @@
         <p class="section-hint">Select a saved ruler to highlight it, then delete it if needed.</p>
         <div id="measurement-list" class="measurement-list"></div>
       </div>
+      <div class="sidebar-footer"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="3"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>On your device. Always.</div>
     </aside>
 
-    <section class="stage">
-      <div id="warning" class="warning"></div>
-      <div id="pixi-host" class="pixi-host"></div>
-      <div id="pointer-status" class="pointer-status"></div>
-      <div id="measure-readout" class="measure-readout"></div>
-      <div id="scale-bar" class="scale-bar">
-        <div id="scale-bar-label"></div>
-        <div id="scale-bar-line" class="scale-bar-line"></div>
-      </div>
-      <div id="status" class="status"></div>
-    </section>
+    <main class="workspace">
+      <header class="workspace-header">
+        <div class="workspace-heading">
+          <h2 class="title">Layout workspace</h2>
+          <div class="workspace-caption">A closer look at every layer.</div>
+        </div>
+        <div class="toolbar" aria-label="Canvas controls" data-liquid-pane>
+          <button id="fit-button" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/><rect x="8" y="8" width="8" height="8" rx="1"/></svg>Fit View</button>
+          <span class="toolbar-divider" aria-hidden="true"></span>
+          <button id="measure-button" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 16 13-13 5 5L8 21l-5-5Z"/><path d="m12 7 2 2m-6 2 2 2m-6 2 2 2"/></svg>Measure</button>
+          <button id="grid-button" type="button" class="is-active" aria-pressed="true" title="Show or hide major and minor grid lines"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg>Grid</button>
+        </div>
+      </header>
+      <section class="stage" aria-label="Layout canvas">
+        <div id="warning" class="warning"></div>
+        <div id="pixi-host" class="pixi-host"></div>
+        <div class="empty-state" aria-hidden="true">
+          <div class="empty-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 12 9 5 9-5M3 16l9 5 9-5"/></svg></div>
+          <h1>Your layout. In focus.</h1>
+          <p>Open a GDS file to explore its cells, layers, and geometry.</p>
+          <div class="file-formats"><span>.gds</span><span>.gds2</span></div>
+        </div>
+        <div id="pointer-status" class="pointer-status"></div>
+        <div id="measure-readout" class="measure-readout"></div>
+        <div id="scale-bar" class="scale-bar">
+          <div id="scale-bar-label"></div>
+          <div id="scale-bar-line" class="scale-bar-line"></div>
+        </div>
+        <div id="status" class="status"></div>
+      </section>
+    </main>
   </div>
 
   <!-- PixiJS is vendored locally (see vendor/VENDORED.md); no CDN needed. -->
   <script src="./vendor/pixi.min.js"></script>
   <script src="./gds_parser.js"></script>
+  <script src="./liquid_glass.js"></script>
   <script src="./gds_viewer.js"></script>
 </body>
 </html>
