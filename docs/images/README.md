@@ -1,5 +1,9 @@
 # Screenshots for the XOR walkthrough
 
+These numbered captures document the earlier graphite palette. For the current
+cream, sage, and terracotta interface, see the [design review](../design-review.md)
+and [current capture manifest](current-capture-manifest.json).
+
 The 11 full screenshots and 16 close-ups illustrate the [picture guide](../user-guide.md)
 and [README](../../README.md). All loaded views use `examples/yzuda/xor.gds2`, the
 public XOR example from [YZUDA](https://www.yzuda.org/download/_GDSII_examples.html).
@@ -15,7 +19,7 @@ The first screenshot shows the empty viewer before loading it.
   in `normalizedTextSources` are hashed after converting CRLF to LF, matching
   Git's text normalization. Vendored PixiJS, the example input, and images are
   hashed as stored, without conversion.
-- The current UI uses stone-gray glass, graphite controls, and muted sage accents.
+- The captured UI uses stone-gray glass, graphite controls, and muted sage accents.
   Decorative WebGL was active. Major and minor grid lines are enabled in every
   loaded view, with five subdivisions per major interval.
 - Used the loopback static helper in `tests/serve.cjs`, under `/viewer/`.
@@ -23,8 +27,9 @@ The first screenshot shows the empty viewer before loading it.
   Native OS picker dialogs were not exercised. No private layout was used.
 - Every view was produced with the viewer's own controls. The sidebar is scrolled
   in the layer and measurement pictures to reveal the relevant controls.
-- Full screenshots and close-ups are lossless PNGs. The README hero,
-  `../viewer-xor.png`, is an exact copy of `02-layout-overview.png`.
+- Full screenshots and close-ups are lossless PNGs. The README hero has since
+  been replaced by a capture of the current palette; `02-layout-overview.png`
+  remains the original walkthrough overview.
 - The captures preserve the rendered UI; no labels, dimensions, or geometry were
   painted into the pictures. Text elements from the GDSII file are not rendered.
 - The capture session reported no browser script errors. These screenshots validate
@@ -75,5 +80,5 @@ captions in agreement. Preserve the [source attribution](../../examples/yzuda/RE
 When replacing a full screenshot, review its crop rectangles and regenerate the
 associated close-ups. Check that each label is complete and that no unrelated
 control intrudes into the crop. Refresh the README hero from the overview as well.
-Update the manifest after the final captures and verify the saved files visually,
+Update the appropriate manifest after the final captures and verify the saved files visually,
 not only the live browser. Remove replaced image files after updating their links.

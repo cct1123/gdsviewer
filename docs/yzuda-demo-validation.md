@@ -1,7 +1,8 @@
 # Documentation and UI validation — 2026-09-08
 
-The current [README](../README.md) and [picture guide](user-guide.md) show the glass
-interface, graphite/sage palette, and default major/minor grid. All captures use the
+This record covers the earlier [picture guide](user-guide.md), its graphite/sage
+palette, and default major/minor grid. The [design review](design-review.md) records
+the later palette refinement and current README image. All captures use the
 unchanged public [YZUDA XOR file](../examples/yzuda/README.md).
 
 ## Checks

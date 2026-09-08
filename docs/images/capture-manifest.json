@@ -7,7 +7,7 @@
   ],
   "deviceScaleFactor": 1,
   "baseCommit": "d6520bf091611c28b84c565a0e88279c75b69db8",
-  "sourceState": "Uncommitted working tree; source hashes identify the captured UI.",
+  "sourceState": "Historical walkthrough capture; source hashes match sourceCommit.",
   "hashAlgorithm": "SHA256; normalize CRLF to LF for the files in normalizedTextSources; hash all other files as stored.",
   "normalizedTextSources": [
     "index.html",
@@ -52,7 +52,7 @@
     "docs/images/crops/09-saved-ruler.png": "d582fc74bf38908373d4a7a7b59bc6a8f54c87cc9de9431c88d918f6b3f1a933",
     "docs/images/crops/10-pointer-detail.png": "9fc2a962514032b7be919c7f28b0a21d39bee1e1cf666e486ebab417b89bf6a6",
     "docs/images/crops/10-coordinate-readout.png": "a14a1d0c99aaeb91b1e98eacc90cb4675667370337f0dff143932416e440152e",
-    "docs/images/crops/11-empty-measurements.png": "1e19a8155b4dfda442802532d4bde174aab520ef1adec15c26db5696869c6383",
-    "docs/viewer-xor.png": "f13af2792a9ffb6b52d42ca38b2c8736e0ad0841f9e945f81ed03577e6611158"
-  }
+    "docs/images/crops/11-empty-measurements.png": "1e19a8155b4dfda442802532d4bde174aab520ef1adec15c26db5696869c6383"
+  },
+  "sourceCommit": "33a68837951926c24134e9e4a67a8c00eb630533"
 }

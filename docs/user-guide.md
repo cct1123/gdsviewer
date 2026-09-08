@@ -1,6 +1,8 @@
 # GDS Viewer: a guide in pictures
 
-The screenshots show the current glass interface with the major/minor grid enabled.
+The walkthrough screenshots show the earlier graphite glass styling with the
+major/minor grid enabled. The [current design](design-review.md) uses cream,
+sage, and terracotta; the controls and workflow shown here still apply.
 **Fit View**, **Measure**, and **Grid** are above the canvas. Expand
 **Root cell & hierarchy** for view settings and **Navigation & shortcuts** for help.
 

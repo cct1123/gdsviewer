@@ -387,7 +387,7 @@
 
     let label = null;
     for (const measurement of measurements) {
-      const color = measurement.id === selectedMeasurementId ? 0x0e4ca1 : 0x204d8d;
+      const color = measurement.id === selectedMeasurementId ? 0x984831 : 0xb56147;
       const nextLabel = drawMeasurement(measurement, color);
       if (measurement.id === selectedMeasurementId || (!label && !measureMode)) {
         label = nextLabel;
@@ -398,7 +398,7 @@
     if (measureMode && measureStart && endPoint) {
       label = drawMeasurement(
         { id: "draft", start: measureStart, end: endPoint },
-        0x204d8d,
+        0xb56147,
       );
     }
 
@@ -410,7 +410,7 @@
     measureReadoutNode.textContent = label.labelText;
     measureReadoutNode.style.left = `${Math.round(label.labelX)}px`;
     measureReadoutNode.style.top = `${Math.round(label.labelY)}px`;
-    measureReadoutNode.style.borderColor = label.labelColor === 0x0e4ca1 ? "#6f98dd" : "";
+    measureReadoutNode.style.borderColor = label.labelColor === 0x984831 ? "#cf9b88" : "";
     measureReadoutNode.style.display = "block";
   }
 
@@ -501,12 +501,12 @@
     cursorGraphics.lineTo(screenPoint.x + size, screenPoint.y);
     cursorGraphics.moveTo(screenPoint.x, screenPoint.y - size);
     cursorGraphics.lineTo(screenPoint.x, screenPoint.y + size);
-    cursorGraphics.stroke({ color: 0x204d8d, alpha: 0.75, width: 1.5 });
+    cursorGraphics.stroke({ color: 0xb56147, alpha: 0.75, width: 1.5 });
     cursorGraphics.moveTo(0, screenPoint.y);
     cursorGraphics.lineTo(width, screenPoint.y);
     cursorGraphics.moveTo(screenPoint.x, 0);
     cursorGraphics.lineTo(screenPoint.x, height);
-    cursorGraphics.stroke({ color: 0x204d8d, alpha: 0.18, width: 1 });
+    cursorGraphics.stroke({ color: 0xb56147, alpha: 0.18, width: 1 });
   }
 
   function updateGridOverlay() {
@@ -566,7 +566,7 @@
         gridGraphics.moveTo(0, screenY);
         gridGraphics.lineTo(width, screenY);
       }
-      gridGraphics.stroke({ color: 0x7c877d, alpha: major ? 0.30 : 0.13, width: 1 });
+      gridGraphics.stroke({ color: 0x8d9b87, alpha: major ? 0.30 : 0.13, width: 1 });
     }
   }
 
@@ -821,7 +821,7 @@
 
     const graphics = new PIXI.Graphics();
     const color = hexToNumber(group.cssColor);
-    const outlineColor = 0x526477;
+    const outlineColor = 0x65677d;
     const [a, b, c, d] = group.transform;
     const [ox, oy] = group.offset;
 
@@ -859,7 +859,7 @@
       }
       const context = new PIXI.GraphicsContext();
       const color = hexToNumber(template.cssColor);
-      const outlineColor = 0x526477;
+      const outlineColor = 0x65677d;
       for (const item of template.polygons || []) {
         const coords = item.polygon;
         if (!coords || coords.length < 6) {

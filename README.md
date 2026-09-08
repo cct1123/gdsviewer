@@ -7,11 +7,16 @@ individual cells, and measure distances. Your files stay on your computer.
 There is nothing to install or build. The drawing library is included, so you can
 use the viewer offline too.
 
-The glass sidebar keeps cell and layer controls beside the drawing. **Fit View**,
+The ivory glass sidebar uses slate text, sage indicators, and soft terracotta
+accents. It keeps cell and layer controls beside the drawing. **Fit View**,
 **Measure**, and **Grid** sit above the canvas. The grid starts on, with stronger
 major lines and five lighter subdivisions per interval, and adapts as you zoom.
 
 ![YZUDA's XOR layout in the glass UI with the cell tree and default major/minor grid](docs/viewer-xor.png)
+
+See the [visual design review](docs/design-review.md) for the palette and current
+empty and loaded views. The step-by-step pictures below retain the earlier styling;
+their controls and workflow still apply.
 
 New to layout viewers? The [guide in pictures](docs/user-guide.md) walks through
 this same XOR layout, with close-ups of each control and the result of using it.

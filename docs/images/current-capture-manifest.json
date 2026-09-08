@@ -1,0 +1,32 @@
+{
+  "capturedOn": "2026-09-08",
+  "browser": "Codex in-app browser on Windows",
+  "imageSize": [
+    934,
+    912
+  ],
+  "baseCommit": "33a68837951926c24134e9e4a67a8c00eb630533",
+  "sourceState": "Palette and aesthetic refinement; source hashes identify the captured UI.",
+  "hashAlgorithm": "SHA256; normalize CRLF to LF for normalizedTextSources; hash all other files as stored.",
+  "normalizedTextSources": [
+    "index.html",
+    "gds_parser.js",
+    "gds_viewer.js",
+    "liquid_glass.js"
+  ],
+  "glass": "webgl",
+  "grid": "Major and minor lines enabled in the loaded view.",
+  "sources": {
+    "index.html": "76fdbb25195afffc8db311ef79fa08339f4c94b20b9a14c49e9c2b1915760c0b",
+    "gds_parser.js": "eaca8f05ba75d8a65c337b4d581db13cb3206d0e39aa35caac3bc6ee80990ced",
+    "gds_viewer.js": "1e13a09c5356546db8ad5cb95815503ac85bf4f96e3360931571904e3de98703",
+    "liquid_glass.js": "45ec27a411dcccaea7f8097e75fef55972efe05996f7094f3fe32de271734a2c",
+    "vendor/pixi.min.js": "07cbe045435c2a487c2f28f9a3a9ee43069dbbec0c77585477bb6e63b5e125a8",
+    "examples/yzuda/xor.gds2": "50a0e3919d4e780ef4783428489f5aec96f88cf91609a58a19752564820a2b79"
+  },
+  "images": {
+    "docs/images/current-empty.png": "729a4cce5ac80b9643b8895f071d5f548a370c10f1dde017ef2444ed7d8815f9",
+    "docs/viewer-xor.png": "f9af671a6a5302facbe615bf2081ad21513129d652505abe770963312805bd9b"
+  },
+  "encoding": "Browser JPEG captures stored as PNG; decoded pixels preserved without resampling or retouching."
+}

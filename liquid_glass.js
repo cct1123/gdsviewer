@@ -34,18 +34,18 @@
 
     // A softly lit backdrop shared by the plain background and refracted regions.
     vec3 backdrop(vec2 uv) {
-      vec3 color = vec3(0.89, 0.90, 0.88);
+      vec3 color = vec3(0.975, 0.961, 0.940);
       float shade = exp(-dot((uv - vec2(0.08, 0.24)) * vec2(2.0, 1.3),
                            (uv - vec2(0.08, 0.24)) * vec2(2.0, 1.3)) * 3.0);
       float warmth = exp(-dot((uv - vec2(0.91, 0.14)) * vec2(1.6, 2.0),
                            (uv - vec2(0.91, 0.14)) * vec2(1.6, 2.0)) * 4.0);
-      color = mix(color, vec3(0.69, 0.72, 0.68), shade * 0.42);
-      color = mix(color, vec3(0.91, 0.90, 0.86), warmth * 0.4);
+      color = mix(color, vec3(0.75, 0.80, 0.72), shade * 0.16);
+      color = mix(color, vec3(0.88, 0.72, 0.62), warmth * 0.12);
       float curve = uv.x + 0.23 * sin(uv.y * 4.0 + 0.5);
       float ribbon = smoothstep(0.17, 0.19, curve) - smoothstep(0.32, 0.46, curve);
       float rim = exp(-pow((curve - 0.18) * 110.0, 2.0));
-      color = mix(color, vec3(0.77, 0.80, 0.75), ribbon * 0.22);
-      color += rim * 0.025;
+      color = mix(color, vec3(0.84, 0.79, 0.72), ribbon * 0.06);
+      color += rim * 0.012;
       float second = uv.y - 0.14 * sin(uv.x * 5.0);
       color += exp(-pow((second - 0.83) * 32.0, 2.0)) * 0.025;
       return color;
@@ -87,7 +87,7 @@
       vec2 lightDirection = (u_light - pixel) / max(length(u_light - pixel), 1.0);
       float specular = pow(max(dot(normal, lightDirection), 0.0), 3.0);
       float edge = 1.0 - smoothstep(0.0, 2.2, -distance);
-      color += edge * (0.04 + specular * 0.13);
+      color += edge * (0.025 + specular * 0.07);
       color -= bevel * (1.0 - specular) * 0.045;
       float coverage = 1.0 - smoothstep(-0.7, 0.7, distance);
       gl_FragColor = vec4(mix(backdrop(uv), color, coverage), 1.0);
