@@ -227,7 +227,7 @@
       "description": "abc2 root with hierarchy depth set to zero"
     },
     {
-      "source": "night/08-grid-and-scale.jpg",
+      "source": "night/02-layout-overview.jpg",
       "name": "night/crops/08-grid-button.png",
       "rect": {
         "height": 52,
@@ -238,7 +238,7 @@
       "description": "Grid enabled in the toolbar"
     },
     {
-      "source": "night/08-grid-and-scale.jpg",
+      "source": "night/02-layout-overview.jpg",
       "name": "night/crops/08-grid-scale-detail.png",
       "rect": {
         "x": 274,
@@ -249,7 +249,7 @@
       "description": "Major/minor grid and 50.0 um scale bar"
     },
     {
-      "source": "day/08-grid-and-scale.jpg",
+      "source": "day/02-layout-overview.jpg",
       "name": "day/crops/08-grid-button.png",
       "rect": {
         "height": 52,
@@ -260,7 +260,7 @@
       "description": "Grid enabled in the toolbar"
     },
     {
-      "source": "day/08-grid-and-scale.jpg",
+      "source": "day/02-layout-overview.jpg",
       "name": "day/crops/08-grid-scale-detail.png",
       "rect": {
         "x": 274,

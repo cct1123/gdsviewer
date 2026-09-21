@@ -68,9 +68,10 @@ The workspace heading now says **xor.gds2**. The status at the bottom right show
 starting point for the walkthrough. The source file calls its top cell `abc2`,
 even though the filename is `xor.gds2`.
 
-The left sidebar holds visibility and hierarchy controls; the canvas toolbar is
-above the drawing. The scale bar sits at the drawing's lower left. The sidebar
-scrolls on its own—scroll there if you cannot see all the layers or the measurement list.
+The sidebar holds visibility and hierarchy controls; the canvas toolbar is above
+the drawing. On narrow screens, the sidebar moves above the drawing and still
+scrolls separately. Scroll inside it to reach the layers or measurement list.
+The scale bar sits at the drawing's lower left.
 
 To open your own design, choose a supported `.gds` or `.gds2` file instead, or drag
 it into the drawing area. Loading another file replaces the view and clears its
@@ -192,11 +193,11 @@ interval. If you have hidden it, click **Grid** to restore both levels.
 
 | Day mode | Night mode |
 | --- | --- |
-| <a href="images/day/08-grid-and-scale.jpg"><img src="images/day/crops/08-grid-button.png" alt="Day mode: The highlighted Grid button" width="100"></a> | <a href="images/night/08-grid-and-scale.jpg"><img src="images/night/crops/08-grid-button.png" alt="Night mode: The highlighted Grid button" width="100"></a> |
+| <a href="images/day/02-layout-overview.jpg"><img src="images/day/crops/08-grid-button.png" alt="Day mode: The highlighted Grid button" width="100"></a> | <a href="images/night/02-layout-overview.jpg"><img src="images/night/crops/08-grid-button.png" alt="Night mode: The highlighted Grid button" width="100"></a> |
 
 | Day mode | Night mode |
 | --- | --- |
-| <a href="images/day/08-grid-and-scale.jpg"><img src="images/day/crops/08-grid-scale-detail.png" alt="Day mode: Grid lines and the 50.0 um scale bar below the XOR layout" width="390"></a> | <a href="images/night/08-grid-and-scale.jpg"><img src="images/night/crops/08-grid-scale-detail.png" alt="Night mode: Grid lines and the 50.0 um scale bar below the XOR layout" width="390"></a> |
+| <a href="images/day/02-layout-overview.jpg"><img src="images/day/crops/08-grid-scale-detail.png" alt="Day mode: Grid lines and the 50.0 um scale bar below the XOR layout" width="390"></a> | <a href="images/night/02-layout-overview.jpg"><img src="images/night/crops/08-grid-scale-detail.png" alt="Night mode: Grid lines and the 50.0 um scale bar below the XOR layout" width="390"></a> |
 
 Grid lines appear behind the layout and adapt their spacing as you zoom. The scale
 bar here reads **50.0 um**; it changes as you zoom. Click **Grid** to hide both

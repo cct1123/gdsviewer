@@ -68,8 +68,9 @@ for checked behavior and platform limits.
 | Open another file | Use **Load GDS File** again, or drop the file into the viewer. |
 
 **Fit View**, **Measure**, and **Grid** are in the toolbar above the canvas.
-The sidebar scrolls separately from the drawing. If you cannot see all the layers
-or the measurement list, scroll inside the sidebar.
+The sidebar scrolls separately from the drawing and moves above it on narrow
+screens. If you cannot see all the layers or the measurement list, scroll inside
+the sidebar.
 
 | Day mode | Night mode |
 | --- | --- |

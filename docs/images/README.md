@@ -2,8 +2,10 @@
 
 The [picture guide](../user-guide.md), [README](../../README.md), and
 [reproduction guide](../layout-tutorial.md) use paired day/night illustrations:
-22 full screenshots and 34 control or canvas close-ups. Each mode has the same
-11 tutorial states. All loaded views use the unchanged public
+20 unique full screenshots and 34 control or canvas close-ups cover the same
+11 tutorial states in each mode. The grid step reuses the byte-identical overview
+image, preserving all 22 captured states without duplicate image files. All loaded
+views use the unchanged public
 [`xor.gds2` example from YZUDA](../../examples/yzuda/README.md).
 
 ## How they were captured
@@ -44,7 +46,8 @@ Clicking an illustration opens its full screenshot for context.
 
 ## Captured states
 
-Every filename below exists in both `day/` and `night/`.
+Every filename below exists in both `day/` and `night/`. In the manifest, `step`
+identifies the captured tutorial state and `image` names its stored screenshot.
 
 | Screenshot | Action | Observed result |
 | --- | --- | --- |
@@ -55,7 +58,7 @@ Every filename below exists in both `day/` and `night/`.
 | `05-cell-visibility.jpg` | Show all, then hide nand2 | nand2 and via hidden; 2 / 4 cells and 166 polygons. |
 | `06-root-cell.jpg` | Apply nand2 with blank depth | 2 / 2 cells, 15 / 15 layers, 107 polygons. |
 | `07-hierarchy-depth.jpg` | Apply abc2 with depth 0 | 1 / 1 cells, 4 / 4 layers, 28 polygons. |
-| `08-grid-and-scale.jpg` | Restore all roots/levels; toggle Grid off and on; fit | Full XOR layout with both grid levels and 50.0 um scale bar. |
+| `02-layout-overview.jpg` (grid step) | Restore all roots/levels; toggle Grid off and on; fit | Full XOR layout with both grid levels and 50.0 um scale bar. |
 | `09-measure-distance.jpg` | Click a point at the middle-right; Ctrl-click to its left | Saved 44.0 um measurement, dx 44.0 um, dy 0.0 nm. |
 | `10-pointer-coordinates.jpg` | Start another ruler above the saved one | Zero-length preview; x 103 um, y 60.4 um. Earlier ruler remains. |
 | `11-delete-measurement.jpg` | Cancel the preview, delete the saved ruler | No ruler drawn; Measurements says “No measurements yet.” |

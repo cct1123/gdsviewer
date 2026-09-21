@@ -22,7 +22,7 @@
     "fullScreenshots": "Original browser JPEG output.",
     "closeUps": "Exact decoded JPEG source pixels saved as PNG, without resizing or retouching."
   },
-  "stateNotes": "Empty root means all top-level cells; empty depth means all levels. Null readouts are hidden. Measurements contains the sidebar text, even when the sidebar is scrolled above it.",
+  "stateNotes": "Empty root means all top-level cells; empty depth means all levels. Null readouts are hidden. Measurements contains the sidebar text, even when the sidebar is scrolled above it. The step identifies the captured tutorial state; the grid step reuses the byte-identical overview image.",
   "sources": {
     "index.html": "db3b77a06cdbd873656c32dabffd7b4d7cd176606f668b91f0e8e929a4755407",
     "gds_parser.js": "eaca8f05ba75d8a65c337b4d581db13cb3206d0e39aa35caac3bc6ee80990ced",
@@ -40,7 +40,6 @@
     "docs/images/day/05-cell-visibility.jpg": "4e7419ab835d24a60e263f9b83b7ccde6175d75f6cf30159d7366e4a4181e090",
     "docs/images/day/06-root-cell.jpg": "3a76ee8a10d6239d07d71c9c0b6c9bfced6fb00ef7a3641736d7f9d40ed5b292",
     "docs/images/day/07-hierarchy-depth.jpg": "1e07544fbd64104c14de2ce66d5e2ed28b7c48e7a3e4b2be8aab12965d50a124",
-    "docs/images/day/08-grid-and-scale.jpg": "1f2e959ddb59608677708ea145bf9398befbe05df02e9acd566503175a1cbcb7",
     "docs/images/day/09-measure-distance.jpg": "8621b423b69e16beb40738cb134792ae34aab0a39bf29d48e9f063b841f74ff2",
     "docs/images/day/10-pointer-coordinates.jpg": "2750fe82297ad027f574db2bd020f884b71df85330c0c541a5c2f81b24ab1d78",
     "docs/images/day/11-delete-measurement.jpg": "89dbf5fa317ec3da4addc8620cf3b07e50c11711ca25cc2438b28997dfec5c90",
@@ -68,7 +67,6 @@
     "docs/images/night/05-cell-visibility.jpg": "5ef53acce431ad69eae0bc6e1484b103ec137f316900be4dcd1abead2a5160e0",
     "docs/images/night/06-root-cell.jpg": "246b847e01671016160325df6062f086086d5c8219451163f267b65aca5d8942",
     "docs/images/night/07-hierarchy-depth.jpg": "e6267924a7e581cc355dc2c83f901b5c1fbe3e20ab8e8d353a2624e5484c4b49",
-    "docs/images/night/08-grid-and-scale.jpg": "ce096099a3e7d2ac0d66700ba6adbdfaf5837b0b4fd41c4f6e7d0aeb8913259f",
     "docs/images/night/09-measure-distance.jpg": "8a39e08655ea0f2188e23b42499825bd1bc02aa12e2a3318ccca84345d660c7e",
     "docs/images/night/10-pointer-coordinates.jpg": "63a3f0a253dd7f5bd8fcd29ac09e0f4753fd3ef406993db510f616959b31fdd8",
     "docs/images/night/11-delete-measurement.jpg": "938da0eea92512621657630b94e22c48dad4e4e25801b4f675d1cca7faa23e9f",
@@ -92,6 +90,7 @@
   },
   "states": [
     {
+      "step": "01-open-viewer",
       "image": "day/01-open-viewer.jpg",
       "theme": "day",
       "title": "Layout workspace",
@@ -104,6 +103,7 @@
       "pointerCoordinates": null
     },
     {
+      "step": "01-open-viewer",
       "image": "night/01-open-viewer.jpg",
       "theme": "night",
       "title": "Layout workspace",
@@ -116,6 +116,7 @@
       "pointerCoordinates": null
     },
     {
+      "step": "02-layout-overview",
       "image": "day/02-layout-overview.jpg",
       "theme": "day",
       "title": "xor.gds2",
@@ -128,6 +129,7 @@
       "pointerCoordinates": null
     },
     {
+      "step": "02-layout-overview",
       "image": "night/02-layout-overview.jpg",
       "theme": "night",
       "title": "xor.gds2",
@@ -140,6 +142,7 @@
       "pointerCoordinates": null
     },
     {
+      "step": "03-zoom-and-pan",
       "image": "day/03-zoom-and-pan.jpg",
       "theme": "day",
       "title": "xor.gds2",
@@ -152,6 +155,7 @@
       "pointerCoordinates": null
     },
     {
+      "step": "03-zoom-and-pan",
       "image": "night/03-zoom-and-pan.jpg",
       "theme": "night",
       "title": "xor.gds2",
@@ -164,6 +168,7 @@
       "pointerCoordinates": null
     },
     {
+      "step": "04-layer-visibility",
       "image": "day/04-layer-visibility.jpg",
       "theme": "day",
       "title": "xor.gds2",
@@ -176,6 +181,7 @@
       "pointerCoordinates": null
     },
     {
+      "step": "04-layer-visibility",
       "image": "night/04-layer-visibility.jpg",
       "theme": "night",
       "title": "xor.gds2",
@@ -188,6 +194,7 @@
       "pointerCoordinates": null
     },
     {
+      "step": "05-cell-visibility",
       "image": "day/05-cell-visibility.jpg",
       "theme": "day",
       "title": "xor.gds2",
@@ -200,6 +207,7 @@
       "pointerCoordinates": null
     },
     {
+      "step": "05-cell-visibility",
       "image": "night/05-cell-visibility.jpg",
       "theme": "night",
       "title": "xor.gds2",
@@ -212,6 +220,7 @@
       "pointerCoordinates": null
     },
     {
+      "step": "06-root-cell",
       "image": "day/06-root-cell.jpg",
       "theme": "day",
       "title": "xor.gds2",
@@ -224,6 +233,7 @@
       "pointerCoordinates": null
     },
     {
+      "step": "06-root-cell",
       "image": "night/06-root-cell.jpg",
       "theme": "night",
       "title": "xor.gds2",
@@ -236,6 +246,7 @@
       "pointerCoordinates": null
     },
     {
+      "step": "07-hierarchy-depth",
       "image": "day/07-hierarchy-depth.jpg",
       "theme": "day",
       "title": "xor.gds2",
@@ -248,6 +259,7 @@
       "pointerCoordinates": null
     },
     {
+      "step": "07-hierarchy-depth",
       "image": "night/07-hierarchy-depth.jpg",
       "theme": "night",
       "title": "xor.gds2",
@@ -260,7 +272,8 @@
       "pointerCoordinates": null
     },
     {
-      "image": "day/08-grid-and-scale.jpg",
+      "step": "08-grid-and-scale",
+      "image": "day/02-layout-overview.jpg",
       "theme": "day",
       "title": "xor.gds2",
       "rootCell": "",
@@ -272,7 +285,8 @@
       "pointerCoordinates": null
     },
     {
-      "image": "night/08-grid-and-scale.jpg",
+      "step": "08-grid-and-scale",
+      "image": "night/02-layout-overview.jpg",
       "theme": "night",
       "title": "xor.gds2",
       "rootCell": "",
@@ -284,6 +298,7 @@
       "pointerCoordinates": null
     },
     {
+      "step": "09-measure-distance",
       "image": "day/09-measure-distance.jpg",
       "theme": "day",
       "title": "xor.gds2",
@@ -296,6 +311,7 @@
       "pointerCoordinates": null
     },
     {
+      "step": "09-measure-distance",
       "image": "night/09-measure-distance.jpg",
       "theme": "night",
       "title": "xor.gds2",
@@ -308,6 +324,7 @@
       "pointerCoordinates": null
     },
     {
+      "step": "10-pointer-coordinates",
       "image": "day/10-pointer-coordinates.jpg",
       "theme": "day",
       "title": "xor.gds2",
@@ -320,6 +337,7 @@
       "pointerCoordinates": "x 103 um | y 60.4 um"
     },
     {
+      "step": "10-pointer-coordinates",
       "image": "night/10-pointer-coordinates.jpg",
       "theme": "night",
       "title": "xor.gds2",
@@ -332,6 +350,7 @@
       "pointerCoordinates": "x 103 um | y 60.4 um"
     },
     {
+      "step": "11-delete-measurement",
       "image": "day/11-delete-measurement.jpg",
       "theme": "day",
       "title": "xor.gds2",
@@ -344,6 +363,7 @@
       "pointerCoordinates": null
     },
     {
+      "step": "11-delete-measurement",
       "image": "night/11-delete-measurement.jpg",
       "theme": "night",
       "title": "xor.gds2",
