@@ -2,6 +2,8 @@
 const frame = document.getElementById("viewer");
 const results = document.getElementById("results");
 const runButton = document.getElementById("run");
+const previewWidth = document.getElementById("preview-width");
+previewWidth.addEventListener("change", () => { frame.style.width = `${previewWidth.value}px`; });
 const assert = (condition, message) => { if (!condition) throw new Error(message); };
 const pause = (ms = 30) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -15,6 +17,9 @@ async function until(predicate, message) {
 
 runButton.addEventListener("click", async () => {
   runButton.disabled = true;
+  previewWidth.disabled = true;
+  previewWidth.value = "1100";
+  frame.style.width = "1100px";
   results.textContent = "Running...\n";
   let passed = 0;
   const check = async (name, action) => {
@@ -22,6 +27,9 @@ runButton.addEventListener("click", async () => {
     passed += 1;
     results.textContent += `PASS ${name}\n`;
   };
+  // Theme checks must not change the developer's saved appearance preference.
+  let savedTheme;
+  try { savedTheme = localStorage.getItem("gds-viewer-theme"); } catch { /* Storage can be blocked. */ }
   try {
     frame.src = "../index.html";
     await new Promise((resolve) => frame.addEventListener("load", resolve, { once: true }));
@@ -79,6 +87,53 @@ runButton.addEventListener("click", async () => {
       assert(doc.querySelectorAll("canvas").length === 1 + Number(Boolean(glassSurface)), "Unexpected canvas outside the viewer");
       assert(get("cell-select").options.length === 5, "Missing cell options");
       assert(win.getComputedStyle(doc.querySelector(".empty-state")).display === "none", "Welcome artwork covers the loaded canvas");
+    });
+    await check("day/night repaint preserves geometry, navigation, visibility, and rulers", async () => {
+      const canvas = host.querySelector("canvas");
+      const layer = doc.querySelector(".layer-chip");
+      layer.click();
+      const rect = host.getBoundingClientRect();
+      host.dispatchEvent(new win.WheelEvent("wheel", { bubbles: true, cancelable: true, clientX: rect.left + 100, clientY: rect.top + 100, deltaY: -100 }));
+      get("measure-button").click();
+      pointer("pointerdown", rect.left + 90, rect.top + 110);
+      pointer("pointerdown", rect.left + 210, rect.top + 180);
+      get("grid-button").click();
+      const originalStatus = status();
+      const ruler = get("measurement-list").textContent;
+      const scale = get("scale-bar-label").textContent + get("scale-bar-line").style.width;
+      const prototype = win.PIXI.GraphicsContext.prototype;
+      const destroy = prototype.destroy;
+      const fill = prototype.fill;
+      let destroyed = 0;
+      const alphas = new Set();
+      prototype.destroy = function (...args) { destroyed += 1; return destroy.apply(this, args); };
+      prototype.fill = function (style) { alphas.add(style.alpha); return fill.call(this, style); };
+      try {
+        for (let index = 0; index < 4; index += 1) {
+          const previousBackground = win.getComputedStyle(host).backgroundColor;
+          get("theme-toggle").click();
+          const night = doc.documentElement.dataset.theme === "night";
+          assert(win.getComputedStyle(host).backgroundColor !== previousBackground, "Canvas theme did not change");
+          assert(get("theme-toggle").getAttribute("aria-pressed") === String(night), "Theme accessibility state is stale");
+          assert(get("theme-toggle").getAttribute("aria-label") === `Switch to ${night ? "day" : "night"} mode`, "Theme action label is stale");
+          assert(host.querySelector("canvas") === canvas, "Theme replaced the layout renderer");
+          assert(status() === originalStatus && layer.classList.contains("is-off"), "Theme reset visibility");
+          assert(get("measurement-list").textContent === ruler && doc.querySelectorAll(".measurement-item").length === 1, "Theme lost the saved ruler");
+          assert(get("measure-readout").style.display === "block", "Theme hid the ruler label");
+          assert(get("scale-bar-label").textContent + get("scale-bar-line").style.width === scale, "Theme changed the view transform");
+          assert(get("grid-button").getAttribute("aria-pressed") === "false", "Theme reset the grid choice");
+          assert(get("liquid-glass-surface") === glassSurface, "Theme replaced the glass renderer");
+        }
+        assert(destroyed === 0, "Theme destroyed shared geometry contexts");
+        assert(alphas.has(0.32) && alphas.has(0.46), "Geometry did not repaint for both palettes");
+      } finally {
+        prototype.destroy = destroy;
+        prototype.fill = fill;
+      }
+      doc.querySelector(".measurement-delete").click();
+      layer.click();
+      get("grid-button").click();
+      get("fit-button").click();
     });
     await check("gds2 extension loads through picker and drop", async () => {
       get("grid-button").click();
@@ -189,14 +244,14 @@ runButton.addEventListener("click", async () => {
       assert(doc.querySelectorAll(".measurement-item").length === 0, "Options retained stale measurements");
     });
     await check("resize preserves a correctly sized canvas", async () => {
-      for (const width of [850, 620]) {
+      for (const width of [850, 620, 390]) {
         frame.style.width = `${width}px`;
         const canvas = host.querySelector("canvas");
         await until(() => win.innerWidth === width && Math.abs(canvas.getBoundingClientRect().width - host.clientWidth) <= 1, `canvas resize at ${width}px`);
         assert(Math.abs(canvas.getBoundingClientRect().width - host.clientWidth) <= 1, "Canvas did not resize");
         assert(host.clientWidth > 0 && host.clientHeight > 0, "Canvas collapsed");
         assert(doc.documentElement.scrollWidth <= win.innerWidth, `Page overflows at ${width}px`);
-        for (const id of ["fit-button", "measure-button", "grid-button"]) {
+        for (const id of ["fit-button", "measure-button", "grid-button", "theme-toggle"]) {
           const rect = get(id).getBoundingClientRect();
           assert(rect.left >= 0 && rect.right <= win.innerWidth && rect.top >= 0 && rect.bottom <= win.innerHeight, `${id} is clipped at ${width}px`);
         }
@@ -348,6 +403,9 @@ runButton.addEventListener("click", async () => {
         broken.srcdoc = html.replace("<head>", '<head><base href="../">').replace('<script src="./vendor/pixi.min.js"></script>', "");
         await loaded;
         assert(/PixiJS failed to load/.test(broken.contentDocument.getElementById("warning").textContent), "Missing dependency error absent");
+        const before = broken.contentDocument.documentElement.dataset.theme;
+        broken.contentDocument.getElementById("theme-toggle").click();
+        assert(broken.contentDocument.documentElement.dataset.theme !== before, "Dependency failure broke the theme toggle");
       } finally {
         broken.remove();
       }
@@ -356,6 +414,11 @@ runButton.addEventListener("click", async () => {
   } catch (error) {
     results.textContent += `FAIL ${error.stack || error}\n`;
   } finally {
+    try {
+      if (savedTheme === null) localStorage.removeItem("gds-viewer-theme");
+      else if (savedTheme !== undefined) localStorage.setItem("gds-viewer-theme", savedTheme);
+    } catch { /* Storage can be blocked. */ }
     runButton.disabled = false;
+    previewWidth.disabled = false;
   }
 });

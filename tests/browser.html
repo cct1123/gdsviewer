@@ -12,6 +12,13 @@
 <body>
   <h1>GDS Viewer browser checks</h1>
   <button id="run" type="button">Run browser checks</button>
+  <label for="preview-width">Preview width</label>
+  <select id="preview-width">
+    <option value="1100">1100 px</option>
+    <option value="850">850 px</option>
+    <option value="620">620 px</option>
+    <option value="390">390 px</option>
+  </select>
   <pre id="results" role="status">Ready. Uses only synthetic test layouts.</pre>
   <iframe id="viewer" title="Viewer under test" src="../index.html"></iframe>
   <script src="./browser-smoke.js"></script>

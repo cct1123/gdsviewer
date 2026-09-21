@@ -1,62 +1,75 @@
 # Visual design review
 
-The interface uses warm ivory surfaces, slate typography, sage indicators, and
-terracotta accents. The palette follows the supplied Crystal Viewer reference.
-Its purpose is to frame the geometry clearly while keeping controls easy to find.
+The interface takes its visual direction from [CT.Cheung Studio](https://ctcheung.studio/):
+serif display typography, widely spaced small labels, restrained glass, and a
+quiet geometric motif. The viewer uses local Georgia and system fonts to preserve
+offline operation; it does not download the reference site's web fonts.
 
-## Review and changes
+## Day and night
 
-- **Visual hierarchy:** bright pane rims and overlapping shadows competed with
-  the drawing. Softer edge lighting, quieter refraction, and lighter shadows now
-  distinguish the sidebar and toolbar without dominating the canvas.
-- **Color balance:** the Load button and logo tiles use cream surfaces. Their
-  icon strokes and the Load button border use the reference's exact terracotta.
-  Selected controls use a pale tint and darker text for readability.
-- **Typography:** larger filenames, cell/layer labels, and supporting copy improve
-  scanning. A smaller empty-state icon and more restrained heading size keep the
-  primary action in the sidebar prominent.
+| Role | Day | Night |
+| --- | --- | --- |
+| Canvas | Ivory `#FBF9F6` | Charcoal `#101018` |
+| Main text | Slate `#3D405B` | Warm white `#F7F3EE` |
+| Secondary text | Olive `#6A7059` | Lavender gray `#AAAABB` |
+| Display accent | Terracotta `#D48C70` | Pale terracotta `#E2B49F` |
+| Borders | Stone `#DEDBD3` | Charcoal gray `#393744` |
+| Grid | Sage `#849078` | Pale sage `#9BA68F` |
+| Geometry outlines | Slate `#65677D` | Lavender `#B3B0C8` |
+| Rulers | Brown `#9C5138` | Peach `#E4B39A` |
 
-| Role | Color |
-| --- | --- |
-| Canvas | Ivory `#FBF9F6` |
-| Logo and Load button surfaces | Cream `#F8F5F1` |
-| Main text | Slate `#3D405B` |
-| Secondary text | Warm gray `#6D6A6A` |
-| Borders | Pale stone `#EAE2D8` |
-| Logo strokes and action accents | Terracotta `#E07A5F` |
-| Grid | Sage `#8D9B87` |
-| Small selected-control text | Deep terracotta `#984831` |
+The top-right pill names the mode it switches to. The initial mode follows the
+system setting unless the user has saved a choice. `viewer_theme.js` applies it
+before styles paint and saves only the appearance preference. If browser storage
+is blocked, the switch still works for the current page session.
 
-Geometry retains distinct layer/datatype colors. Rulers and pointer overlays use
-terracotta shades, while the major/minor grid remains subdued. Squircle corners,
-local liquid-glass rendering, reduced-motion behavior, and CSS fallback remain.
+The palette covers sidebar controls, the canvas, major/minor grids, rulers,
+coordinates, scale bars, warnings, and the decorative glass renderer. Layer colors
+remain consistent between modes; outlines and fill opacity adjust for contrast.
+Shared geometry contexts repaint in place, preserving the view transform, hidden
+cells/layers, hierarchy options, and measurements. The toggle works even if PixiJS
+is unavailable.
+
+The decorative motif appears only in the empty view. The glass renderer remains
+bounded and event-driven, with reduced-motion and reduced-transparency support.
+On screens up to 540 pixels wide, the independently scrolling controls sit above
+the canvas so the drawing and toolbar retain useful width.
 
 ## Current captures
 
-![Empty viewer with cream controls and terracotta accents](images/current-empty.png)
+![Day mode: synthetic hierarchy fixture with a saved ruler](images/studio-day.jpg)
 
-![Public XOR layout in the refined viewer](viewer-xor.png)
+![Night mode: the same fixture and ruler](images/studio-night.jpg)
 
-Captured on 8 September 2026 in the Codex in-app browser on Windows, using the
-loopback server under `/viewer/`. The saved captures are 934 × 912 pixels.
-The loaded view uses the unchanged public [YZUDA XOR file](../examples/yzuda/README.md):
-4 cells, 15 layers, and 520 polygons. The file was opened through the browser's
-normal file input; no private layout was used. The browser supplied JPEG captures;
-they are stored as PNG with identical decoded pixels, without retouching or
-resampling. Source and image hashes are recorded in the
-[current capture manifest](images/current-capture-manifest.json).
+These unmodified browser JPEG captures show the independent synthetic
+[`hierarchy.gds` fixture](../tests/fixtures/README.md) in the Codex in-app browser
+on Windows, served under `/viewer/`. No private layout was used. The ruler is an
+interaction check, not an independent geometry reference. Screenshots use the
+browser's normal 838 × 912 viewport.
 
-The numbered walkthrough images and their crops retain the earlier styling and
-their original provenance. Their controls and workflow still apply.
+The older `current-empty.png`, `viewer-xor.png`, numbered walkthrough images, and
+their capture manifests retain their original styling and provenance. Their basic
+controls and workflows still apply.
 
 ## Validation
 
-Syntax checks and all 26 Node tests passed using the documented
-`--test-isolation=none` fallback. All 17 browser checks passed, including loading,
-visibility, navigation, measurements, grids, resize, reload cleanup, and glass
-fallback. The empty and loaded views were visually inspected; grid toggling and
-ruler readability were also checked manually.
+All five documented JavaScript syntax checks passed. All 29 Node tests passed with
+the documented `--test-isolation=none` fallback after the sandbox blocked test
+worker creation with `spawn EPERM`. The suite includes independent reference
+geometry, root/subdirectory asset delivery, saved theme preferences, OS appearance
+changes, invalid preferences, and blocked storage.
 
-Direct-file navigation and native OS picker dialogs were not revalidated. Other
-browser engines and macOS/Linux launchers were not tested. Measurement-unit and
-resource-limit caveats in the [README](../README.md) still apply.
+All 18 browser checks passed with the suite starting once in day mode and once in
+night mode. The checks cover loading, visibility, hierarchy, navigation, rulers,
+grids, errors, overlapping loads, resize at 850/620/390 pixels, reload cleanup, and
+decorative WebGL fallback. Repeated theme changes preserve the layout canvas,
+shared contexts, zoom, visibility, grid choice, and saved rulers.
+
+Empty and loaded views were visually reviewed in both modes. A synthetic layout
+was opened through the browser file-chooser API, and a ruler was created manually.
+The narrow 390-pixel view was also visually checked in the browser harness.
+
+Direct-file navigation was blocked by the browser tool's URL policy, so that route
+was not revalidated. Native OS picker dialogs, other browser engines, macOS/Linux
+launchers, and large-layout performance were not tested. The existing measurement
+unit and resource-limit caveats in the [README](../README.md) still apply.

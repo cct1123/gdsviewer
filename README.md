@@ -7,19 +7,26 @@ individual cells, and measure distances. Your files stay on your computer.
 There is nothing to install or build. The drawing library is included, so you can
 use the viewer offline too.
 
-The ivory glass sidebar uses slate text, sage indicators, and soft terracotta
-accents. It keeps cell and layer controls beside the drawing. **Fit View**,
+Inspired by [CT.Cheung Studio](https://ctcheung.studio/), the interface pairs serif
+headings and widely spaced labels with restrained glass panels. **Day** mode uses
+ivory, sage, and terracotta; **Night** mode uses charcoal and warm white. The
+top-right **Day / Night** button switches the whole viewer, including geometry
+outlines, grid, and rulers, without resetting your view. It follows your system
+appearance initially and remembers a manual choice when browser storage is available.
+Only this appearance preference is saved; layout files stay in memory.
+
+Cell and layer controls sit beside the drawing. **Fit View**,
 **Measure**, and **Grid** sit above the canvas. The grid starts on, with stronger
 major lines and five lighter subdivisions per interval, and adapts as you zoom.
 
-![YZUDA's XOR layout in the glass UI with the cell tree and default major/minor grid](docs/viewer-xor.png)
+![Night mode with an independent synthetic hierarchy fixture and a saved ruler](docs/images/studio-night.jpg)
 
-See the [visual design review](docs/design-review.md) for the palette and current
-empty and loaded views. The step-by-step pictures below retain the earlier styling;
+See the [visual design review](docs/design-review.md) for both palettes and current
+loaded views. The step-by-step pictures below retain the earlier styling;
 their controls and workflow still apply.
 
 New to layout viewers? The [guide in pictures](docs/user-guide.md) walks through
-this same XOR layout, with close-ups of each control and the result of using it.
+the YZUDA XOR example, with close-ups of each control and the result of using it.
 
 ## Open your first layout
 
@@ -51,6 +58,7 @@ for checked behavior and platform limits.
 | Move across the layout | Click and drag in the drawing area. |
 | Get a closer look | Scroll the wheel, or hold **z** to zoom in and **x** to zoom out at the pointer. |
 | Return to the overview | Click **Fit View**. |
+| Change the appearance | Use **Day / Night** at the top right. The label names the mode you can switch to. |
 | Hide a layer or cell | Click its name in the sidebar. Click again to bring it back. |
 | Restore everything you hid | Click **Show All**. |
 | Show or hide the reference grid | **Grid** starts on, with major lines and five minor subdivisions per interval. Click to toggle both. |
@@ -168,6 +176,7 @@ Keep these files together when copying the viewer or putting it on a static web 
 index.html
 gds_parser.js
 gds_viewer.js
+viewer_theme.js
 liquid_glass.js
 vendor/
   pixi.min.js
@@ -197,6 +206,7 @@ Development checks use Node.js (validated with 24.14.1). No npm packages are nee
 node --check gds_parser.js
 node --check gds_viewer.js
 node --check liquid_glass.js
+node --check viewer_theme.js
 node --check tests/browser-smoke.js
 node --test tests/*.test.cjs
 ```
@@ -207,9 +217,10 @@ The suite checks independent reference models, malformed inputs, and static asse
 delivery. See [fixture provenance](tests/fixtures/README.md).
 
 For browser checks, start the helper above and open its **Browser checks:** address.
-Click **Run browser checks** to exercise loading, navigation, visibility,
-major/minor grids, measurements, resizing, errors, overlapping loads, and graphics
-cleanup. Also inspect the drawing and test the native picker manually on the
+Click **Run browser checks** to exercise loading, navigation, visibility, day/night
+switching, major/minor grids, measurements, resizing, errors, overlapping loads,
+and graphics cleanup. Use **Preview width** to inspect narrower layouts after the
+run. Also inspect the drawing and test the native picker manually on the
 browsers you support.
 [The screenshot record](docs/images/README.md) describes how the guide was captured.
 

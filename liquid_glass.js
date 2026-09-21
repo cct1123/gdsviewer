@@ -29,8 +29,8 @@
     uniform vec4 u_pane;
     uniform vec2 u_light;
     uniform float u_radius;
-    uniform float u_squircle;
     uniform float u_lens;
+    uniform float u_night;
 
     // A softly lit backdrop shared by the plain background and refracted regions.
     vec3 backdrop(vec2 uv) {
@@ -48,16 +48,14 @@
       color += rim * 0.012;
       float second = uv.y - 0.14 * sin(uv.x * 5.0);
       color += exp(-pow((second - 0.83) * 32.0, 2.0)) * 0.025;
-      return color;
+      return mix(color, vec3(0.063, 0.063, 0.094) + (color - vec3(0.94)) * 0.16, u_night);
     }
 
-    // liquidGL's rounded-box bevel, extended with an L4 corner for CSS squircles.
+    // liquidGL's rounded-box bevel.
     float boxDistance(vec2 p, vec2 halfSize, float radius) {
       vec2 q = abs(p) - halfSize + radius;
       vec2 outside = max(q, 0.0);
-      float roundCorner = length(outside);
-      float smoothCorner = pow(pow(outside.x, 4.0) + pow(outside.y, 4.0), 0.25);
-      return mix(roundCorner, smoothCorner, u_squircle) + min(max(q.x, q.y), 0.0) - radius;
+      return length(outside) + min(max(q.x, q.y), 0.0) - radius;
     }
 
     void main() {
@@ -83,7 +81,7 @@
       vec3 refracted = backdrop(uv + offset);
       refracted.r = backdrop(uv + offset * 0.75).r;
       refracted.b = backdrop(uv + offset * 1.25).b;
-      vec3 color = mix(refracted, vec3(1.0), 0.26);
+      vec3 color = mix(refracted, mix(vec3(1.0), vec3(0.14, 0.13, 0.18), u_night), 0.26);
       vec2 lightDirection = (u_light - pixel) / max(length(u_light - pixel), 1.0);
       float specular = pow(max(dot(normal, lightDirection), 0.0), 3.0);
       float edge = 1.0 - smoothstep(0.0, 2.2, -distance);
@@ -127,6 +125,7 @@
     gl.viewport(0, 0, width, height);
     gl.disable(gl.SCISSOR_TEST);
     gl.useProgram(program);
+    gl.uniform1f(uniforms.night, document.documentElement.dataset.theme === "night" ? 1 : 0);
     gl.uniform2f(uniforms.size, width, height);
     gl.uniform2f(uniforms.light, light ? (light.x - bounds.left) * sx : width * 0.18,
       light ? (light.y - bounds.top) * sy : -height * 0.15);
@@ -151,8 +150,6 @@
       gl.scissor(left, height - bottom, right - left, bottom - top);
       gl.uniform4f(uniforms.pane, x, y, w, h);
       gl.uniform1f(uniforms.radius, radius);
-      const squircle = style.cornerShape === "squircle" || style.cornerShape === "superellipse(2)";
-      gl.uniform1f(uniforms.squircle, squircle ? 1 : 0);
       gl.drawArrays(gl.TRIANGLES, 0, 6);
     }
     gl.disable(gl.SCISSOR_TEST);
@@ -216,7 +213,7 @@
       const position = gl.getAttribLocation(program, "a_position");
       gl.enableVertexAttribArray(position);
       gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
-      uniforms = Object.fromEntries(["size", "pane", "light", "radius", "squircle", "lens"].map((name) => [name, gl.getUniformLocation(program, `u_${name}`)]));
+      uniforms = Object.fromEntries(["size", "pane", "light", "radius", "lens", "night"].map((name) => [name, gl.getUniformLocation(program, `u_${name}`)]));
       surface.addEventListener("webglcontextlost", contextLost);
       root.prepend(surface);
       root.dataset.glass = "webgl";
@@ -238,6 +235,7 @@
   root.addEventListener("pointerleave", () => { light = null; schedule(); }, { passive: true });
   root.addEventListener("scroll", schedule, { passive: true, capture: true });
   window.addEventListener("resize", schedule, { passive: true });
+  window.addEventListener("viewer-theme-change", schedule);
   document.addEventListener("visibilitychange", schedule);
   window.addEventListener("pagehide", () => { suspended = true; dispose(); });
   window.addEventListener("pageshow", () => { suspended = false; initialize(); });

@@ -62,6 +62,32 @@
   let keyboardZoomDirection = 0;
   let keyboardZoomFrame = null;
   let dragDropDepth = 0;
+  let palette = readPalette();
+
+  function readPalette() {
+    const style = getComputedStyle(document.documentElement);
+    const color = (name) => hexToNumber(style.getPropertyValue(`--viewer-${name}`).trim());
+    return {
+      grid: color("grid"),
+      ruler: color("ruler"),
+      selectedRuler: color("ruler-selected"),
+      outline: color("outline"),
+      fillAlpha: Number(style.getPropertyValue("--viewer-fill-alpha")),
+    };
+  }
+
+  window.addEventListener("viewer-theme-change", () => {
+    palette = readPalette();
+    if (viewModel) {
+      // Repaint shared templates in place: keep instances, visibility, and navigation.
+      buildTemplateContexts(viewModel.templates, true);
+      for (const group of viewModel.groups || []) {
+        const graphics = groupMap.get(group.id);
+        if (graphics && !templateContextMap.has(group.templateId)) drawGroup(group, graphics);
+      }
+    }
+    updateOverlays();
+  });
 
   function setMeasureMode(nextMode) {
     measureMode = nextMode;
@@ -387,7 +413,7 @@
 
     let label = null;
     for (const measurement of measurements) {
-      const color = measurement.id === selectedMeasurementId ? 0x984831 : 0xb56147;
+      const color = measurement.id === selectedMeasurementId ? palette.selectedRuler : palette.ruler;
       const nextLabel = drawMeasurement(measurement, color);
       if (measurement.id === selectedMeasurementId || (!label && !measureMode)) {
         label = nextLabel;
@@ -398,7 +424,7 @@
     if (measureMode && measureStart && endPoint) {
       label = drawMeasurement(
         { id: "draft", start: measureStart, end: endPoint },
-        0xb56147,
+        palette.ruler,
       );
     }
 
@@ -410,7 +436,7 @@
     measureReadoutNode.textContent = label.labelText;
     measureReadoutNode.style.left = `${Math.round(label.labelX)}px`;
     measureReadoutNode.style.top = `${Math.round(label.labelY)}px`;
-    measureReadoutNode.style.borderColor = label.labelColor === 0x984831 ? "#cf9b88" : "";
+    measureReadoutNode.style.borderColor = label.labelColor === palette.selectedRuler ? "var(--viewer-accent)" : "";
     measureReadoutNode.style.display = "block";
   }
 
@@ -501,12 +527,12 @@
     cursorGraphics.lineTo(screenPoint.x + size, screenPoint.y);
     cursorGraphics.moveTo(screenPoint.x, screenPoint.y - size);
     cursorGraphics.lineTo(screenPoint.x, screenPoint.y + size);
-    cursorGraphics.stroke({ color: 0xb56147, alpha: 0.75, width: 1.5 });
+    cursorGraphics.stroke({ color: palette.ruler, alpha: 0.75, width: 1.5 });
     cursorGraphics.moveTo(0, screenPoint.y);
     cursorGraphics.lineTo(width, screenPoint.y);
     cursorGraphics.moveTo(screenPoint.x, 0);
     cursorGraphics.lineTo(screenPoint.x, height);
-    cursorGraphics.stroke({ color: 0xb56147, alpha: 0.18, width: 1 });
+    cursorGraphics.stroke({ color: palette.ruler, alpha: 0.18, width: 1 });
   }
 
   function updateGridOverlay() {
@@ -566,7 +592,7 @@
         gridGraphics.moveTo(0, screenY);
         gridGraphics.lineTo(width, screenY);
       }
-      gridGraphics.stroke({ color: 0x8d9b87, alpha: major ? 0.30 : 0.13, width: 1 });
+      gridGraphics.stroke({ color: palette.grid, alpha: major ? 0.30 : 0.13, width: 1 });
     }
   }
 
@@ -792,7 +818,7 @@
     return button;
   }
 
-  function drawGroup(group) {
+  function drawGroup(group, existingGraphics = null) {
     const template = templateMap.get(group.templateId);
     if (!template || !window.PIXI) {
       const graphics = new PIXI.Graphics();
@@ -819,9 +845,10 @@
       return;
     }
 
-    const graphics = new PIXI.Graphics();
+    const graphics = existingGraphics || new PIXI.Graphics();
+    graphics.clear();
     const color = hexToNumber(group.cssColor);
-    const outlineColor = 0x65677d;
+    const outlineColor = palette.outline;
     const [a, b, c, d] = group.transform;
     const [ox, oy] = group.offset;
 
@@ -839,27 +866,28 @@
         graphics.lineTo(x, -y);
       }
       graphics.closePath();
-      graphics.fill({ color, alpha: 0.32 });
+      graphics.fill({ color, alpha: palette.fillAlpha });
       graphics.stroke({ color: outlineColor, alpha: 0.65, pixelLine: true });
     }
 
     graphics.eventMode = "none";
     groupMap.set(group.id, graphics);
-    world.addChild(graphics);
+    if (!existingGraphics) world.addChild(graphics);
   }
 
-  function buildTemplateContexts(templates) {
+  function buildTemplateContexts(templates, refresh = false) {
     if (!window.PIXI || !window.PIXI.GraphicsContext) {
       return;
     }
 
     for (const template of templates || []) {
-      if (templateContextMap.has(template.id)) {
+      if (templateContextMap.has(template.id) && !refresh) {
         continue;
       }
-      const context = new PIXI.GraphicsContext();
+      const context = templateContextMap.get(template.id) || new PIXI.GraphicsContext();
+      context.clear();
       const color = hexToNumber(template.cssColor);
-      const outlineColor = 0x65677d;
+      const outlineColor = palette.outline;
       for (const item of template.polygons || []) {
         const coords = item.polygon;
         if (!coords || coords.length < 6) {
@@ -870,7 +898,7 @@
           flipped[index] = coords[index];
           flipped[index + 1] = -coords[index + 1];
         }
-        context.poly(flipped, true).fill({ color, alpha: 0.32 }).stroke({ color: outlineColor, alpha: 0.65, pixelLine: true });
+        context.poly(flipped, true).fill({ color, alpha: palette.fillAlpha }).stroke({ color: outlineColor, alpha: 0.65, pixelLine: true });
       }
       templateContextMap.set(template.id, context);
     }
