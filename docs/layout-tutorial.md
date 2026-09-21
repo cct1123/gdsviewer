@@ -1,4 +1,4 @@
-# Reproduce the README illustration
+# Reproduce the day and night illustrations
 
 The YZUDA layouts are documentation examples. The viewer opens your own files
 through its normal picker or drag-and-drop controls.
@@ -10,8 +10,15 @@ through its normal picker or drag-and-drop controls.
    **Hierarchy depth**, and click **Apply view options**.
 4. Select **Show All** in the sidebar, then **Fit View** above the canvas.
 5. Leave **Grid** enabled to show the major lines and five minor subdivisions.
+6. Use **Day / Night** at the top right to capture both appearances. The button
+   names the destination mode; changing it preserves the current layout and view.
 
-![XOR layout in the current glass UI with all layers and major/minor grid visible](viewer-xor.png)
+| Day mode | Night mode |
+| --- | --- |
+| <a href="images/day/02-layout-overview.jpg"><img src="images/day/02-layout-overview.jpg" alt="Day mode: XOR layout with all layers and the major/minor grid visible"></a> | <a href="images/night/02-layout-overview.jpg"><img src="images/night/02-layout-overview.jpg" alt="Night mode: XOR layout with all layers and the major/minor grid visible"></a> |
+
+The overview shows **4 / 4 cells**, **15 / 15 layers**, and **520 polygons** in
+both modes. Click either image to inspect the full capture.
 
 Toggle a layer chip to inspect overlapping geometry, drag to pan, or scroll to zoom.
 Select **Measure**, then click two points to place a ruler. Measurement mode ends

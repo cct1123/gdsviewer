@@ -37,21 +37,21 @@ the canvas so the drawing and toolbar retain useful width.
 
 ## Current captures
 
-![Day mode: synthetic hierarchy fixture with a saved ruler](images/studio-day.jpg)
+| Day mode | Night mode |
+| --- | --- |
+| <a href="images/day/02-layout-overview.jpg"><img src="images/day/02-layout-overview.jpg" alt="Day mode: Public YZUDA XOR layout, 520 visible polygons"></a> | <a href="images/night/02-layout-overview.jpg"><img src="images/night/02-layout-overview.jpg" alt="Night mode: Public YZUDA XOR layout, 520 visible polygons"></a> |
 
-![Night mode: the same fixture and ruler](images/studio-night.jpg)
-
-These unmodified browser JPEG captures show the independent synthetic
-[`hierarchy.gds` fixture](../tests/fixtures/README.md) in the Codex in-app browser
-on Windows, served under `/viewer/`. No private layout was used. The ruler is an
-interaction check, not an independent geometry reference. Screenshots use the
-browser's normal 838 × 912 viewport.
-
-The older `current-empty.png`, `viewer-xor.png`, numbered walkthrough images, and
-their capture manifests retain their original styling and provenance. Their basic
-controls and workflows still apply.
+These unmodified browser JPEG captures show the public YZUDA XOR example in the
+Codex in-app browser on Windows, served under `/viewer/` at 838 × 912 pixels.
+The [picture guide](user-guide.md) includes paired illustrations and close-ups
+for every tutorial step. See the [capture record](images/README.md) for source
+hashes, exact crop rectangles, and observed UI values. No private layout was used.
 
 ## Validation
+
+The following implementation checks passed for source commit `f0ffb63`, before
+the documentation capture update. The [documentation validation record](yzuda-demo-validation.md)
+lists the subsequent XOR walkthrough and image checks.
 
 All five documented JavaScript syntax checks passed. All 29 Node tests passed with
 the documented `--test-isolation=none` fallback after the sandbox blocked test

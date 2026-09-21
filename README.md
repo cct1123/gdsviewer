@@ -19,11 +19,12 @@ Cell and layer controls sit beside the drawing. **Fit View**,
 **Measure**, and **Grid** sit above the canvas. The grid starts on, with stronger
 major lines and five lighter subdivisions per interval, and adapts as you zoom.
 
-![Night mode with an independent synthetic hierarchy fixture and a saved ruler](docs/images/studio-night.jpg)
+| Day mode | Night mode |
+| --- | --- |
+| <a href="docs/images/day/02-layout-overview.jpg"><img src="docs/images/day/02-layout-overview.jpg" alt="Day mode: YZUDA XOR layout with every cell and layer visible"></a> | <a href="docs/images/night/02-layout-overview.jpg"><img src="docs/images/night/02-layout-overview.jpg" alt="Night mode: YZUDA XOR layout with every cell and layer visible"></a> |
 
-See the [visual design review](docs/design-review.md) for both palettes and current
-loaded views. The step-by-step pictures below retain the earlier styling;
-their controls and workflow still apply.
+The same XOR layout is shown in both modes. Click a picture for the full-size view.
+See the [visual design review](docs/design-review.md) for palette details.
 
 New to layout viewers? The [guide in pictures](docs/user-guide.md) walks through
 the YZUDA XOR example, with close-ups of each control and the result of using it.
@@ -37,14 +38,16 @@ the YZUDA XOR example, with close-ups of each control and the result of using it
    the drawing area works too.
 4. Click **Fit View** whenever you want to see the whole layout again.
 
-<img src="docs/images/crops/01-load-file.png" alt="Load GDS File button and the .gds / .gds2 file hint" width="390">
+| Day mode | Night mode |
+| --- | --- |
+| <a href="docs/images/day/01-open-viewer.jpg"><img src="docs/images/day/crops/01-load-file.png" alt="Day mode: Load GDS File button and the .gds / .gds2 file hint" width="390"></a> | <a href="docs/images/night/01-open-viewer.jpg"><img src="docs/images/night/crops/01-load-file.png" alt="Night mode: Load GDS File button and the .gds / .gds2 file hint" width="390"></a> |
 
 The viewer starts empty. To follow along with the pictures, open
 [`examples/yzuda/xor.gds2`](examples/yzuda/xor.gds2). This is the XOR example from
 [YZUDA](https://www.yzuda.org/download/_GDSII_examples.html); its original filename
 ends in `.gds2`, which the viewer accepts. The example files are included for the
 documentation and are opened with the same picker as your own files.
-[Full screenshot of the empty viewer](docs/images/01-open-viewer.png).
+The [picture guide](docs/user-guide.md#day-and-night-mode) also shows the appearance switch.
 
 On macOS or Linux, open `index.html` with a browser, or use `./open_gds_viewer.sh`.
 The current screenshots were captured in the Codex in-app browser on Windows using
@@ -68,7 +71,9 @@ for checked behavior and platform limits.
 The sidebar scrolls separately from the drawing. If you cannot see all the layers
 or the measurement list, scroll inside the sidebar.
 
-<img src="docs/images/crops/04-layer-controls.png" alt="XOR layer controls with L47/D0 hidden, using a dashed border and hollow indicator" width="390">
+| Day mode | Night mode |
+| --- | --- |
+| <a href="docs/images/day/04-layer-visibility.jpg"><img src="docs/images/day/crops/04-layer-controls.png" alt="Day mode: XOR layer controls with L47/D0 hidden, using a dashed border and hollow indicator" width="390"></a> | <a href="docs/images/night/04-layer-visibility.jpg"><img src="docs/images/night/crops/04-layer-controls.png" alt="Night mode: XOR layer controls with L47/D0 hidden, using a dashed border and hollow indicator" width="390"></a> |
 
 A muted layer button with a dashed border and hollow indicator means that layer is
 hidden. Here, **L47/D0** is off: layer 47, datatype 0. Nothing is deleted from the file.
@@ -79,7 +84,9 @@ hidden. Here, **L47/D0** is off: layer 47, datatype 0. Nothing is deleted from t
 Click **Measure** (or press **m**), then click two points. Hold **Ctrl** while
 choosing the second point to keep the ruler horizontal or vertical.
 
-<img src="docs/images/crops/09-ruler-detail.png" alt="A horizontal ruler on the XOR layout reading 44.0 um, with dy 0.0 nm" width="550">
+| Day mode | Night mode |
+| --- | --- |
+| <a href="docs/images/day/09-measure-distance.jpg"><img src="docs/images/day/crops/09-ruler-detail.png" alt="Day mode: A horizontal ruler on the XOR layout reading 44.0 um, with dy 0.0 nm" width="390"></a> | <a href="docs/images/night/09-measure-distance.jpg"><img src="docs/images/night/crops/09-ruler-detail.png" alt="Night mode: A horizontal ruler on the XOR layout reading 44.0 um, with dy 0.0 nm" width="390"></a> |
 
 This ruler across the middle of the XOR layout reads **44.0 µm**. Your result
 depends on the points you choose. The label also gives `dx`, the horizontal

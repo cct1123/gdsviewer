@@ -1,201 +1,384 @@
 {
-  "sourceViewport": [
-    1280,
-    720
-  ],
-  "method": "Exact rectangular crops of PNG browser screenshots; no resampling, sharpening, or retouching.",
+  "sourceViewport": {
+    "width": 838,
+    "height": 912,
+    "deviceScaleFactor": 1
+  },
+  "method": "Exact pixel crops from decoded full-viewport JPEG screenshots, saved as PNG without resizing or retouching.",
   "crops": [
     {
-      "source": "01-open-viewer.png",
-      "name": "01-load-file.png",
-      "rect": [
-        35,
-        103,
-        253,
-        84
-      ],
-      "width": 390,
-      "alt": "Load GDS File button and .gds / .gds2 hint"
+      "source": "day/01-open-viewer.jpg",
+      "name": "day/crops/01-load-file.png",
+      "rect": {
+        "height": 85,
+        "width": 223,
+        "x": 19,
+        "y": 101
+      },
+      "description": "Load button and accepted file extensions"
     },
     {
-      "source": "03-zoom-and-pan.png",
-      "name": "03-fit-controls.png",
-      "rect": [
-        945,
-        22,
-        302,
-        64
-      ],
-      "width": 390,
-      "alt": "Fit View, Measure, and the enabled Grid button"
+      "source": "day/01-open-viewer.jpg",
+      "name": "day/crops/02-theme-toggle.png",
+      "rect": {
+        "height": 56,
+        "width": 108,
+        "x": 713,
+        "y": 23
+      },
+      "description": "The button names the mode to switch to"
     },
     {
-      "source": "03-zoom-and-pan.png",
-      "name": "03-zoomed-layout.png",
-      "rect": [
-        360,
-        180,
-        800,
-        360
-      ],
-      "width": 700,
-      "alt": "XOR geometry after zooming and panning"
+      "source": "night/01-open-viewer.jpg",
+      "name": "night/crops/01-load-file.png",
+      "rect": {
+        "height": 85,
+        "width": 223,
+        "x": 19,
+        "y": 101
+      },
+      "description": "Load button and accepted file extensions"
     },
     {
-      "source": "04-layer-visibility.png",
-      "name": "04-layer-controls.png",
-      "rect": [
-        35,
-        188,
-        249,
-        345
-      ],
-      "width": 390,
-      "alt": "Layer controls with L47/D0 hidden using a dashed border and hollow indicator"
+      "source": "night/01-open-viewer.jpg",
+      "name": "night/crops/02-theme-toggle.png",
+      "rect": {
+        "height": 56,
+        "width": 96,
+        "x": 725,
+        "y": 23
+      },
+      "description": "The button names the mode to switch to"
     },
     {
-      "source": "04-layer-visibility.png",
-      "name": "04-layer-status.png",
-      "rect": [
-        903,
-        635,
-        340,
-        46
-      ],
-      "width": 540,
-      "alt": "14 of 15 layers and 512 visible polygons"
+      "source": "day/03-zoom-and-pan.jpg",
+      "name": "day/crops/03-fit-controls.png",
+      "rect": {
+        "height": 60,
+        "width": 285,
+        "x": 257,
+        "y": 77
+      },
+      "description": "Fit View, Measure, and Grid toolbar"
     },
     {
-      "source": "05-cell-visibility.png",
-      "name": "05-cell-controls.png",
-      "rect": [
-        38,
-        212,
-        246,
-        283
-      ],
-      "width": 390,
-      "alt": "Cell tree with nand2 and via hidden"
+      "source": "day/03-zoom-and-pan.jpg",
+      "name": "day/crops/03-zoomed-layout.png",
+      "rect": {
+        "x": 280,
+        "y": 280,
+        "width": 510,
+        "height": 420
+      },
+      "description": "Enlarged and panned XOR geometry"
     },
     {
-      "source": "05-cell-visibility.png",
-      "name": "05-cell-result.png",
-      "rect": [
-        520,
-        467,
-        532,
-        155
-      ],
-      "width": 650,
-      "alt": "Wiring remaining after hiding nand2"
+      "source": "night/03-zoom-and-pan.jpg",
+      "name": "night/crops/03-fit-controls.png",
+      "rect": {
+        "height": 60,
+        "width": 285,
+        "x": 257,
+        "y": 77
+      },
+      "description": "Fit View, Measure, and Grid toolbar"
     },
     {
-      "source": "06-root-cell.png",
-      "name": "06-root-options.png",
-      "rect": [
-        36,
-        199,
-        249,
-        257
-      ],
-      "width": 390,
-      "alt": "nand2 selected as root with all hierarchy levels"
+      "source": "night/03-zoom-and-pan.jpg",
+      "name": "night/crops/03-zoomed-layout.png",
+      "rect": {
+        "x": 280,
+        "y": 280,
+        "width": 510,
+        "height": 420
+      },
+      "description": "Enlarged and panned XOR geometry"
     },
     {
-      "source": "07-hierarchy-depth.png",
-      "name": "07-depth-options.png",
-      "rect": [
-        36,
-        199,
-        249,
-        257
-      ],
-      "width": 390,
-      "alt": "abc2 selected with hierarchy depth zero"
+      "source": "night/04-layer-visibility.jpg",
+      "name": "night/crops/04-layer-controls.png",
+      "rect": {
+        "height": 357,
+        "width": 213,
+        "x": 19,
+        "y": 376
+      },
+      "description": "Layer buttons with L47/D0 disabled"
     },
     {
-      "source": "08-grid-and-scale.png",
-      "name": "08-grid-button.png",
-      "rect": [
-        1159,
-        28,
-        84,
-        49
-      ],
-      "width": 100,
-      "alt": "Grid enabled"
+      "source": "night/04-layer-visibility.jpg",
+      "name": "night/crops/04-layer-status.png",
+      "rect": {
+        "height": 50,
+        "width": 320,
+        "x": 488,
+        "y": 781
+      },
+      "description": "14 of 15 layers and 512 visible polygons"
     },
     {
-      "source": "08-grid-and-scale.png",
-      "name": "08-grid-scale-detail.png",
-      "rect": [
-        322,
-        477,
-        310,
-        207
-      ],
-      "width": 520,
-      "alt": "Major and minor grid lines with the 50.0 um scale bar"
+      "source": "day/04-layer-visibility.jpg",
+      "name": "day/crops/04-layer-controls.png",
+      "rect": {
+        "height": 357,
+        "width": 213,
+        "x": 19,
+        "y": 376
+      },
+      "description": "Layer buttons with L47/D0 disabled"
     },
     {
-      "source": "09-measure-distance.png",
-      "name": "09-ruler-detail.png",
-      "rect": [
-        728,
-        310,
-        275,
-        112
-      ],
-      "width": 550,
-      "alt": "Horizontal ruler reading 44.0 um, dx 44.0 um, dy 0.0 nm"
+      "source": "day/04-layer-visibility.jpg",
+      "name": "day/crops/04-layer-status.png",
+      "rect": {
+        "height": 50,
+        "width": 320,
+        "x": 488,
+        "y": 781
+      },
+      "description": "14 of 15 layers and 512 visible polygons"
     },
     {
-      "source": "09-measure-distance.png",
-      "name": "09-saved-ruler.png",
-      "rect": [
-        36,
-        508,
-        249,
-        136
-      ],
-      "width": 390,
-      "alt": "Saved 44.0 um measurement and Delete button"
+      "source": "day/05-cell-visibility.jpg",
+      "name": "day/crops/05-cell-controls.png",
+      "rect": {
+        "height": 297,
+        "width": 213,
+        "x": 19,
+        "y": 339
+      },
+      "description": "nand2 and its via child hidden in the cell tree"
     },
     {
-      "source": "10-pointer-coordinates.png",
-      "name": "10-pointer-detail.png",
-      "rect": [
-        778,
-        260,
-        210,
-        88
-      ],
-      "width": 470,
-      "alt": "Crosshair and zero-length preview at the first ruler point"
+      "source": "day/05-cell-visibility.jpg",
+      "name": "day/crops/05-cell-result.png",
+      "rect": {
+        "x": 285,
+        "y": 425,
+        "width": 505,
+        "height": 320
+      },
+      "description": "Geometry remaining after hiding the nand2 branch"
     },
     {
-      "source": "10-pointer-coordinates.png",
-      "name": "10-coordinate-readout.png",
-      "rect": [
-        325,
-        584,
-        210,
-        100
-      ],
-      "width": 400,
-      "alt": "x 104 um and y 59.8 um above the scale bar"
+      "source": "night/05-cell-visibility.jpg",
+      "name": "night/crops/05-cell-controls.png",
+      "rect": {
+        "height": 297,
+        "width": 213,
+        "x": 19,
+        "y": 339
+      },
+      "description": "nand2 and its via child hidden in the cell tree"
     },
     {
-      "source": "11-delete-measurement.png",
-      "name": "11-empty-measurements.png",
-      "rect": [
-        36,
-        543,
-        249,
-        100
-      ],
-      "width": 390,
-      "alt": "No measurements yet after deletion"
+      "source": "night/05-cell-visibility.jpg",
+      "name": "night/crops/05-cell-result.png",
+      "rect": {
+        "x": 285,
+        "y": 425,
+        "width": 505,
+        "height": 320
+      },
+      "description": "Geometry remaining after hiding the nand2 branch"
+    },
+    {
+      "source": "night/06-root-cell.jpg",
+      "name": "night/crops/06-root-options.png",
+      "rect": {
+        "height": 291,
+        "width": 213,
+        "x": 19,
+        "y": 187
+      },
+      "description": "nand2 root with the hierarchy depth left blank"
+    },
+    {
+      "source": "day/06-root-cell.jpg",
+      "name": "day/crops/06-root-options.png",
+      "rect": {
+        "height": 291,
+        "width": 213,
+        "x": 19,
+        "y": 187
+      },
+      "description": "nand2 root with the hierarchy depth left blank"
+    },
+    {
+      "source": "day/07-hierarchy-depth.jpg",
+      "name": "day/crops/07-depth-options.png",
+      "rect": {
+        "height": 291,
+        "width": 213,
+        "x": 19,
+        "y": 187
+      },
+      "description": "abc2 root with hierarchy depth set to zero"
+    },
+    {
+      "source": "night/07-hierarchy-depth.jpg",
+      "name": "night/crops/07-depth-options.png",
+      "rect": {
+        "height": 291,
+        "width": 213,
+        "x": 19,
+        "y": 187
+      },
+      "description": "abc2 root with hierarchy depth set to zero"
+    },
+    {
+      "source": "night/08-grid-and-scale.jpg",
+      "name": "night/crops/08-grid-button.png",
+      "rect": {
+        "height": 52,
+        "width": 85,
+        "x": 453,
+        "y": 81
+      },
+      "description": "Grid enabled in the toolbar"
+    },
+    {
+      "source": "night/08-grid-and-scale.jpg",
+      "name": "night/crops/08-grid-scale-detail.png",
+      "rect": {
+        "x": 274,
+        "y": 690,
+        "width": 210,
+        "height": 190
+      },
+      "description": "Major/minor grid and 50.0 um scale bar"
+    },
+    {
+      "source": "day/08-grid-and-scale.jpg",
+      "name": "day/crops/08-grid-button.png",
+      "rect": {
+        "height": 52,
+        "width": 85,
+        "x": 453,
+        "y": 81
+      },
+      "description": "Grid enabled in the toolbar"
+    },
+    {
+      "source": "day/08-grid-and-scale.jpg",
+      "name": "day/crops/08-grid-scale-detail.png",
+      "rect": {
+        "x": 274,
+        "y": 690,
+        "width": 210,
+        "height": 190
+      },
+      "description": "Major/minor grid and 50.0 um scale bar"
+    },
+    {
+      "source": "day/09-measure-distance.jpg",
+      "name": "day/crops/09-ruler-detail.png",
+      "rect": {
+        "x": 520,
+        "y": 448,
+        "width": 200,
+        "height": 96
+      },
+      "description": "Horizontal 44.0 um ruler with dx 44.0 um and dy 0.0 nm"
+    },
+    {
+      "source": "day/09-measure-distance.jpg",
+      "name": "day/crops/09-saved-ruler.png",
+      "rect": {
+        "height": 143,
+        "width": 213,
+        "x": 19,
+        "y": 704
+      },
+      "description": "Saved ruler and its Delete button"
+    },
+    {
+      "source": "night/09-measure-distance.jpg",
+      "name": "night/crops/09-ruler-detail.png",
+      "rect": {
+        "x": 520,
+        "y": 448,
+        "width": 200,
+        "height": 96
+      },
+      "description": "Horizontal 44.0 um ruler with dx 44.0 um and dy 0.0 nm"
+    },
+    {
+      "source": "night/09-measure-distance.jpg",
+      "name": "night/crops/09-saved-ruler.png",
+      "rect": {
+        "height": 143,
+        "width": 213,
+        "x": 19,
+        "y": 704
+      },
+      "description": "Saved ruler and its Delete button"
+    },
+    {
+      "source": "night/10-pointer-coordinates.jpg",
+      "name": "night/crops/10-pointer-detail.png",
+      "rect": {
+        "x": 530,
+        "y": 375,
+        "width": 210,
+        "height": 110
+      },
+      "description": "First measurement point and its draft readout"
+    },
+    {
+      "source": "night/10-pointer-coordinates.jpg",
+      "name": "night/crops/10-coordinate-readout.png",
+      "rect": {
+        "height": 146,
+        "width": 212,
+        "x": 270,
+        "y": 736
+      },
+      "description": "Physical pointer coordinates and scale bar"
+    },
+    {
+      "source": "day/10-pointer-coordinates.jpg",
+      "name": "day/crops/10-pointer-detail.png",
+      "rect": {
+        "x": 530,
+        "y": 375,
+        "width": 210,
+        "height": 110
+      },
+      "description": "First measurement point and its draft readout"
+    },
+    {
+      "source": "day/10-pointer-coordinates.jpg",
+      "name": "day/crops/10-coordinate-readout.png",
+      "rect": {
+        "height": 146,
+        "width": 212,
+        "x": 270,
+        "y": 736
+      },
+      "description": "Physical pointer coordinates and scale bar"
+    },
+    {
+      "source": "day/11-delete-measurement.jpg",
+      "name": "day/crops/11-empty-measurements.png",
+      "rect": {
+        "height": 107,
+        "width": 213,
+        "x": 19,
+        "y": 740
+      },
+      "description": "Measurement list after deleting the saved ruler"
+    },
+    {
+      "source": "night/11-delete-measurement.jpg",
+      "name": "night/crops/11-empty-measurements.png",
+      "rect": {
+        "height": 107,
+        "width": 213,
+        "x": 19,
+        "y": 740
+      },
+      "description": "Measurement list after deleting the saved ruler"
     }
   ]
 }

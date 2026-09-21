@@ -1,54 +1,59 @@
-# Documentation and UI validation — 2026-09-08
+# Documentation validation — 2026-09-21
 
-This record covers the earlier [picture guide](user-guide.md), its graphite/sage
-palette, and default major/minor grid. The [design review](design-review.md) records
-the later palette refinement and current README image. All captures use the
-unchanged public [YZUDA XOR file](../examples/yzuda/README.md).
+This update replaces the older tutorial illustrations with day/night captures of
+the interface at commit `f0ffb63`. The README, [picture guide](user-guide.md), and
+[reproduction guide](layout-tutorial.md) use the same unchanged public
+[YZUDA XOR file](../examples/yzuda/README.md). No application code changed during
+this documentation update.
 
-## Checks
+## Documentation checks
 
-- Syntax checks passed for `gds_parser.js`, `gds_viewer.js`, `liquid_glass.js`, and
-  `tests/browser-smoke.js`.
-- Node 24.14.1: all 26 tests passed with
-  `node --test --test-isolation=none tests/*.test.cjs`, the documented fallback for
-  the sandbox's test-process spawning restriction. This includes fixture hashes,
-  independent geometry references, notices, and root/subdirectory asset delivery.
-- All 17 browser harness checks passed in the Codex in-app browser against the real
-  Pixi renderer with synthetic layouts. They cover loading, hierarchy, visibility,
-  navigation, measurements, both grid levels, resize, failed/stale reads, repeated
-  reload cleanup, and glass fallback.
-- The resize check now waits for the requested viewport and matching canvas width
-  instead of assuming that resize completes within 150 ms. The width and clipping
-  assertions are unchanged.
-- Manually walked through the public XOR file in the Codex in-app browser on
-  Windows at `/viewer/`: 4 cells, 15 layer/datatype pairs, and 520 visible polygons.
-  Verified the illustrated layer/cell hiding, root/depth changes, zoom/pan, grid,
-  ruler creation, pointer preview, cancellation, and deletion.
-- The capture session recorded no browser script errors. Decorative WebGL was
-  active, and the viewer required no API or example preload.
-- Replaced 11 full screenshots, 16 close-ups, and the README hero with current PNG
-  captures at 1280 × 720. Each close-up was compared pixel for pixel with its source
-  region; captions, local links, and image references were checked.
+- Walked through the public XOR file in the Codex in-app browser on Windows,
+  served under `/viewer/` at 838 × 912 pixels. Loaded it through the normal
+  browser file input: 4 cells, 15 layer/datatype pairs, and 520 polygons.
+- Captured 11 states in each mode, covering the empty viewer, loading, zoom/pan,
+  layer and cell visibility, root selection, depth, grid/scale, saved rulers,
+  pointer coordinates, cancellation, and deletion. Switching modes retained
+  the layout state and saved measurement.
+- Verified the pictured results: hiding L47/D0 leaves 512 polygons; hiding nand2
+  also hides via and leaves 166; selecting nand2 shows 107; abc2 at depth 0 shows
+  28 polygons on 4 layers.
+- Reviewed all 22 full screenshots and 34 close-ups. Each close-up matches its
+  decoded source pixels exactly. Captions, local links, image references,
+  paired state metadata, and manifest hashes were checked.
+- The capture session reported no browser script errors. Decorative WebGL was
+  active. The viewer required no API or automatic example preload.
+- The focused documentation-layout Node tests passed, checking the public input
+  hashes and supported example geometry. See the check command below.
+
+```text
+node --test --test-isolation=none tests/demo.test.cjs
+```
 
 The [capture record](images/README.md) lists each state. Its
 [manifest](images/capture-manifest.json) identifies the source and image bytes.
-The ruler example reads **44.0 µm**, with zero vertical displacement; the pointer
-example reads **x 104 µm | y 59.8 µm**. These are observed UI readings, not reference
-circuit dimensions.
+The ruler reads **44.0 µm**, with zero vertical displacement; the pointer example
+reads **x 103 µm | y 60.4 µm**. These are UI readings, not reference dimensions.
 
-## Limits and earlier checks
+## Implementation checks and limits
 
-The XOR file uses a 1 µm library user unit. The viewer still assumes that unit when
-formatting physical distances, so other user units can produce misleading labels.
-Text elements are not drawn, and these external layouts are illustrations rather
-than independent geometry or performance benchmarks.
+Before this documentation update, the same application commit passed all five
+documented JavaScript syntax checks, all 29 Node tests, and all 18 browser checks
+with the suite starting once in each mode. The Node suite used the documented
+`--test-isolation=none` fallback after the sandbox blocked test worker creation.
+The [design review](design-review.md#validation) records those implementation
+checks; they were not rerun as part of this documentation-only update.
 
-Direct-file loading was checked in headless Edge on Windows on 6 September 2026;
-it was not revalidated for this capture because this session's browser automation
-blocks direct-file navigation. Native OS picker dialogs, macOS/Linux launchers,
-and other browser engines were not checked in this update. Browser automation
-supplied the public XOR file through the normal file input.
+The XOR file uses a 1 µm library user unit. Other user units can produce misleading
+distance labels because the viewer currently assumes micrometres. Text elements
+are not drawn. These screenshots are not independent geometry references or
+large-layout performance measurements.
 
-The documentation layouts remain optional files. They are not application runtime
-dependencies and are never loaded automatically. Parsing and hierarchy expansion
-retain the resource limits described in the README.
+Direct-file loading was checked in headless Edge on Windows on 6 September 2026.
+It was not revalidated for the current interface: the browser tool's URL policy
+blocked that navigation. Native OS picker dialogs, other browser engines, and
+macOS/Linux launchers were not checked in this update.
+
+The documentation layouts remain optional and never load automatically.
+Parsing and hierarchy expansion retain the resource limits described in the
+[README](../README.md#supported-layouts-and-limits).

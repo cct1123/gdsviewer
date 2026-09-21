@@ -1,8 +1,8 @@
 # GDS Viewer: a guide in pictures
 
-The walkthrough screenshots show the earlier graphite glass styling with the
-major/minor grid enabled. The [current design](design-review.md) uses cream,
-sage, and terracotta; the controls and workflow shown here still apply.
+Each step shows the current interface in **day** and **night** modes. Day uses
+ivory, sage, and terracotta; night uses charcoal and warm white. The pictures show
+the same layout state in both palettes, with the major/minor grid enabled.
 **Fit View**, **Measure**, and **Grid** are above the canvas. Expand
 **Root cell & hierarchy** for view settings and **Navigation & shortcuts** for help.
 
@@ -15,7 +15,7 @@ We use [`examples/yzuda/xor.gds2`](../examples/yzuda/xor.gds2), the XOR example 
 is `xor.gds2`; you do not need to rename it to `.gds`.
 
 [Open](#1-open-the-viewer) · [Load](#2-load-the-example-layout) ·
-[Move and zoom](#3-move-zoom-and-fit) · [Visibility](#4-show-or-hide-layers-and-cells) ·
+[Day / night](#day-and-night-mode) · [Move and zoom](#3-move-zoom-and-fit) · [Visibility](#4-show-or-hide-layers-and-cells) ·
 [Choose a cell](#5-inspect-one-cell) · [Depth](#6-limit-the-hierarchy-depth) ·
 [Grid](#7-use-the-grid-and-scale-bar) · [Measure](#8-measure-a-distance) ·
 [Coordinates](#9-read-coordinates-and-cancel-an-unfinished-ruler) · [Delete a ruler](#10-delete-a-measurement)
@@ -26,9 +26,9 @@ Extract the project ZIP if needed, then open `index.html` in a browser. On Windo
 you can also double-click `open_gds_viewer.bat`. Keep the JavaScript files and
 `vendor` folder beside the HTML file.
 
-<img src="images/crops/01-load-file.png" alt="Load GDS File button and .gds / .gds2 file hint" width="390">
-
-[Full screenshot: empty viewer](images/01-open-viewer.png)
+| Day mode | Night mode |
+| --- | --- |
+| <a href="images/day/01-open-viewer.jpg"><img src="images/day/crops/01-load-file.png" alt="Day mode: Load GDS File button and .gds / .gds2 file hint" width="390"></a> | <a href="images/night/01-open-viewer.jpg"><img src="images/night/crops/01-load-file.png" alt="Night mode: Load GDS File button and .gds / .gds2 file hint" width="390"></a> |
 
 An empty drawing area is normal. The file button is ready on the left; root-cell
 and depth controls become available after a file loads. Nothing opens automatically.
@@ -39,6 +39,19 @@ These screenshots use that server in the Codex in-app browser on Windows.
 The [validation record](yzuda-demo-validation.md) separates the current checks from
 earlier direct-file tests and untested platforms.
 
+### Day and night mode
+
+Use the pill at the top right to change the appearance. Its label names the mode
+you will switch **to**: **Night** in day mode, and **Day** in night mode.
+
+| Day mode | Night mode |
+| --- | --- |
+| <a href="images/day/01-open-viewer.jpg"><img src="images/day/crops/02-theme-toggle.png" alt="Day mode: Appearance button" width="100"></a> | <a href="images/night/01-open-viewer.jpg"><img src="images/night/crops/02-theme-toggle.png" alt="Night mode: Appearance button" width="100"></a> |
+
+The first visit follows your system appearance. A manual choice is remembered
+when browser storage is available. Switching modes keeps your zoom, pan, root,
+hidden cells and layers, grid choice, and saved rulers.
+
 ## 2. Load the example layout
 
 1. Click **Load GDS File**.
@@ -46,7 +59,9 @@ earlier direct-file tests and untested platforms.
 3. Choose **xor.gds2**.
 4. Click **Fit View**.
 
-![The XOR layout with all cells and layers visible](images/02-layout-overview.png)
+| Day mode | Night mode |
+| --- | --- |
+| <a href="images/day/02-layout-overview.jpg"><img src="images/day/02-layout-overview.jpg" alt="Day mode: XOR layout with all cells and layers visible"></a> | <a href="images/night/02-layout-overview.jpg"><img src="images/night/02-layout-overview.jpg" alt="Night mode: XOR layout with all cells and layers visible"></a> |
 
 The workspace heading now says **xor.gds2**. The status at the bottom right shows
 **4 / 4 cells**, **15 / 15 layers**, and **520 visible polygons**. This is our
@@ -66,11 +81,13 @@ measurements. Files stay in your browser.
 Point at an interesting part of the layout and scroll to zoom in. Drag to move the
 view. When you want the whole design back, click **Fit View**.
 
-<img src="images/crops/03-fit-controls.png" alt="Canvas toolbar with Fit View, Measure, and the enabled Grid button" width="390">
+| Day mode | Night mode |
+| --- | --- |
+| <a href="images/day/03-zoom-and-pan.jpg"><img src="images/day/crops/03-fit-controls.png" alt="Day mode: Canvas toolbar with Fit View, Measure, and the enabled Grid button" width="390"></a> | <a href="images/night/03-zoom-and-pan.jpg"><img src="images/night/crops/03-fit-controls.png" alt="Night mode: Canvas toolbar with Fit View, Measure, and the enabled Grid button" width="390"></a> |
 
-<img src="images/crops/03-zoomed-layout.png" alt="A closer view of the XOR layout after zooming and panning" width="700">
-
-[Full screenshot: zoomed and panned layout](images/03-zoom-and-pan.png)
+| Day mode | Night mode |
+| --- | --- |
+| <a href="images/day/03-zoom-and-pan.jpg"><img src="images/day/crops/03-zoomed-layout.png" alt="Day mode: A closer view of the XOR layout after zooming and panning" width="390"></a> | <a href="images/night/03-zoom-and-pan.jpg"><img src="images/night/crops/03-zoomed-layout.png" alt="Night mode: A closer view of the XOR layout after zooming and panning" width="390"></a> |
 
 The shapes get larger, while their borders stay thin. Geometry outside the window
 is still there. **Fit View** brings it back into view, but does not restore hidden
@@ -89,11 +106,13 @@ example, means layer 47, datatype 0.
 Click **Show All**, then **Fit View**. Scroll down in the sidebar and click
 **L47/D0**, the light-blue layer.
 
-<img src="images/crops/04-layer-controls.png" alt="L47/D0 hidden with a dashed border and hollow indicator" width="390">
+| Day mode | Night mode |
+| --- | --- |
+| <a href="images/day/04-layer-visibility.jpg"><img src="images/day/crops/04-layer-controls.png" alt="Day mode: L47/D0 hidden with a dashed border and hollow indicator" width="390"></a> | <a href="images/night/04-layer-visibility.jpg"><img src="images/night/crops/04-layer-controls.png" alt="Night mode: L47/D0 hidden with a dashed border and hollow indicator" width="390"></a> |
 
-<img src="images/crops/04-layer-status.png" alt="Status showing 14 of 15 layers and 512 visible polygons" width="540">
-
-[Full screenshot: L47/D0 hidden](images/04-layer-visibility.png)
+| Day mode | Night mode |
+| --- | --- |
+| <a href="images/day/04-layer-visibility.jpg"><img src="images/day/crops/04-layer-status.png" alt="Day mode: Status showing 14 of 15 layers and 512 visible polygons" width="390"></a> | <a href="images/night/04-layer-visibility.jpg"><img src="images/night/crops/04-layer-status.png" alt="Night mode: Status showing 14 of 15 layers and 512 visible polygons" width="390"></a> |
 
 The button becomes muted, with a dashed border and hollow indicator, and its shapes
 disappear. There are now **14 / 15 visible layers**
@@ -104,13 +123,15 @@ and **512 visible polygons**. Click the button again to restore the layer.
 A **cell** is a named group of shapes that can include other cells. Click
 **Show All** again, then click the **nand2** name under **Cells**.
 
-<img src="images/crops/05-cell-controls.png" alt="Cell tree with nand2 and via marked hidden by dashed borders" width="390">
+| Day mode | Night mode |
+| --- | --- |
+| <a href="images/day/05-cell-visibility.jpg"><img src="images/day/crops/05-cell-controls.png" alt="Day mode: Cell tree with nand2 and via marked hidden by dashed borders" width="390"></a> | <a href="images/night/05-cell-visibility.jpg"><img src="images/night/crops/05-cell-controls.png" alt="Night mode: Cell tree with nand2 and via marked hidden by dashed borders" width="390"></a> |
 
 Some of the remaining wiring looks like this:
 
-<img src="images/crops/05-cell-result.png" alt="A closer look at the wiring remaining after hiding nand2" width="650">
-
-[Full screenshot: nand2 branch hidden](images/05-cell-visibility.png)
+| Day mode | Night mode |
+| --- | --- |
+| <a href="images/day/05-cell-visibility.jpg"><img src="images/day/crops/05-cell-result.png" alt="Day mode: A closer look at the wiring remaining after hiding nand2" width="390"></a> | <a href="images/night/05-cell-visibility.jpg"><img src="images/night/crops/05-cell-result.png" alt="Night mode: A closer look at the wiring remaining after hiding nand2" width="390"></a> |
 
 The repeated `nand2` geometry disappears along with its `via` child. Visibility is
 shared by cell name, so `via` is hidden in its other placements too. You will see
@@ -130,9 +151,9 @@ To see what one `nand2` cell contains, choose it as the root:
 3. Leave **Hierarchy depth** empty.
 4. Click **Apply view options**.
 
-<img src="images/crops/06-root-options.png" alt="nand2 selected as Root cell, with the depth field empty" width="390">
-
-[Full screenshot: nand2 on its own](images/06-root-cell.png)
+| Day mode | Night mode |
+| --- | --- |
+| <a href="images/day/06-root-cell.jpg"><img src="images/day/crops/06-root-options.png" alt="Day mode: nand2 selected as Root cell, with the depth field empty" width="390"></a> | <a href="images/night/06-root-cell.jpg"><img src="images/night/crops/06-root-options.png" alt="Night mode: nand2 selected as Root cell, with the depth field empty" width="390"></a> |
 
 You now see a single `nand2` layout and its nested `via` geometry, rather than all
 of its placements in the XOR design. The status shows **107 visible polygons**.
@@ -146,9 +167,9 @@ view options resets visibility choices and clears saved measurements.
 Cells inside cells form the **hierarchy**. To see just the top cell's own geometry,
 select **abc2**, enter **0** in **Hierarchy depth**, and apply.
 
-<img src="images/crops/07-depth-options.png" alt="abc2 selected with hierarchy depth set to zero" width="390">
-
-[Full screenshot: abc2 at depth zero](images/07-hierarchy-depth.png)
+| Day mode | Night mode |
+| --- | --- |
+| <a href="images/day/07-hierarchy-depth.jpg"><img src="images/day/crops/07-depth-options.png" alt="Day mode: abc2 selected with hierarchy depth set to zero" width="390"></a> | <a href="images/night/07-hierarchy-depth.jpg"><img src="images/night/crops/07-depth-options.png" alt="Night mode: abc2 selected with hierarchy depth set to zero" width="390"></a> |
 
 Only the shapes belonging directly to `abc2` remain: **28 polygons on 4 layers**.
 The nested gate and via cells are left out of this view.
@@ -169,11 +190,13 @@ loading; it cannot prevent every slow or oversized file load.
 The grid starts on, with stronger major lines and five lighter subdivisions per
 interval. If you have hidden it, click **Grid** to restore both levels.
 
-<img src="images/crops/08-grid-button.png" alt="The highlighted Grid button" width="100">
+| Day mode | Night mode |
+| --- | --- |
+| <a href="images/day/08-grid-and-scale.jpg"><img src="images/day/crops/08-grid-button.png" alt="Day mode: The highlighted Grid button" width="100"></a> | <a href="images/night/08-grid-and-scale.jpg"><img src="images/night/crops/08-grid-button.png" alt="Night mode: The highlighted Grid button" width="100"></a> |
 
-<img src="images/crops/08-grid-scale-detail.png" alt="Grid lines and the 50.0 um scale bar below the XOR layout" width="520">
-
-[Full screenshot: grid and scale bar](images/08-grid-and-scale.png)
+| Day mode | Night mode |
+| --- | --- |
+| <a href="images/day/08-grid-and-scale.jpg"><img src="images/day/crops/08-grid-scale-detail.png" alt="Day mode: Grid lines and the 50.0 um scale bar below the XOR layout" width="390"></a> | <a href="images/night/08-grid-and-scale.jpg"><img src="images/night/crops/08-grid-scale-detail.png" alt="Night mode: Grid lines and the 50.0 um scale bar below the XOR layout" width="390"></a> |
 
 Grid lines appear behind the layout and adapt their spacing as you zoom. The scale
 bar here reads **50.0 um**; it changes as you zoom. Click **Grid** to hide both
@@ -195,9 +218,9 @@ Let's place a horizontal ruler across the middle of the layout.
 3. Hold **Ctrl** and click a second point to its left. Ctrl locks the ruler to
    the horizontal or vertical direction, whichever is closer to your movement.
 
-<img src="images/crops/09-ruler-detail.png" alt="Horizontal XOR ruler reading 44.0 um, dx 44.0 um, dy 0.0 nm" width="550">
-
-[Full screenshot: completed ruler](images/09-measure-distance.png)
+| Day mode | Night mode |
+| --- | --- |
+| <a href="images/day/09-measure-distance.jpg"><img src="images/day/crops/09-ruler-detail.png" alt="Day mode: Horizontal XOR ruler reading 44.0 um, dx 44.0 um, dy 0.0 nm" width="390"></a> | <a href="images/night/09-measure-distance.jpg"><img src="images/night/crops/09-ruler-detail.png" alt="Night mode: Horizontal XOR ruler reading 44.0 um, dx 44.0 um, dy 0.0 nm" width="390"></a> |
 
 Our ruler reads **44.0 um**, with **dx 44.0 um** and **dy 0.0 nm**. `dx` is the
 horizontal distance; `dy` is the vertical distance. Yours may differ slightly
@@ -207,7 +230,9 @@ reference dimension for the circuit.
 After the second click, measurement mode ends and normal dragging resumes. Scroll
 to **Measurements** near the bottom of the sidebar to find the saved ruler:
 
-<img src="images/crops/09-saved-ruler.png" alt="Measurements section with a saved 44.0 um ruler and its Delete button" width="390">
+| Day mode | Night mode |
+| --- | --- |
+| <a href="images/day/09-measure-distance.jpg"><img src="images/day/crops/09-saved-ruler.png" alt="Day mode: Measurements section with a saved 44.0 um ruler and its Delete button" width="390"></a> | <a href="images/night/09-measure-distance.jpg"><img src="images/night/crops/09-saved-ruler.png" alt="Night mode: Measurements section with a saved 44.0 um ruler and its Delete button" width="390"></a> |
 
 Click **Measure** again to start another ruler. While placing one, you can pan
 with a right-button drag.
@@ -217,15 +242,17 @@ with a right-button drag.
 Click **Measure** again, then click a first point near the middle of the layout.
 Leave the second point unset for now.
 
-<img src="images/crops/10-pointer-detail.png" alt="Crosshair and a zero-length ruler preview at the first point" width="470">
+| Day mode | Night mode |
+| --- | --- |
+| <a href="images/day/10-pointer-coordinates.jpg"><img src="images/day/crops/10-pointer-detail.png" alt="Day mode: Zero-length ruler preview at the first point" width="390"></a> | <a href="images/night/10-pointer-coordinates.jpg"><img src="images/night/crops/10-pointer-detail.png" alt="Night mode: Zero-length ruler preview at the first point" width="390"></a> |
 
 The bottom-left readout shows the current layout coordinates:
 
-<img src="images/crops/10-coordinate-readout.png" alt="Readout showing x 104 um and y 59.8 um above the scale bar" width="400">
+| Day mode | Night mode |
+| --- | --- |
+| <a href="images/day/10-pointer-coordinates.jpg"><img src="images/day/crops/10-coordinate-readout.png" alt="Day mode: Readout showing x 103 um and y 60.4 um above the scale bar" width="390"></a> | <a href="images/night/10-pointer-coordinates.jpg"><img src="images/night/crops/10-coordinate-readout.png" alt="Night mode: Readout showing x 103 um and y 60.4 um above the scale bar" width="390"></a> |
 
-[Full screenshot: crosshair and coordinates](images/10-pointer-coordinates.png)
-
-Here the readout is **x 104 um | y 59.8 um**. Your values will follow your pointer.
+Here the readout is **x 103 um | y 60.4 um**. Your values will follow your pointer.
 The new ruler starts at zero length until you move to another point, and the
 previously saved ruler stays in place.
 
@@ -237,13 +264,15 @@ disappear when measurement mode ends.
 Scroll to **Measurements** and click **Delete** beside the saved ruler. You can
 also select its entry and press **Delete** on the keyboard.
 
-<img src="images/crops/09-saved-ruler.png" alt="Saved ruler with its Delete button on the right" width="390">
+| Day mode | Night mode |
+| --- | --- |
+| <a href="images/day/09-measure-distance.jpg"><img src="images/day/crops/09-saved-ruler.png" alt="Day mode: Saved ruler with its Delete button on the right" width="390"></a> | <a href="images/night/09-measure-distance.jpg"><img src="images/night/crops/09-saved-ruler.png" alt="Night mode: Saved ruler with its Delete button on the right" width="390"></a> |
 
 After deleting it, the list looks like this:
 
-<img src="images/crops/11-empty-measurements.png" alt="Measurements section saying No measurements yet" width="390">
-
-[Full screenshot: measurement removed](images/11-delete-measurement.png)
+| Day mode | Night mode |
+| --- | --- |
+| <a href="images/day/11-delete-measurement.jpg"><img src="images/day/crops/11-empty-measurements.png" alt="Day mode: Measurements section saying No measurements yet" width="390"></a> | <a href="images/night/11-delete-measurement.jpg"><img src="images/night/crops/11-empty-measurements.png" alt="Night mode: Measurements section saying No measurements yet" width="390"></a> |
 
 The ruler disappears from both the drawing and the list. The XOR geometry remains.
 
