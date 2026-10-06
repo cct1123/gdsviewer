@@ -14,7 +14,7 @@ thousands of unnecessary DOM nodes, and repeated instances made reload cleanup s
   model coordinates with a single output array rather than per-point arrays.
 - Keep AREF repetition vectors and counts in the viewer's compact model. Compute
   array bounds from lattice extrema; generate instance offsets only when consumed.
-  The existing expanded model API remains the default for reference compatibility.
+  There is one model representation; `sceneInstances` traverses its repetitions.
 - Preserve nested instance order within each layer, including overlapping cells.
   Use the same traversal for measurement snapping. Cell templates remain shared.
 - Construct closed tree branches on demand, preserving current visibility when
@@ -67,6 +67,7 @@ memory API are only used by this optional benchmark helper.
 
 ## Recorded timing run
 
+These measurements describe the initial optimization commit `b225f9d`.
 Windows, Codex in-app Chromium 154.0.0.0, 1280 × 720 outer viewport,
 1100 × 800 viewer iframe, vendored PixiJS, October 6, 2026. Timings below are from
 separate ordinary runs with memory measurement disabled. Baseline ran first.
@@ -135,10 +136,40 @@ the smallest file or the four-layer hierarchical array. Retained Pixi instances
 and rendering buffers dominate those cases. Do not generalize these six estimates
 to all layouts or claim an across-the-board memory reduction.
 
+## Pruning follow-up
+
+The follow-up removes 130 runtime lines: the expanded-model compatibility path,
+`instanceOffsets`, generated instance IDs, copied group metadata, redundant render
+tokens, and model defaults. Cleanup, controls, templates, and drawing run in one
+sequence. The load-version check and render queue remain to keep overlapping loads
+paired; queued stale requests no longer construct a model.
+
+To reproduce this comparison, use `b225f9d` as the benchmark baseline above.
+Windows/Chromium 154, October 6, 2026, 972 × 884 outer viewport and 1100 × 800 iframe.
+Run order was baseline, pruned, pruned, baseline; memory measurement was disabled.
+Each entry below averages two first loads or four reloads. Samples are saved in
+[`pruning.csv`](../tests/performance/pruning.csv).
+
+| Layout | First load, b225f9d → pruned (ms) | Reload, b225f9d → pruned (ms) |
+| --- | ---: | ---: |
+| Small flat | 65 → 61 | 35 → 34 |
+| Medium flat | 228 → 260 | 100 → 88 |
+| Large flat | 936 → 919 | 486 → 490 |
+| Tiny array | 169 → 174 | 71 → 73 |
+| Hierarchical array | 336 → 315 | 96 → 101 |
+| Shared hierarchy | 90 → 85 | 46 → 48 |
+
+Small-file performance is stable in this sample. Other load times vary, including
+a slower medium-flat first load; this is a simplification, not evidence of another
+general speedup. Shared-hierarchy model construction fell from 5.0 to 2.9 ms on
+reload. Polygon, group, Graphics, style, and tree counts match in every sample.
+Retained memory was not remeasured; the memory table describes `b225f9d` only.
+
 ## Validation and limits
 
-The independent reference models remain unchanged. Both expanded and compact
-models are checked against all eleven references. Additional regressions cover
+The independent reference files remain unchanged. The compact model's metadata,
+templates, counts, and ordered instances are checked against all eleven references.
+Additional regressions cover
 nested reflected/rotated arrays, lattice bounds, painter order, shared cells at
 different depths, cycles, required content, and malformed supported payloads.
 A 270-byte, 900-million-instance case verifies compact **model construction only**;
@@ -148,8 +179,9 @@ The browser harness covers loading, all three extensions through both routes,
 invalid content, visibility, lazy tree expansion, later-instance snapping,
 navigation, grid, measurements, resize, themes, overlapping loads, and repeated
 graphics cleanup. Node checks cover root/subdirectory assets and no backend calls.
-All documented syntax checks, 46 Node tests, and 23 browser checks passed on the
-final code. Node used the README's `--test-isolation=none` fallback because ordinary
+All documented syntax checks, 35 Node tests, and 23 browser checks passed after
+pruning the expanded-model compatibility path and its eleven duplicate tests.
+Node used the README's `--test-isolation=none` fallback because ordinary
 test worker creation returned `spawn EPERM` in the sandbox. Fixture hashes and
 local documentation links were also verified.
 The actual file chooser was also checked under subdirectory hosting, with visual

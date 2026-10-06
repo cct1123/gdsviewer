@@ -31,10 +31,10 @@
   let dragState = null;
   let resizeObserver = null;
   let viewModel = null;
-  let groupMap = new Map();
+  const groupMap = new Map();
   let cellTreeNodes = new Map();
   let templateMap = new Map();
-  let templateContextMap = new Map();
+  const templateContextMap = new Map();
   let cellState = {};
   let layerState = {};
   let currentLibrary = null;
@@ -45,9 +45,6 @@
   let drawCenterY = 0;
   let spanX = 1;
   let spanY = 1;
-  let cellRenderToken = 0;
-  let cellHandlersBound = false;
-  let sceneRenderToken = 0;
   let measureMode = false;
   let gridVisible = true;
   let measureStart = null;
@@ -80,7 +77,9 @@
     palette = readPalette();
     if (viewModel) {
       // Repaint shared templates in place: keep instances, visibility, and navigation.
-      buildTemplateContexts(viewModel.templates, true);
+      for (const [id, context] of templateContextMap) {
+        drawTemplate(context, templateMap.get(id));
+      }
     }
     updateOverlays();
   });
@@ -181,16 +180,10 @@
         continue;
       }
       const template = templateMap.get(group.templateId);
-      if (!template) {
-        continue;
-      }
       const [a, b, c, d] = group.transform;
       const [ox, oy] = offset;
-      for (const item of template.polygons || []) {
+      for (const item of template.polygons) {
         const coords = item.polygon;
-        if (!coords || coords.length < 6) {
-          continue;
-        }
         let firstPoint = null;
         let previousPoint = null;
         for (let index = 0; index < coords.length; index += 2) {
@@ -257,12 +250,6 @@
     return parseInt(hex.replace("#", ""), 16);
   }
 
-  function clearChildren(node) {
-    while (node.firstChild) {
-      node.removeChild(node.firstChild);
-    }
-  }
-
   function isCellVisible(cellName) {
     return Boolean(cellState[cellName]);
   }
@@ -282,7 +269,7 @@
         visibleLayers += 1;
       }
     }
-    for (const group of viewModel.groups || []) {
+    for (const group of viewModel.groups) {
       if (isCellVisible(group.cellName) && layerState[group.layerKey]) {
         visiblePolygons += group.count;
       }
@@ -295,16 +282,12 @@
   }
 
   function applyVisibility() {
-    for (const group of viewModel.groups || []) {
-      for (const graphics of groupMap.get(group.id) || []) {
+    for (const [group, instances] of groupMap) {
+      for (const graphics of instances) {
         graphics.visible = Boolean(isCellVisible(group.cellName) && layerState[group.layerKey]);
       }
     }
     updateStatus();
-  }
-
-  function setStatusMessage(message) {
-    statusNode.textContent = message;
   }
 
   function updateScaleBar() {
@@ -435,7 +418,7 @@
   }
 
   function renderMeasurementList() {
-    clearChildren(measurementListNode);
+    measurementListNode.replaceChildren();
     if (measurements.length === 0) {
       const empty = document.createElement("div");
       empty.className = "measurement-detail";
@@ -672,7 +655,7 @@
     for (let index = 0; index < queue.length; index += 1) {
       const currentName = queue[index];
       const node = cellTreeNodes.get(currentName);
-      for (const childName of (node && node.children) || []) {
+      for (const childName of node.children) {
         if (!result.has(childName)) {
           result.add(childName);
           queue.push(childName);
@@ -716,35 +699,29 @@
     updateOverlays();
   }
 
-  function attachCellHandlers() {
-    if (cellHandlersBound) {
+  cellToggleHost.addEventListener("click", (event) => {
+    if (!(event.target instanceof Element)) {
       return;
     }
-    cellHandlersBound = true;
-    cellToggleHost.addEventListener("click", (event) => {
-      if (!(event.target instanceof Element)) {
-        return;
-      }
-      const button = event.target.closest(".cell-chip");
-      if (!(button instanceof HTMLElement)) {
-        return;
-      }
-      event.preventDefault();
-      event.stopPropagation();
-      const { key } = button.dataset;
-      const nextVisible = !cellState[key];
-      for (const cellName of descendantCellNames(key)) {
-        cellState[cellName] = nextVisible;
-        syncCellButtons(cellName, nextVisible);
-      }
-      applyVisibility();
-    });
-  }
+    const button = event.target.closest(".cell-chip");
+    if (!(button instanceof HTMLElement)) {
+      return;
+    }
+    event.preventDefault();
+    event.stopPropagation();
+    const { key } = button.dataset;
+    const nextVisible = !cellState[key];
+    for (const cellName of descendantCellNames(key)) {
+      cellState[cellName] = nextVisible;
+      syncCellButtons(cellName, nextVisible);
+    }
+    applyVisibility();
+  });
 
   function createCellNode(cellName, depth, ancestorNames = new Set()) {
     const cell = cellTreeNodes.get(cellName);
     const ancestors = new Set([...ancestorNames, cellName]);
-    const children = ((cell && cell.children) || []).filter((name) => !ancestors.has(name));
+    const children = cell.children.filter((name) => !ancestors.has(name));
     const node = document.createElement("div");
     node.className = "tree-node";
 
@@ -833,48 +810,33 @@
     graphics.rotation = Math.atan2(-c, a);
     graphics.eventMode = "none";
     graphics.visible = Boolean(isCellVisible(group.cellName) && layerState[group.layerKey]);
-    groupMap.get(group.id).push(graphics);
+    groupMap.get(group).push(graphics);
     world.addChild(graphics);
   }
 
-  function buildTemplateContexts(templates, refresh = false) {
-    if (!window.PIXI || !window.PIXI.GraphicsContext) {
-      return;
-    }
-
-    for (const template of templates || []) {
-      if (templateContextMap.has(template.id) && !refresh) {
+  function drawTemplate(context, template) {
+    context.clear();
+    const color = hexToNumber(template.cssColor);
+    context.setFillStyle({ color, alpha: palette.fillAlpha });
+    context.setStrokeStyle({ color: palette.outline, alpha: 0.65, pixelLine: true });
+    for (const item of template.polygons) {
+      const coords = item.polygon;
+      // GDS boundaries commonly contain rectangles. Use Pixi's exact primitive
+      // instead of retaining another polygon coordinate array and shape object.
+      if (coords.length === 8 && coords[0] !== coords[4] && coords[1] !== coords[5] && (
+        (coords[0] === coords[2] && coords[3] === coords[5] && coords[4] === coords[6] && coords[7] === coords[1]) ||
+        (coords[1] === coords[3] && coords[2] === coords[4] && coords[5] === coords[7] && coords[6] === coords[0])
+      )) {
+        context.rect(Math.min(coords[0], coords[4]), -Math.max(coords[1], coords[5]),
+          Math.abs(coords[4] - coords[0]), Math.abs(coords[5] - coords[1])).fill().stroke();
         continue;
       }
-      const context = templateContextMap.get(template.id) || new PIXI.GraphicsContext();
-      context.clear();
-      const color = hexToNumber(template.cssColor);
-      const outlineColor = palette.outline;
-      context.setFillStyle({ color, alpha: palette.fillAlpha });
-      context.setStrokeStyle({ color: outlineColor, alpha: 0.65, pixelLine: true });
-      for (const item of template.polygons || []) {
-        const coords = item.polygon;
-        if (!coords || coords.length < 6) {
-          continue;
-        }
-        // GDS boundaries commonly contain rectangles. Use Pixi's exact primitive
-        // instead of retaining another polygon coordinate array and shape object.
-        if (coords.length === 8 && coords[0] !== coords[4] && coords[1] !== coords[5] && (
-          (coords[0] === coords[2] && coords[3] === coords[5] && coords[4] === coords[6] && coords[7] === coords[1]) ||
-          (coords[1] === coords[3] && coords[2] === coords[4] && coords[5] === coords[7] && coords[6] === coords[0])
-        )) {
-          context.rect(Math.min(coords[0], coords[4]), -Math.max(coords[1], coords[5]),
-            Math.abs(coords[4] - coords[0]), Math.abs(coords[5] - coords[1])).fill().stroke();
-          continue;
-        }
-        const flipped = new Array(coords.length);
-        for (let index = 0; index < coords.length; index += 2) {
-          flipped[index] = coords[index];
-          flipped[index + 1] = -coords[index + 1];
-        }
-        context.poly(flipped, true).fill().stroke();
+      const flipped = new Array(coords.length);
+      for (let index = 0; index < coords.length; index += 2) {
+        flipped[index] = coords[index];
+        flipped[index + 1] = -coords[index + 1];
       }
-      templateContextMap.set(template.id, context);
+      context.poly(flipped, true).fill().stroke();
     }
   }
 
@@ -1026,65 +988,70 @@
   }
 
   function nextFrame() {
-    return new Promise((resolve) => {
-      window.requestAnimationFrame(() => resolve());
-    });
+    return new Promise(requestAnimationFrame);
   }
 
-  async function renderCellTreeProgressively() {
-    const token = ++cellRenderToken;
+  async function setViewModel(nextViewModel) {
+    await ensureApp();
+    const oldGraphics = world.removeChildren();
+    // Detach all instances first. Destroying shared contexts removes their listeners
+    // in one pass; unlinking thousands of individual listeners first is quadratic.
+    for (const context of templateContextMap.values()) context.destroy();
+    for (const graphics of oldGraphics) graphics.destroy({ children: true, context: false });
+    templateContextMap.clear();
+    groupMap.clear();
+    viewModel = nextViewModel;
+    measurements = [];
+    selectedMeasurementId = null;
+    measureStart = null;
+    measureEnd = null;
+    measurePointer = null;
+    lastPointerActual = null;
+    lastPointerScreen = null;
+    dragState = null;
+    stopKeyboardZoom();
+    document.title = viewModel.title;
+    const titleNode = document.querySelector(".title");
+    titleNode.textContent = viewModel.title.replace(/^GDS Viewer: /, "");
+    titleNode.title = viewModel.title;
+
+    cellToggleHost.replaceChildren();
+    layerToggleHost.replaceChildren();
+
+    cellTreeNodes = new Map(viewModel.cells.map((cell) => [cell.name, cell]));
+    templateMap = new Map(viewModel.templates.map((template) => [template.id, template]));
+    cellState = Object.fromEntries(viewModel.cells.map((cell) => [cell.name, true]));
+    layerState = Object.fromEntries(viewModel.layers.map((layer) => [layer.key, true]));
+    renderMeasurementList();
     let deadline = performance.now() + 8;
+    for (const template of viewModel.templates) {
+      const context = new PIXI.GraphicsContext();
+      drawTemplate(context, template);
+      templateContextMap.set(template.id, context);
+      if (performance.now() > deadline) {
+        await nextFrame();
+        deadline = performance.now() + 8;
+      }
+    }
+    for (const layer of viewModel.layers) {
+      layerToggleHost.appendChild(buildLayerChip(layer));
+    }
     for (const rootName of viewModel.cellTree.roots) {
-      if (token !== cellRenderToken) return;
-      if (!cellTreeNodes.has(rootName)) continue;
       cellToggleHost.appendChild(createCellNode(rootName, 0));
       if (performance.now() > deadline) {
         await nextFrame();
         deadline = performance.now() + 8;
       }
     }
-  }
 
-  async function rebuildControls() {
-    clearChildren(cellToggleHost);
-    clearChildren(layerToggleHost);
-
-    cellTreeNodes = new Map(viewModel.cells.map((cell) => [cell.name, cell]));
-    templateMap = new Map((viewModel.templates || []).map((template) => [template.id, template]));
-    templateContextMap = new Map();
-    let deadline = performance.now() + 8;
-    for (const template of viewModel.templates || []) {
-      buildTemplateContexts([template]);
-      if (performance.now() > deadline) {
-        await nextFrame();
-        deadline = performance.now() + 8;
-      }
-    }
-    cellState = Object.fromEntries(viewModel.cells.map((cell) => [cell.name, true]));
-    layerState = Object.fromEntries(viewModel.layers.map((layer) => [layer.key, true]));
-    viewModel.layers.forEach((layer) => {
-      layerToggleHost.appendChild(buildLayerChip(layer));
-    });
-    renderMeasurementList();
-    attachCellHandlers();
-    await renderCellTreeProgressively();
-  }
-
-  function rebuildSceneBounds() {
     drawCenterX = (viewModel.bounds.xmin + viewModel.bounds.xmax) / 2;
     drawCenterY = -((viewModel.bounds.ymin + viewModel.bounds.ymax) / 2);
     spanX = Math.max(viewModel.bounds.xmax - viewModel.bounds.xmin, 1);
     spanY = Math.max(viewModel.bounds.ymax - viewModel.bounds.ymin, 1);
     fitView();
-  }
 
-  async function renderSceneProgressively() {
-    const token = ++sceneRenderToken;
-    groupMap = new Map();
-    rebuildSceneBounds();
     // Preserve layer compositing order, but yield by elapsed work, not per layer.
-    for (const group of viewModel.groups) groupMap.set(group.id, []);
-    let deadline = performance.now() + 8;
+    for (const group of viewModel.groups) groupMap.set(group, []);
     let processed = 0;
     for (const layer of viewModel.layers) {
       let largeTemplate = false;
@@ -1092,9 +1059,8 @@
         largeTemplate ||= templateMap.get(group.templateId).polygonCount >= 1024;
         drawGroup(group, offset);
         if (++processed % 128 === 0 && performance.now() > deadline) {
-          setStatusMessage(`Drawing ${processed} instances...`);
+          statusNode.textContent = `Drawing ${processed} instances...`;
           await nextFrame();
-          if (token !== sceneRenderToken) return;
           deadline = performance.now() + 8;
         }
       }
@@ -1112,73 +1078,26 @@
     updateOverlays();
   }
 
-  async function setViewModel(nextViewModel) {
-    await ensureApp();
-    cellRenderToken += 1;
-    sceneRenderToken += 1;
-    const oldGraphics = world.removeChildren();
-    // Detach all instances first. Destroying shared contexts removes their listeners
-    // in one pass; unlinking thousands of individual listeners first is quadratic.
-    for (const context of templateContextMap.values()) context.destroy();
-    for (const graphics of oldGraphics) graphics.destroy({ children: true, context: false });
-    templateContextMap.clear();
-    viewModel = nextViewModel;
-    measurements = [];
-    selectedMeasurementId = null;
-    measureStart = null;
-    measureEnd = null;
-    measurePointer = null;
-    lastPointerActual = null;
-    lastPointerScreen = null;
-    dragState = null;
-    stopKeyboardZoom();
-    document.title = viewModel.title;
-    const titleNode = document.querySelector(".title");
-    if (titleNode) {
-      titleNode.textContent = viewModel.title.replace(/^GDS Viewer: /, "");
-      titleNode.title = viewModel.title;
-    }
-    await rebuildControls();
-    await renderSceneProgressively();
-  }
-
-  function requireGdsParser() {
-    if (!window.GdsParser || !window.GdsParser.parseGds || !window.GdsParser.buildGdsViewModel || !window.GdsParser.sceneInstances) {
-      throw new Error("The GDS parser script failed to load.");
-    }
-    return window.GdsParser;
-  }
-
-  function buildLocalViewModel(library, options) {
-    const parser = requireGdsParser();
-    const model = parser.buildGdsViewModel(library, { ...options, compact: true });
-    model.groups = model.groups || [];
-    model.templates = model.templates || [];
-    return model;
-  }
-
   function setOptionsEnabled(enabled) {
     cellSelect.disabled = !enabled;
     depthInput.disabled = !enabled;
     applyOptionsButton.disabled = !enabled;
   }
 
-  async function displayLibrary(library, filename, options, version) {
-    if (version !== loadVersion) return;
-    const started = performance.now();
-    const model = buildLocalViewModel(library, { ...options, title: `GDS Viewer: ${filename}` });
-    if (performance.now() - started > 8) await nextFrame();
+  function displayLibrary(library, filename, options, version) {
     // Serialize Pixi initialization/rendering; only the newest file or options win.
     const job = renderQueue.catch(() => {}).then(async () => {
-      if (version !== loadVersion) {
-        return;
-      }
+      if (version !== loadVersion) return;
+      const started = performance.now();
+      const model = GdsParser.buildGdsViewModel(library, { ...options, title: `GDS Viewer: ${filename}` });
+      if (performance.now() - started > 8) await nextFrame();
+      if (version !== loadVersion) return;
       await setViewModel(model);
       // Keep controls paired with the last rendered library even if a later
       // selection fails while this render is finishing.
       currentLibrary = library;
       currentFilename = filename;
-      clearChildren(cellSelect);
+      cellSelect.replaceChildren();
       const allOption = document.createElement("option");
       allOption.value = "";
       allOption.textContent = "All top-level cells";
@@ -1196,7 +1115,7 @@
       }
     });
     renderQueue = job;
-    await job;
+    return job;
   }
 
   async function loadGdsFile(file) {
@@ -1215,7 +1134,7 @@
         return;
       }
       const started = performance.now();
-      const library = requireGdsParser().parseGds(bytes);
+      const library = GdsParser.parseGds(bytes);
       if (performance.now() - started > 8) await nextFrame();
       await displayLibrary(library, file.name, {}, version);
     } catch (error) {
@@ -1367,7 +1286,9 @@
   });
 
   try {
-    requireGdsParser();
+    if (!window.GdsParser) {
+      throw new Error("The GDS parser script failed to load.");
+    }
     if (!window.PIXI || !window.PIXI.Application || !window.PIXI.Graphics || !window.PIXI.GraphicsContext) {
       throw new Error("PixiJS failed to load. Keep the vendor folder beside index.html.");
     }

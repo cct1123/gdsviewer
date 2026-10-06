@@ -5,7 +5,7 @@
   } else {
     root.GdsParser = api;
   }
-})(typeof globalThis !== "undefined" ? globalThis : this, () => {
+})(globalThis, () => {
   "use strict";
 
   const RECORD = Object.freeze({
@@ -226,9 +226,6 @@
           library.name = decodeString(bytes, dataStart, end);
           break;
         case RECORD.UNITS: {
-          if (end - dataStart !== 16) {
-            throw new Error(`Invalid GDSII UNITS record at byte ${offset}.`);
-          }
           coordinateScale = decodeReal8(bytes, dataStart);
           library.precision = decodeReal8(bytes, dataStart + 8);
           library.unit = coordinateScale === 0 ? 0 : library.precision / coordinateScale;
@@ -344,9 +341,6 @@
       offset = end;
       if (recordType === RECORD.ENDLIB) {
         hasEnd = true;
-        if (length !== 4 || bytes[dataStart - 1] !== 0) {
-          throw new Error("Invalid GDSII ENDLIB record.");
-        }
         // Some writers pad the final tape block with null bytes.
         for (; offset < bytes.length; offset += 1) {
           if (bytes[offset] !== 0) {
@@ -530,7 +524,7 @@
     const groups = [];
     const sceneRoots = [];
     const layerInfo = new Map();
-    const templateInfo = new Map();
+    const templates = [];
     const cellTemplateCache = new Map();
     let boundsMin = null;
     let boundsMax = null;
@@ -576,7 +570,7 @@
             polygons: [],
           };
           grouped.set(pairKey, template);
-          templateInfo.set(`${cell.name}\u0000${String(polygon.layer).padStart(5, "0")}\u0000${String(polygon.datatype).padStart(5, "0")}`, template);
+          templates.push(template);
           if (!layerInfo.has(layerKey)) {
             layerInfo.set(layerKey, {
               key: layerKey,
@@ -606,10 +600,10 @@
           }
         }
       }
-      const templates = Array.from(grouped.values()).sort((first, second) =>
+      const cellTemplates = Array.from(grouped.values()).sort((first, second) =>
         first.layer - second.layer || first.datatype - second.datatype,
       );
-      const bundle = { templates, boundsMin: localMin, boundsMax: localMax };
+      const bundle = { templates: cellTemplates, boundsMin: localMin, boundsMax: localMax };
       cellTemplateCache.set(cell.name, bundle);
       return bundle;
     }
@@ -651,7 +645,7 @@
     }
 
     const ancestors = new Set();
-    function walkGeometry(cell, cellId, transform, offset, depth, repetitions = []) {
+    function walkGeometry(cell, transform, offset, depth, repetitions = []) {
       const scene = { groups: [], children: [] };
       if (ancestors.has(cell.name) && maxDepth === null) {
         throw new Error(`Cyclic GDSII reference involving '${cell.name}'. Choose a finite hierarchy depth.`);
@@ -690,80 +684,47 @@
           throw new Error("GDSII polygon count exceeds safe integer precision.");
         }
         const group = {
-          id: `${cellId}::${template.layer}:${template.datatype}`,
-          cellId,
           cellName: cell.name,
-          layer: template.layer,
-          datatype: template.datatype,
           layerKey: template.layerKey,
-          cssColor: template.cssColor,
           count: template.polygonCount * instanceCount,
           templateId: template.id,
-          transform: transform.slice(),
-          offset: offset.slice(),
-          ...(options.compact ? { repetitions, instanceCount } : {}),
+          transform,
+          offset,
         };
         groups.push(group);
-        if (options.compact) scene.groups.push(group);
+        scene.groups.push(group);
       }
       if (maxDepth != null && depth >= maxDepth) {
         if (!wasAncestor) ancestors.delete(cell.name);
         return scene;
       }
-      cell.references.forEach((reference, referenceIndex) => {
+      for (const reference of cell.references) {
         const child = cellsByName.get(reference.cellName);
         if (!child) {
-          return;
+          continue;
         }
         const childTransform = multiplyTransforms(transform, referenceTransform(reference));
-        if (options.compact) {
-          const origin = transformPoint(transform, reference.origin);
-          const repetition = {
-            columns: reference.columns,
-            rows: reference.rows,
-            columnVector: transformPoint(transform, reference.columnVector),
-            rowVector: transformPoint(transform, reference.rowVector),
-          };
-          const repeats = reference.columns * reference.rows > 1 ? [...repetitions, repetition] : repetitions;
-          const childScene = walkGeometry(child, `${cellId}/${child.name}[${referenceIndex}:0]`, childTransform,
-            [origin[0] + offset[0], origin[1] + offset[1]], depth + 1, repeats);
-          scene.children.push({ scene: childScene, repetition });
-          return;
-        }
-        let repetitionIndex = 0;
-        for (let column = 0; column < reference.columns; column += 1) {
-          for (let row = 0; row < reference.rows; row += 1) {
-            const repetitionOffset = [
-              reference.columnVector[0] * column + reference.rowVector[0] * row,
-              reference.columnVector[1] * column + reference.rowVector[1] * row,
-            ];
-            const localOrigin = [
-              reference.origin[0] + repetitionOffset[0],
-              reference.origin[1] + repetitionOffset[1],
-            ];
-            const transformedOrigin = transformPoint(transform, localOrigin);
-            walkGeometry(
-              child,
-              `${cellId}/${child.name}[${referenceIndex}:${repetitionIndex}]`,
-              childTransform,
-              [transformedOrigin[0] + offset[0], transformedOrigin[1] + offset[1]],
-              depth + 1,
-            );
-            repetitionIndex += 1;
-          }
-        }
-      });
+        const origin = transformPoint(transform, reference.origin);
+        const repetition = {
+          columns: reference.columns,
+          rows: reference.rows,
+          columnVector: transformPoint(transform, reference.columnVector),
+          rowVector: transformPoint(transform, reference.rowVector),
+        };
+        const repeats = reference.columns * reference.rows > 1 ? [...repetitions, repetition] : repetitions;
+        const childScene = walkGeometry(child, childTransform,
+          [origin[0] + offset[0], origin[1] + offset[1]], depth + 1, repeats);
+        scene.children.push({ scene: childScene, repetition });
+      }
       if (!wasAncestor) ancestors.delete(cell.name);
       return scene;
     }
 
-    roots.forEach((cell, index) => {
-      if (!rootNames.includes(cell.name)) {
-        rootNames.push(cell.name);
-      }
+    for (const cell of roots) {
+      rootNames.push(cell.name);
       walkTree(cell, 0);
-      sceneRoots.push(walkGeometry(cell, `root:${index}`, [1, 0, 0, 1], [0, 0], 0));
-    });
+      sceneRoots.push(walkGeometry(cell, [1, 0, 0, 1], [0, 0], 0));
+    }
 
     const bounds = boundsMin && boundsMax
       ? {
@@ -779,32 +740,14 @@
       cellName: options.cellName != null ? roots[0].name : "GDS Library",
       bounds,
       groups,
-      ...(options.compact ? { sceneRoots } : {}),
-      templates: Array.from(templateInfo.entries())
-        .sort(([first], [second]) => first.localeCompare(second))
-        .map(([, template]) => template),
+      sceneRoots,
+      templates,
       cellTree: { roots: rootNames, nodes },
       cells: nodes,
       layers: Array.from(layerInfo.values()).sort((first, second) =>
         first.layer - second.layer || first.datatype - second.datatype,
       ),
     };
-  }
-
-  // Expand only while consuming instances; array products never become model objects.
-  function* instanceOffsets(group, index = 0, x = group.offset[0], y = group.offset[1]) {
-    const repetition = group.repetitions?.[index];
-    if (!repetition) {
-      yield [x, y];
-      return;
-    }
-    for (let column = 0; column < repetition.columns; column += 1) {
-      for (let row = 0; row < repetition.rows; row += 1) {
-        yield* instanceOffsets(group, index + 1,
-          x + column * repetition.columnVector[0] + row * repetition.rowVector[0],
-          y + column * repetition.columnVector[1] + row * repetition.rowVector[1]);
-      }
-    }
   }
 
   // Maintain the original painter order even when arrays contain overlapping,
@@ -828,12 +771,18 @@
       for (const child of scene.children) {
         // Prune empty/off-layer subtrees before entering their repetition loops.
         if (!hasGeometry(child.scene)) continue;
-        const offsets = { offset: [x, y], repetitions: [child.repetition] };
-        for (const [ox, oy] of instanceOffsets(offsets)) yield* visit(child.scene, ox, oy);
+        const { columns, rows, columnVector, rowVector } = child.repetition;
+        for (let column = 0; column < columns; column += 1) {
+          for (let row = 0; row < rows; row += 1) {
+            yield* visit(child.scene,
+              x + column * columnVector[0] + row * rowVector[0],
+              y + column * columnVector[1] + row * rowVector[1]);
+          }
+        }
       }
     }
     for (const root of model.sceneRoots) yield* visit(root, 0, 0);
   }
 
-  return { buildGdsViewModel, parseGds, pathToPolygon, instanceOffsets, sceneInstances };
+  return { buildGdsViewModel, parseGds, pathToPolygon, sceneInstances };
 });

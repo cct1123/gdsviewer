@@ -3,7 +3,7 @@ const { createHash } = require("node:crypto");
 const fs = require("node:fs");
 const path = require("node:path");
 const test = require("node:test");
-const { parseGds, buildGdsViewModel, pathToPolygon, instanceOffsets, sceneInstances } = require("../gds_parser.js");
+const { parseGds, buildGdsViewModel, pathToPolygon, sceneInstances } = require("../gds_parser.js");
 
 const fixture = (name) => fs.readFileSync(path.join(__dirname, "fixtures", name));
 const manifest = JSON.parse(fixture("manifest.json"));
@@ -50,15 +50,17 @@ test("polygon comparison retains connectivity and ignores collinear splits", () 
   assert.notEqual(canonicalPolygon([0, 0, 2, 1, 2, 0, 0, 1]), rectangle);
 });
 
-function canonicalModel(model) {
-  const result = JSON.parse(JSON.stringify(model, (_, value) =>
+function rounded(value) {
+  return JSON.parse(JSON.stringify(value, (_, value) =>
     typeof value === "number" ? Number(value.toFixed(9)) : value,
   ));
-  result.templates = result.templates.map((template) => ({
+}
+
+function canonicalTemplates(templates) {
+  return rounded(templates).map((template) => ({
     ...template,
     polygons: template.polygons.map(({ polygon }) => canonicalPolygon(polygon)).sort(),
   })).sort((a, b) => a.id.localeCompare(b.id));
-  return result;
 }
 
 test("reference files retain their recorded provenance hashes", () => {
@@ -68,20 +70,17 @@ test("reference files retain their recorded provenance hashes", () => {
 });
 
 for (const scenario of manifest.scenarios) {
-  test(`saved Python reference: ${scenario.name}`, () => {
+  test(`scene against independent Python reference: ${scenario.name}`, () => {
     const actual = buildGdsViewModel(parseGds(fixture(scenario.file)), scenario.options);
-    assert.deepEqual(canonicalModel(actual), canonicalModel(JSON.parse(fixture(scenario.expected))));
-  });
-  test(`compact scene against independent reference: ${scenario.name}`, () => {
-    const actual = buildGdsViewModel(parseGds(fixture(scenario.file)), { ...scenario.options, compact: true });
     const expected = JSON.parse(fixture(scenario.expected));
-    for (const key of ["bounds", "cellTree", "cells", "layers", "templates"]) {
-      const canonical = (value) => JSON.parse(JSON.stringify(value, (_, n) => typeof n === "number" ? +n.toFixed(9) : n));
-      if (key === "templates") {
-        assert.deepEqual(canonicalModel(actual).templates, canonicalModel(expected).templates);
-      } else assert.deepEqual(canonical(actual[key]), canonical(expected[key]), key);
+    for (const key of ["title", "cellName", "bounds", "cellTree", "cells", "layers"]) {
+      assert.deepEqual(rounded(actual[key]), rounded(expected[key]), key);
     }
-    const describe = (group, offset) => ({ templateId: group.templateId, transform: group.transform.map((n) => +n.toFixed(9)), offset: offset.map((n) => +n.toFixed(9)) });
+    assert.deepEqual(canonicalTemplates(actual.templates), canonicalTemplates(expected.templates));
+    const describe = ({ cellName, layerKey, templateId, transform }, offset) =>
+      rounded({ cellName, layerKey, templateId, transform, offset });
+    assert.deepEqual([...sceneInstances(actual)].map(({ group, offset }) => describe(group, offset)),
+      expected.groups.map((group) => describe(group, group.offset)));
     for (const layer of actual.layers) {
       assert.deepEqual([...sceneInstances(actual, layer.key)].map(({ group, offset }) => describe(group, offset)),
         expected.groups.filter((group) => group.layerKey === layer.key).map((group) => describe(group, group.offset)));
@@ -101,21 +100,20 @@ test("nested compact arrays retain transformed lattice offsets, bounds, and pain
     cell("MID", [reference("LEAF", { rows: 2, rowVector: [0, 3] })], [square]),
     cell("LEAF", [], [square]),
   ] };
-  const model = buildGdsViewModel(library, { compact: true });
+  const model = buildGdsViewModel(library);
   assert.equal(model.groups.length, 2);
   assert.deepEqual(model.groups.map((g) => g.count), [2, 4]);
   assert.deepEqual(model.bounds, { xmin: -10, ymin: 0, xmax: 8, ymax: 2 });
   const instances = [...sceneInstances(model, "L1/D0")].map(({ group, offset }) => [group.cellName, offset.map((n) => Math.round(n) || 0)]);
   assert.deepEqual(instances, [["MID", [0, 0]], ["LEAF", [0, 0]], ["LEAF", [6, 0]],
     ["MID", [-10, 0]], ["LEAF", [-10, 0]], ["LEAF", [-4, 0]]]);
-  assert.deepEqual([...instanceOffsets(model.groups[1])].map((p) => p.map((n) => Math.round(n) || 0)), [[0, 0], [6, 0], [-10, 0], [-4, 0]]);
 });
 
 test("tiny bytes can describe a billion instances without expanding the compact model", () => {
   const { makeLayout } = require("./performance/fixtures.js");
   const bytes = makeLayout({ columns: 30000, rows: 30000 });
   assert.equal(bytes.length, 270);
-  const model = buildGdsViewModel(parseGds(bytes), { compact: true });
+  const model = buildGdsViewModel(parseGds(bytes));
   assert.equal(model.groups.length, 1);
   assert.equal(model.groups[0].count, 900000000);
   assert.deepEqual(model.bounds, { xmin: 0, ymin: 0, xmax: 89999, ymax: 89999 });
@@ -124,7 +122,7 @@ test("tiny bytes can describe a billion instances without expanding the compact 
 test("shared cells reached at a shallower depth keep their descendants in the controls", () => {
   const library = { cells: [cell("TOP", [reference("DETOUR"), reference("SHARED")]),
     cell("DETOUR", [reference("SHARED")]), cell("SHARED", [reference("LEAF")]), cell("LEAF", [], [square])] };
-  const model = buildGdsViewModel(library, { compact: true, maxDepth: 2 });
+  const model = buildGdsViewModel(library, { maxDepth: 2 });
   assert.deepEqual(model.cells.find((c) => c.name === "SHARED").children, ["LEAF"]);
   assert.equal(model.groups.length, 1);
 });
@@ -132,7 +130,7 @@ test("shared cells reached at a shallower depth keep their descendants in the co
 test("instance traversal skips empty and off-layer array subtrees", () => {
   const library = { cells: [cell("TOP", [reference("EMPTY", { columns: 1000, rows: 1000 }), reference("OTHER")], [square]),
     cell("EMPTY"), cell("OTHER", [], [{ ...square, layer: 2 }])] };
-  const model = buildGdsViewModel(library, { compact: true });
+  const model = buildGdsViewModel(library);
   assert.deepEqual([...sceneInstances(model, "L1/D0")].map(({ group }) => group.cellName), ["TOP"]);
   assert.deepEqual([...sceneInstances(model, "L2/D0")].map(({ group }) => group.cellName), ["OTHER"]);
   assert.deepEqual([...sceneInstances(model)].map(({ group }) => group.cellName), ["TOP", "OTHER"]);
@@ -140,11 +138,9 @@ test("instance traversal skips empty and off-layer array subtrees", () => {
 
 test("cyclic references fail explicitly unless a finite depth terminates the view", () => {
   const library = { cells: [cell("LOOP", [reference("LOOP")], [square])] };
-  for (const compact of [false, true]) {
-    assert.throws(() => buildGdsViewModel(library, { compact }), /Cyclic GDSII reference/);
-    const model = buildGdsViewModel(library, { compact, maxDepth: 2 });
-    assert.equal(model.groups.reduce((n, group) => n + group.count, 0), 3);
-  }
+  assert.throws(() => buildGdsViewModel(library), /Cyclic GDSII reference/);
+  const model = buildGdsViewModel(library, { maxDepth: 2 });
+  assert.equal(model.groups.reduce((n, group) => n + group.count, 0), 3);
 });
 
 test("required content and supported record payloads are validated", () => {

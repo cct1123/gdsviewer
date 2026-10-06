@@ -33,3 +33,7 @@ geometry independently. Do not regenerate expectations from gds_parser.js merely
 make a failing comparison pass. The comparator removes only 1e-9 numeric noise,
 polygon start/winding differences, and exact collinear splits; it retains polygon
 connectivity and concavity.
+
+The current model keeps arrays compact. Tests compare its ordered instances,
+templates, bounds, counts, layers, and cell tree with these unchanged exports;
+the old expanded-model API and generated instance IDs are no longer retained.
