@@ -1,0 +1,15 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>GDS loading benchmark</title>
+<style>body { font: 15px system-ui; margin: 20px; } iframe { width: 1100px; height: 800px; border: 1px solid #aaa; } pre { white-space: pre-wrap; } label { margin-right: 15px; }</style>
+<h1>GDS loading benchmark</h1>
+<p>Synthetic layouts only. Keep this tab foreground and the window size fixed. Each case starts a fresh viewer, then reloads twice. Heap readings are browser-dependent estimates, not peak or GPU memory.</p>
+<label>Viewer <select id="target"><option value="/">Working tree</option><option value="/baseline/">Baseline</option></select></label>
+<label>Case <select id="case"><option value="">All</option><option>small-flat</option><option>medium-flat</option><option>large-flat</option><option>tiny-array</option><option>hierarchical</option><option>shared-dag</option></select></label>
+<label><input id="memory" type="checkbox">Measure retained memory after each case (may take minutes)</label>
+<button id="run">Run benchmarks</button>
+<a id="save" hidden download="benchmark.json">Download JSON</a>
+<pre id="results">Ready</pre>
+<iframe id="viewer" title="Benchmark viewer"></iframe>
+<script src="./fixtures.js"></script>
+<script src="./run.js"></script>

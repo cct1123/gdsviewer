@@ -231,9 +231,9 @@
         <h3>Load GDS</h3>
         <div class="file-row">
           <button id="load-file-button" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v10H3V7Z"/><path d="M9 13h6m-3-3v6"/></svg>Load GDS File</button>
-          <input id="file-input" type="file" accept=".gds,.gds2" hidden>
+          <input id="file-input" type="file" accept=".gds,.gds2,.gdsii,.GDS,.GDS2,.GDSII" hidden>
         </div>
-        <p class="section-hint">Or drop a .gds / .gds2 file onto the canvas.</p>
+        <p class="section-hint">Or drop a .gds / .gds2 / .gdsii file onto the canvas.</p>
       </div>
 
       <details class="view-settings">
@@ -308,7 +308,7 @@
           <div class="empty-eyebrow">Local files. A closer look.</div>
           <h1>Every layer,<br><em>in focus.</em></h1>
           <p>Open a GDS file to explore its cells, layers, and geometry.</p>
-          <div class="file-formats"><span>.gds</span><span>.gds2</span></div>
+          <div class="file-formats"><span>.gds</span><span>.gds2</span><span>.gdsii</span></div>
         </div>
         <div id="pointer-status" class="pointer-status"></div>
         <div id="measure-readout" class="measure-readout"></div>

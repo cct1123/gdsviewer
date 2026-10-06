@@ -42,6 +42,19 @@
     ENDEXTN: 0x31,
   });
 
+  const recordFormats = {
+    [RECORD.HEADER]: [2, 2], [RECORD.BGNLIB]: [2, 24], [RECORD.LIBNAME]: [6],
+    [RECORD.UNITS]: [5, 16], [RECORD.ENDLIB]: [0, 0], [RECORD.BGNSTR]: [2, 24],
+    [RECORD.STRNAME]: [6], [RECORD.ENDSTR]: [0, 0], [RECORD.BOUNDARY]: [0, 0],
+    [RECORD.PATH]: [0, 0], [RECORD.SREF]: [0, 0], [RECORD.AREF]: [0, 0],
+    [RECORD.LAYER]: [2, 2], [RECORD.DATATYPE]: [2, 2], [RECORD.WIDTH]: [3, 4],
+    [RECORD.TEXTTYPE]: [2, 2], [RECORD.BOXTYPE]: [2, 2],
+    [RECORD.XY]: [3], [RECORD.ENDEL]: [0, 0], [RECORD.SNAME]: [6],
+    [RECORD.COLROW]: [2, 4], [RECORD.STRANS]: [1, 2], [RECORD.MAG]: [5, 8],
+    [RECORD.ANGLE]: [5, 8], [RECORD.PATHTYPE]: [2, 2],
+    [RECORD.BGNEXTN]: [3, 4], [RECORD.ENDEXTN]: [3, 4],
+  };
+
   function asBytes(input) {
     if (input instanceof Uint8Array) {
       return input;
@@ -91,28 +104,14 @@
     let currentCell = null;
     let element = null;
     let offset = 0;
-
-    function int16s(start, end) {
-      const values = [];
-      for (let position = start; position + 1 < end; position += 2) {
-        values.push(view.getInt16(position));
-      }
-      return values;
-    }
-
-    function int32s(start, end) {
-      const values = [];
-      for (let position = start; position + 3 < end; position += 4) {
-        values.push(view.getInt32(position));
-      }
-      return values;
-    }
+    let hasHeader = false;
+    let hasUnits = false;
+    let hasEnd = false;
 
     function coordinates(start, end) {
-      const values = int32s(start, end);
       const points = [];
-      for (let index = 0; index + 1 < values.length; index += 2) {
-        points.push([values[index] * coordinateScale, values[index + 1] * coordinateScale]);
+      for (let position = start; position < end; position += 8) {
+        points.push([view.getInt32(position) * coordinateScale, view.getInt32(position + 4) * coordinateScale]);
       }
       return points;
     }
@@ -145,7 +144,7 @@
         return;
       }
       if (element.kind === "boundary") {
-        const points = element.points.slice();
+        const points = element.points;
         if (points.length > 1 && samePoint(points[0], points[points.length - 1])) {
           points.pop();
         }
@@ -208,8 +207,21 @@
         throw new Error(`GDSII record at byte ${offset} extends beyond the input.`);
       }
       const dataStart = offset + 4;
+      const dataLength = length - 4;
+      const format = bytes[offset + 3];
+      // Validate supported payloads before reading them, independent of filename/MIME.
+      const expected = recordFormats[recordType];
+      if (length % 2 || (expected && (format !== expected[0] ||
+          (expected[1] != null && dataLength !== expected[1]))) ||
+          (recordType === RECORD.XY && (dataLength === 0 || dataLength % 8))) {
+        throw new Error(`Invalid GDSII ${recordType === RECORD.ENDLIB ? "ENDLIB" : "record payload"} at byte ${offset}.`);
+      }
 
       switch (recordType) {
+        case RECORD.HEADER:
+          if (offset !== 0) throw new Error(`Unexpected GDSII HEADER at byte ${offset}.`);
+          hasHeader = true;
+          break;
         case RECORD.LIBNAME:
           library.name = decodeString(bytes, dataStart, end);
           break;
@@ -220,6 +232,10 @@
           coordinateScale = decodeReal8(bytes, dataStart);
           library.precision = decodeReal8(bytes, dataStart + 8);
           library.unit = coordinateScale === 0 ? 0 : library.precision / coordinateScale;
+          if (!(coordinateScale > 0 && library.precision > 0 && Number.isFinite(library.unit))) {
+            throw new Error(`Invalid GDSII UNITS at byte ${offset}.`);
+          }
+          hasUnits = true;
           break;
         }
         case RECORD.BGNSTR:
@@ -254,34 +270,34 @@
           break;
         case RECORD.LAYER:
           if (element) {
-            element.layer = int16s(dataStart, end)[0] || 0;
+            element.layer = view.getInt16(dataStart);
           }
           break;
         case RECORD.DATATYPE:
         case RECORD.TEXTTYPE:
         case RECORD.BOXTYPE:
           if (element) {
-            element.datatype = int16s(dataStart, end)[0] || 0;
+            element.datatype = view.getInt16(dataStart);
           }
           break;
         case RECORD.WIDTH:
           if (element) {
-            element.width = (int32s(dataStart, end)[0] || 0) * coordinateScale;
+            element.width = view.getInt32(dataStart) * coordinateScale;
           }
           break;
         case RECORD.PATHTYPE:
           if (element) {
-            element.pathType = int16s(dataStart, end)[0] || 0;
+            element.pathType = view.getInt16(dataStart);
           }
           break;
         case RECORD.BGNEXTN:
           if (element) {
-            element.beginExtension = (int32s(dataStart, end)[0] || 0) * coordinateScale;
+            element.beginExtension = view.getInt32(dataStart) * coordinateScale;
           }
           break;
         case RECORD.ENDEXTN:
           if (element) {
-            element.endExtension = (int32s(dataStart, end)[0] || 0) * coordinateScale;
+            element.endExtension = view.getInt32(dataStart) * coordinateScale;
           }
           break;
         case RECORD.XY:
@@ -296,9 +312,11 @@
           break;
         case RECORD.COLROW: {
           if (element) {
-            const values = int16s(dataStart, end);
-            element.columns = values[0] || 1;
-            element.rows = values[1] || 1;
+            element.columns = view.getInt16(dataStart);
+            element.rows = view.getInt16(dataStart + 2);
+            if (element.columns <= 0 || element.rows <= 0) {
+              throw new Error(`Invalid GDSII array dimensions at byte ${offset}.`);
+            }
           }
           break;
         }
@@ -325,6 +343,7 @@
       }
       offset = end;
       if (recordType === RECORD.ENDLIB) {
+        hasEnd = true;
         if (length !== 4 || bytes[dataStart - 1] !== 0) {
           throw new Error("Invalid GDSII ENDLIB record.");
         }
@@ -339,6 +358,9 @@
 
     if (currentCell || element) {
       throw new Error("GDSII input ended before the current structure or element was closed.");
+    }
+    if (!hasHeader || !hasUnits || !hasEnd) {
+      throw new Error("Invalid GDSII content: HEADER, UNITS, and ENDLIB records are required.");
     }
     return library;
   }
@@ -433,7 +455,7 @@
   }
 
   function roundCoordinate(value) {
-    return Math.round((value + Number.EPSILON) * 1000) / 1000;
+    return Math.round((value + Number.EPSILON) * 1000) / 1000 || 0;
   }
 
   function referenceTransform(reference) {
@@ -499,10 +521,14 @@
     }
 
     const maxDepth = options.maxDepth == null ? null : options.maxDepth;
+    if (maxDepth !== null && (!Number.isSafeInteger(maxDepth) || maxDepth < 0)) {
+      throw new Error("Hierarchy depth must be a non-negative whole number.");
+    }
     const cellNodes = new Map();
-    const visitedCellNames = new Set();
+    const visitedCellNames = new Map();
     const rootNames = [];
     const groups = [];
+    const sceneRoots = [];
     const layerInfo = new Map();
     const templateInfo = new Map();
     const cellTemplateCache = new Map();
@@ -562,7 +588,12 @@
           }
         }
         template.polygonCount += 1;
-        template.polygons.push({ polygon: polygon.points.flatMap((point) => point.map(roundCoordinate)) });
+        const coordinates = new Array(polygon.points.length * 2);
+        for (let index = 0; index < polygon.points.length; index += 1) {
+          coordinates[index * 2] = roundCoordinate(polygon.points[index][0]);
+          coordinates[index * 2 + 1] = roundCoordinate(polygon.points[index][1]);
+        }
+        template.polygons.push({ polygon: coordinates });
         for (const point of polygon.points) {
           if (!localMin) {
             localMin = point.slice();
@@ -597,14 +628,14 @@
 
     function walkTree(cell, depth) {
       const node = ensureCellNode(cell.name);
-      if (visitedCellNames.has(cell.name)) {
+      if (visitedCellNames.has(cell.name) && visitedCellNames.get(cell.name) <= depth) {
         return;
       }
-      visitedCellNames.add(cell.name);
+      visitedCellNames.set(cell.name, depth);
       if (maxDepth != null && depth >= maxDepth) {
         return;
       }
-      const seen = new Set();
+      const seen = new Set(node.children);
       for (const reference of cell.references) {
         const child = cellsByName.get(reference.cellName);
         if (!child) {
@@ -619,8 +650,28 @@
       }
     }
 
-    function walkGeometry(cell, cellId, transform, offset, depth) {
+    const ancestors = new Set();
+    function walkGeometry(cell, cellId, transform, offset, depth, repetitions = []) {
+      const scene = { groups: [], children: [] };
+      if (ancestors.has(cell.name) && maxDepth === null) {
+        throw new Error(`Cyclic GDSII reference involving '${cell.name}'. Choose a finite hierarchy depth.`);
+      }
+      const wasAncestor = ancestors.has(cell.name);
+      ancestors.add(cell.name);
       const bundle = cellTemplates(cell);
+      const repeatMin = [0, 0];
+      const repeatMax = [0, 0];
+      let instanceCount = 1;
+      for (const repetition of repetitions) {
+        instanceCount *= repetition.columns * repetition.rows;
+        for (let axis = 0; axis < 2; axis += 1) {
+          const column = repetition.columnVector[axis] * (repetition.columns - 1);
+          const row = repetition.rowVector[axis] * (repetition.rows - 1);
+          repeatMin[axis] += Math.min(0, column) + Math.min(0, row);
+          repeatMax[axis] += Math.max(0, column) + Math.max(0, row);
+        }
+      }
+      if (!Number.isSafeInteger(instanceCount)) throw new Error("GDSII repetition count exceeds safe integer precision.");
       if (bundle.boundsMin && bundle.boundsMax) {
         const corners = [
           [bundle.boundsMin[0], bundle.boundsMin[1]],
@@ -630,11 +681,15 @@
         ];
         for (const corner of corners) {
           const transformed = transformPoint(transform, corner);
-          extendBounds([transformed[0] + offset[0], transformed[1] + offset[1]]);
+          extendBounds([transformed[0] + offset[0] + repeatMin[0], transformed[1] + offset[1] + repeatMin[1]]);
+          extendBounds([transformed[0] + offset[0] + repeatMax[0], transformed[1] + offset[1] + repeatMax[1]]);
         }
       }
       for (const template of bundle.templates) {
-        groups.push({
+        if (!Number.isSafeInteger(template.polygonCount * instanceCount)) {
+          throw new Error("GDSII polygon count exceeds safe integer precision.");
+        }
+        const group = {
           id: `${cellId}::${template.layer}:${template.datatype}`,
           cellId,
           cellName: cell.name,
@@ -642,14 +697,18 @@
           datatype: template.datatype,
           layerKey: template.layerKey,
           cssColor: template.cssColor,
-          count: template.polygonCount,
+          count: template.polygonCount * instanceCount,
           templateId: template.id,
           transform: transform.slice(),
           offset: offset.slice(),
-        });
+          ...(options.compact ? { repetitions, instanceCount } : {}),
+        };
+        groups.push(group);
+        if (options.compact) scene.groups.push(group);
       }
       if (maxDepth != null && depth >= maxDepth) {
-        return;
+        if (!wasAncestor) ancestors.delete(cell.name);
+        return scene;
       }
       cell.references.forEach((reference, referenceIndex) => {
         const child = cellsByName.get(reference.cellName);
@@ -657,6 +716,20 @@
           return;
         }
         const childTransform = multiplyTransforms(transform, referenceTransform(reference));
+        if (options.compact) {
+          const origin = transformPoint(transform, reference.origin);
+          const repetition = {
+            columns: reference.columns,
+            rows: reference.rows,
+            columnVector: transformPoint(transform, reference.columnVector),
+            rowVector: transformPoint(transform, reference.rowVector),
+          };
+          const repeats = reference.columns * reference.rows > 1 ? [...repetitions, repetition] : repetitions;
+          const childScene = walkGeometry(child, `${cellId}/${child.name}[${referenceIndex}:0]`, childTransform,
+            [origin[0] + offset[0], origin[1] + offset[1]], depth + 1, repeats);
+          scene.children.push({ scene: childScene, repetition });
+          return;
+        }
         let repetitionIndex = 0;
         for (let column = 0; column < reference.columns; column += 1) {
           for (let row = 0; row < reference.rows; row += 1) {
@@ -680,6 +753,8 @@
           }
         }
       });
+      if (!wasAncestor) ancestors.delete(cell.name);
+      return scene;
     }
 
     roots.forEach((cell, index) => {
@@ -687,7 +762,7 @@
         rootNames.push(cell.name);
       }
       walkTree(cell, 0);
-      walkGeometry(cell, `root:${index}`, [1, 0, 0, 1], [0, 0], 0);
+      sceneRoots.push(walkGeometry(cell, `root:${index}`, [1, 0, 0, 1], [0, 0], 0));
     });
 
     const bounds = boundsMin && boundsMax
@@ -704,6 +779,7 @@
       cellName: options.cellName != null ? roots[0].name : "GDS Library",
       bounds,
       groups,
+      ...(options.compact ? { sceneRoots } : {}),
       templates: Array.from(templateInfo.entries())
         .sort(([first], [second]) => first.localeCompare(second))
         .map(([, template]) => template),
@@ -715,5 +791,49 @@
     };
   }
 
-  return { buildGdsViewModel, parseGds, pathToPolygon };
+  // Expand only while consuming instances; array products never become model objects.
+  function* instanceOffsets(group, index = 0, x = group.offset[0], y = group.offset[1]) {
+    const repetition = group.repetitions?.[index];
+    if (!repetition) {
+      yield [x, y];
+      return;
+    }
+    for (let column = 0; column < repetition.columns; column += 1) {
+      for (let row = 0; row < repetition.rows; row += 1) {
+        yield* instanceOffsets(group, index + 1,
+          x + column * repetition.columnVector[0] + row * repetition.rowVector[0],
+          y + column * repetition.columnVector[1] + row * repetition.rowVector[1]);
+      }
+    }
+  }
+
+  // Maintain the original painter order even when arrays contain overlapping,
+  // nested cells on the same layer. Do not group expanded instances by template.
+  function* sceneInstances(model, layerKey) {
+    const included = new WeakMap();
+    function hasGeometry(scene) {
+      if (!included.has(scene)) {
+        included.set(scene, scene.groups.some((group) => layerKey == null || group.layerKey === layerKey) ||
+          scene.children.some((child) => hasGeometry(child.scene)));
+      }
+      return included.get(scene);
+    }
+    function* visit(scene, x, y) {
+      if (!hasGeometry(scene)) return;
+      for (const group of scene.groups) {
+        if (layerKey == null || group.layerKey === layerKey) {
+          yield { group, offset: [group.offset[0] + x, group.offset[1] + y] };
+        }
+      }
+      for (const child of scene.children) {
+        // Prune empty/off-layer subtrees before entering their repetition loops.
+        if (!hasGeometry(child.scene)) continue;
+        const offsets = { offset: [x, y], repetitions: [child.repetition] };
+        for (const [ox, oy] of instanceOffsets(offsets)) yield* visit(child.scene, ox, oy);
+      }
+    }
+    for (const root of model.sceneRoots) yield* visit(root, 0, 0);
+  }
+
+  return { buildGdsViewModel, parseGds, pathToPolygon, instanceOffsets, sceneInstances };
 });

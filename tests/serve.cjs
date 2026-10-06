@@ -11,6 +11,7 @@ const assets = new Map([
   ["vendor/pixi.min.js", "application/javascript; charset=utf-8"],
   ["tests/browser.html", "text/html; charset=utf-8"],
   ["tests/browser-smoke.js", "application/javascript; charset=utf-8"],
+  ["tests/performance/fixtures.js", "application/javascript; charset=utf-8"],
 ]);
 for (const name of fs.readdirSync(path.join(__dirname, "fixtures"))) {
   if (name.endsWith(".gds")) assets.set(`tests/fixtures/${name}`, "application/octet-stream");

@@ -1,0 +1,7 @@
+case,beforeBytes,afterBytes
+small-flat,12777068,12953208
+medium-flat,72470398,68271386
+large-flat,310841581,289651117
+tiny-array,59034461,54813939
+hierarchical,81170768,82469021
+shared-dag,30050881,21274602

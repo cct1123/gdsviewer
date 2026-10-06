@@ -81,10 +81,6 @@
     if (viewModel) {
       // Repaint shared templates in place: keep instances, visibility, and navigation.
       buildTemplateContexts(viewModel.templates, true);
-      for (const group of viewModel.groups || []) {
-        const graphics = groupMap.get(group.id);
-        if (graphics && !templateContextMap.has(group.templateId)) drawGroup(group, graphics);
-      }
     }
     updateOverlays();
   });
@@ -180,7 +176,7 @@
   }
 
   function forEachVisiblePolygonPoint(callback) {
-    for (const group of viewModel.groups || []) {
+    for (const { group, offset } of GdsParser.sceneInstances(viewModel)) {
       if (!isCellVisible(group.cellName) || !layerState[group.layerKey]) {
         continue;
       }
@@ -189,7 +185,7 @@
         continue;
       }
       const [a, b, c, d] = group.transform;
-      const [ox, oy] = group.offset;
+      const [ox, oy] = offset;
       for (const item of template.polygons || []) {
         const coords = item.polygon;
         if (!coords || coords.length < 6) {
@@ -300,11 +296,9 @@
 
   function applyVisibility() {
     for (const group of viewModel.groups || []) {
-      const graphics = groupMap.get(group.id);
-      if (!graphics) {
-        continue;
+      for (const graphics of groupMap.get(group.id) || []) {
+        graphics.visible = Boolean(isCellVisible(group.cellName) && layerState[group.layerKey]);
       }
-      graphics.visible = Boolean(isCellVisible(group.cellName) && layerState[group.layerKey]);
     }
     updateStatus();
   }
@@ -672,15 +666,15 @@
   }
 
   function descendantCellNames(cellName) {
-    const result = [cellName];
+    const result = new Set([cellName]);
     const queue = [cellName];
 
-    while (queue.length > 0) {
-      const currentName = queue.shift();
+    for (let index = 0; index < queue.length; index += 1) {
+      const currentName = queue[index];
       const node = cellTreeNodes.get(currentName);
       for (const childName of (node && node.children) || []) {
-        if (!result.includes(childName)) {
-          result.push(childName);
+        if (!result.has(childName)) {
+          result.add(childName);
           queue.push(childName);
         }
       }
@@ -747,9 +741,10 @@
     });
   }
 
-  function createCellNode(cellName, depth) {
+  function createCellNode(cellName, depth, ancestorNames = new Set()) {
     const cell = cellTreeNodes.get(cellName);
-    const children = (cell && cell.children) || [];
+    const ancestors = new Set([...ancestorNames, cellName]);
+    const children = ((cell && cell.children) || []).filter((name) => !ancestors.has(name));
     const node = document.createElement("div");
     node.className = "tree-node";
 
@@ -765,7 +760,8 @@
     button.type = "button";
     button.className = "cell-chip";
     button.dataset.key = cell.name;
-    button.setAttribute("aria-pressed", "true");
+    button.setAttribute("aria-pressed", String(Boolean(cellState[cellName])));
+    button.classList.toggle("is-off", !cellState[cellName]);
     button.textContent = cell.name;
     row.appendChild(button);
 
@@ -782,15 +778,25 @@
       const childHost = document.createElement("div");
       childHost.className = "tree-children";
       details.appendChild(childHost);
+      let populated = false;
+      const populate = () => {
+        if (populated || !details.open) return;
+        populated = true;
+        for (const childName of children) {
+          childHost.appendChild(createCellNode(childName, depth + 1, ancestors));
+        }
+      };
       details.addEventListener("toggle", () => {
+        populate();
         marker.textContent = details.open ? "▾" : "▸";
       });
-      marker.textContent = "▸";
+      populate();
+      marker.textContent = details.open ? "▾" : "▸";
       node.appendChild(details);
-      return { node, childHost, children };
+      return node;
     } else {
       node.appendChild(row);
-      return { node, childHost: null, children: [] };
+      return node;
     }
   }
 
@@ -818,61 +824,17 @@
     return button;
   }
 
-  function drawGroup(group, existingGraphics = null) {
-    const template = templateMap.get(group.templateId);
-    if (!template || !window.PIXI) {
-      const graphics = new PIXI.Graphics();
-      groupMap.set(group.id, graphics);
-      world.addChild(graphics);
-      return;
-    }
-
-    const context = templateContextMap.get(template.id);
-    if (context && window.PIXI.GraphicsContext) {
-      const graphics = new PIXI.Graphics(context);
-      const [a, b, c, d] = group.transform;
-      const [ox, oy] = group.offset;
-      const determinant = a * d - b * c;
-      const magnitude = Math.hypot(a, c) || 1;
-      const rotation = Math.atan2(-c, a);
-
-      graphics.position.set(ox, -oy);
-      graphics.scale.set(magnitude, determinant < 0 ? -magnitude : magnitude);
-      graphics.rotation = rotation;
-      graphics.eventMode = "none";
-      groupMap.set(group.id, graphics);
-      world.addChild(graphics);
-      return;
-    }
-
-    const graphics = existingGraphics || new PIXI.Graphics();
-    graphics.clear();
-    const color = hexToNumber(group.cssColor);
-    const outlineColor = palette.outline;
+  function drawGroup(group, offset) {
+    const graphics = new PIXI.Graphics(templateContextMap.get(group.templateId));
     const [a, b, c, d] = group.transform;
-    const [ox, oy] = group.offset;
-
-    for (const item of template.polygons || []) {
-      const coords = item.polygon;
-      if (!coords || coords.length < 6) {
-        continue;
-      }
-      const firstX = a * coords[0] + b * coords[1] + ox;
-      const firstY = c * coords[0] + d * coords[1] + oy;
-      graphics.moveTo(firstX, -firstY);
-      for (let index = 2; index < coords.length; index += 2) {
-        const x = a * coords[index] + b * coords[index + 1] + ox;
-        const y = c * coords[index] + d * coords[index + 1] + oy;
-        graphics.lineTo(x, -y);
-      }
-      graphics.closePath();
-      graphics.fill({ color, alpha: palette.fillAlpha });
-      graphics.stroke({ color: outlineColor, alpha: 0.65, pixelLine: true });
-    }
-
+    const magnitude = Math.hypot(a, c) || 1;
+    graphics.position.set(offset[0], -offset[1]);
+    graphics.scale.set(magnitude, a * d - b * c < 0 ? -magnitude : magnitude);
+    graphics.rotation = Math.atan2(-c, a);
     graphics.eventMode = "none";
-    groupMap.set(group.id, graphics);
-    if (!existingGraphics) world.addChild(graphics);
+    graphics.visible = Boolean(isCellVisible(group.cellName) && layerState[group.layerKey]);
+    groupMap.get(group.id).push(graphics);
+    world.addChild(graphics);
   }
 
   function buildTemplateContexts(templates, refresh = false) {
@@ -888,9 +850,21 @@
       context.clear();
       const color = hexToNumber(template.cssColor);
       const outlineColor = palette.outline;
+      context.setFillStyle({ color, alpha: palette.fillAlpha });
+      context.setStrokeStyle({ color: outlineColor, alpha: 0.65, pixelLine: true });
       for (const item of template.polygons || []) {
         const coords = item.polygon;
         if (!coords || coords.length < 6) {
+          continue;
+        }
+        // GDS boundaries commonly contain rectangles. Use Pixi's exact primitive
+        // instead of retaining another polygon coordinate array and shape object.
+        if (coords.length === 8 && coords[0] !== coords[4] && coords[1] !== coords[5] && (
+          (coords[0] === coords[2] && coords[3] === coords[5] && coords[4] === coords[6] && coords[7] === coords[1]) ||
+          (coords[1] === coords[3] && coords[2] === coords[4] && coords[5] === coords[7] && coords[6] === coords[0])
+        )) {
+          context.rect(Math.min(coords[0], coords[4]), -Math.max(coords[1], coords[5]),
+            Math.abs(coords[4] - coords[0]), Math.abs(coords[5] - coords[1])).fill().stroke();
           continue;
         }
         const flipped = new Array(coords.length);
@@ -898,14 +872,14 @@
           flipped[index] = coords[index];
           flipped[index + 1] = -coords[index + 1];
         }
-        context.poly(flipped, true).fill({ color, alpha: palette.fillAlpha }).stroke({ color: outlineColor, alpha: 0.65, pixelLine: true });
+        context.poly(flipped, true).fill().stroke();
       }
       templateContextMap.set(template.id, context);
     }
   }
 
   async function ensureApp() {
-    if (!window.PIXI || !window.PIXI.Application || !window.PIXI.Graphics) {
+    if (!window.PIXI || !window.PIXI.Application || !window.PIXI.Graphics || !window.PIXI.GraphicsContext) {
       throw new Error("PixiJS failed to load.");
     }
     if (app) {
@@ -1057,63 +1031,17 @@
     });
   }
 
-  function nextIdle() {
-    return new Promise((resolve) => {
-      if (typeof window.requestIdleCallback === "function") {
-        window.requestIdleCallback(() => resolve(), { timeout: 120 });
-        return;
-      }
-      window.setTimeout(() => resolve(), 0);
-    });
-  }
-
   async function renderCellTreeProgressively() {
-    cellRenderToken += 1;
-    const token = cellRenderToken;
-    const workQueue = [];
-
+    const token = ++cellRenderToken;
+    let deadline = performance.now() + 8;
     for (const rootName of viewModel.cellTree.roots) {
-      if (!cellTreeNodes.has(rootName)) {
-        continue;
+      if (token !== cellRenderToken) return;
+      if (!cellTreeNodes.has(rootName)) continue;
+      cellToggleHost.appendChild(createCellNode(rootName, 0));
+      if (performance.now() > deadline) {
+        await nextFrame();
+        deadline = performance.now() + 8;
       }
-      workQueue.push({
-        parentHost: cellToggleHost,
-        cellName: rootName,
-        depth: 0,
-        ancestorNames: new Set([rootName]),
-      });
-    }
-
-    const batchSize = 50;
-    while (workQueue.length > 0) {
-      if (token !== cellRenderToken) {
-        return;
-      }
-
-      let processed = 0;
-
-      while (workQueue.length > 0 && processed < batchSize) {
-        const { parentHost, cellName, depth, ancestorNames } = workQueue.shift();
-        const built = createCellNode(cellName, depth);
-        parentHost.appendChild(built.node);
-        processed += 1;
-
-        if (built.childHost && built.children.length > 0) {
-          for (const childName of built.children) {
-            if (ancestorNames.has(childName)) {
-              continue;
-            }
-            workQueue.push({
-              parentHost: built.childHost,
-              cellName: childName,
-              depth: depth + 1,
-              ancestorNames: new Set([...ancestorNames, childName]),
-            });
-          }
-        }
-      }
-
-      await nextFrame();
     }
   }
 
@@ -1124,7 +1052,14 @@
     cellTreeNodes = new Map(viewModel.cells.map((cell) => [cell.name, cell]));
     templateMap = new Map((viewModel.templates || []).map((template) => [template.id, template]));
     templateContextMap = new Map();
-    buildTemplateContexts(viewModel.templates || []);
+    let deadline = performance.now() + 8;
+    for (const template of viewModel.templates || []) {
+      buildTemplateContexts([template]);
+      if (performance.now() > deadline) {
+        await nextFrame();
+        deadline = performance.now() + 8;
+      }
+    }
     cellState = Object.fromEntries(viewModel.cells.map((cell) => [cell.name, true]));
     layerState = Object.fromEntries(viewModel.layers.map((layer) => [layer.key, true]));
     viewModel.layers.forEach((layer) => {
@@ -1144,69 +1079,48 @@
   }
 
   async function renderSceneProgressively() {
-    sceneRenderToken += 1;
-    const token = sceneRenderToken;
+    const token = ++sceneRenderToken;
     groupMap = new Map();
-    for (const graphics of world.removeChildren()) {
-      graphics.destroy({ children: true, context: false });
-    }
     rebuildSceneBounds();
-
-    const groupsByLayer = new Map();
-    for (const group of viewModel.groups || []) {
-      if (!groupsByLayer.has(group.layerKey)) {
-        groupsByLayer.set(group.layerKey, []);
+    // Preserve layer compositing order, but yield by elapsed work, not per layer.
+    for (const group of viewModel.groups) groupMap.set(group.id, []);
+    let deadline = performance.now() + 8;
+    let processed = 0;
+    for (const layer of viewModel.layers) {
+      let largeTemplate = false;
+      for (const { group, offset } of GdsParser.sceneInstances(viewModel, layer.key)) {
+        largeTemplate ||= templateMap.get(group.templateId).polygonCount >= 1024;
+        drawGroup(group, offset);
+        if (++processed % 128 === 0 && performance.now() > deadline) {
+          setStatusMessage(`Drawing ${processed} instances...`);
+          await nextFrame();
+          if (token !== sceneRenderToken) return;
+          deadline = performance.now() + 8;
+        }
       }
-      groupsByLayer.get(group.layerKey).push(group);
-    }
-
-    const layerOrder = viewModel.layers
-      .map((layer) => layer.key)
-      .filter((layerKey) => layerState[layerKey]);
-
-    if (layerOrder.length === 0) {
-      applyVisibility();
-      updateOverlays();
-      return;
-    }
-
-    const firstLayerKey = layerOrder[0];
-    setStatusMessage(`Rendering layer 1/${layerOrder.length}: ${firstLayerKey}`);
-    for (const group of groupsByLayer.get(firstLayerKey) || []) {
-      drawGroup(group);
+      // Pixi tessellates on the first render. Submit large layers separately so
+      // their deferred work cannot all land in the same animation frame.
+      if (largeTemplate) {
+        app.render();
+        if (performance.now() > deadline) {
+          await nextFrame();
+          deadline = performance.now() + 8;
+        }
+      }
     }
     applyVisibility();
-    await nextFrame();
-
-    for (let layerIndex = 1; layerIndex < layerOrder.length; layerIndex += 1) {
-      if (token !== sceneRenderToken) {
-        return;
-      }
-      const layerKey = layerOrder[layerIndex];
-      setStatusMessage(`Rendering layer ${layerIndex + 1}/${layerOrder.length}: ${layerKey}`);
-      for (const group of groupsByLayer.get(layerKey) || []) {
-        drawGroup(group);
-      }
-      applyVisibility();
-      await nextIdle();
-    }
-
-    if (token === sceneRenderToken) {
-      applyVisibility();
-      updateOverlays();
-    }
+    updateOverlays();
   }
 
   async function setViewModel(nextViewModel) {
     await ensureApp();
     cellRenderToken += 1;
     sceneRenderToken += 1;
-    for (const graphics of world.removeChildren()) {
-      graphics.destroy({ children: true, context: false });
-    }
-    for (const context of templateContextMap.values()) {
-      context.destroy();
-    }
+    const oldGraphics = world.removeChildren();
+    // Detach all instances first. Destroying shared contexts removes their listeners
+    // in one pass; unlinking thousands of individual listeners first is quadratic.
+    for (const context of templateContextMap.values()) context.destroy();
+    for (const graphics of oldGraphics) graphics.destroy({ children: true, context: false });
     templateContextMap.clear();
     viewModel = nextViewModel;
     measurements = [];
@@ -1229,7 +1143,7 @@
   }
 
   function requireGdsParser() {
-    if (!window.GdsParser || !window.GdsParser.parseGds || !window.GdsParser.buildGdsViewModel) {
+    if (!window.GdsParser || !window.GdsParser.parseGds || !window.GdsParser.buildGdsViewModel || !window.GdsParser.sceneInstances) {
       throw new Error("The GDS parser script failed to load.");
     }
     return window.GdsParser;
@@ -1237,7 +1151,7 @@
 
   function buildLocalViewModel(library, options) {
     const parser = requireGdsParser();
-    const model = parser.buildGdsViewModel(library, options);
+    const model = parser.buildGdsViewModel(library, { ...options, compact: true });
     model.groups = model.groups || [];
     model.templates = model.templates || [];
     return model;
@@ -1250,7 +1164,10 @@
   }
 
   async function displayLibrary(library, filename, options, version) {
+    if (version !== loadVersion) return;
+    const started = performance.now();
     const model = buildLocalViewModel(library, { ...options, title: `GDS Viewer: ${filename}` });
+    if (performance.now() - started > 8) await nextFrame();
     // Serialize Pixi initialization/rendering; only the newest file or options win.
     const job = renderQueue.catch(() => {}).then(async () => {
       if (version !== loadVersion) {
@@ -1286,19 +1203,20 @@
     if (!file) {
       return;
     }
-    if (!/\.gds2?$/i.test(file.name || "")) {
-      showWarning("Only .gds and .gds2 files can be loaded.");
-      return;
-    }
     const version = ++loadVersion;
     setOptionsEnabled(false);
     showWarning("Loading GDS file...", "info");
     try {
+      if (!/\.(gds|gds2|gdsii)$/i.test(file.name || "")) {
+        throw new Error("Only .gds, .gds2, and .gdsii files can be loaded.");
+      }
       const bytes = await file.arrayBuffer();
       if (version !== loadVersion) {
         return;
       }
+      const started = performance.now();
       const library = requireGdsParser().parseGds(bytes);
+      if (performance.now() - started > 8) await nextFrame();
       await displayLibrary(library, file.name, {}, version);
     } catch (error) {
       await renderQueue.catch(() => {});
@@ -1450,7 +1368,7 @@
 
   try {
     requireGdsParser();
-    if (!window.PIXI || !window.PIXI.Application || !window.PIXI.Graphics) {
+    if (!window.PIXI || !window.PIXI.Application || !window.PIXI.Graphics || !window.PIXI.GraphicsContext) {
       throw new Error("PixiJS failed to load. Keep the vendor folder beside index.html.");
     }
     showWarning("Choose a GDS file or drop one onto the viewer. Files stay in your browser.", "welcome");

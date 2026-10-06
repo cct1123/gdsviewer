@@ -1,7 +1,7 @@
 # GDS Viewer
 
-Take a closer look at a chip layout, one layer at a time. GDS Viewer opens `.gds`
-and `.gds2` files in your browser, where you can move around the design, inspect
+Take a closer look at a chip layout, one layer at a time. GDS Viewer opens `.gds`,
+`.gds2`, and `.gdsii` files in your browser, where you can move around the design, inspect
 individual cells, and measure distances. Your files stay on your computer.
 
 There is nothing to install or build. The drawing library is included, so you can
@@ -34,8 +34,9 @@ the YZUDA XOR example, with close-ups of each control and the result of using it
 1. Download or copy the project folder. If it is a ZIP, extract it first.
 2. Open `index.html` in your browser. Keep the JavaScript files and `vendor` folder
    beside it. On Windows, you can also double-click `open_gds_viewer.bat`.
-3. Click **Load GDS File** and choose a `.gds` or `.gds2` file. Dragging a file into
-   the drawing area works too.
+3. Click **Load GDS File** and choose a `.gds`, `.gds2`, or `.gdsii` file. Extensions
+   are case-insensitive. Dragging a file into the drawing area uses the same
+   filename and GDSII content checks as the picker; MIME type is not required.
 4. Click **Fit View** whenever you want to see the whole layout again.
 
 | Day mode | Night mode |
@@ -155,7 +156,8 @@ Node.js to use this option, or try opening `index.html` in another browser.
 Tests cover polygons, straight paths with flush, square, and explicit end extensions,
 nested and repeated cells, rectangular arrays, rotation, magnification, reflection,
 separate layers and datatypes, multiple roots, and hierarchy-depth limits. Empty
-cells open as empty views. Malformed record framing produces an error. Zero padding
+cells open as empty views. Malformed framing and supported record payloads produce
+an error, as do missing HEADER, UNITS, or ENDLIB records. Zero padding
 after ENDLIB is accepted; nonzero trailing data is rejected. Round-ended paths
 produce an explicit unsupported error.
 
@@ -170,11 +172,17 @@ as it is in the XOR example. Files using other user units can display misleading
 measurement, coordinate, and scale-bar labels; check the file's units before relying
 on those readings.
 
-Files are processed in browser memory and are not uploaded. Old drawing resources
-are released when you replace a layout, but there are no enforced file-size,
-geometry-count, processing-time, or memory limits. A heavily repeated layout can
-pause the browser or exhaust memory. Hierarchy depth is a viewing option, not a
-complete resource limit.
+Files are processed in browser memory and are not uploaded. Array repetitions stay
+compact in the model, closed cell branches are built when opened, and drawing styles
+are shared within each cell/layer template. Old drawing resources are released when
+you replace a layout. Unbounded cyclic references produce an error.
+
+There are still no enforced file-size, geometry-count, processing-time, or memory
+limits. Each rendered instance still needs a Pixi object; repeated non-array
+reference paths, very large individual templates, and measurement snapping can
+still be expensive. A heavily repeated layout can pause the browser or exhaust
+memory. Hierarchy depth is a viewing option, not a complete resource limit.
+See the [performance measurements and remaining limits](docs/performance.md).
 
 ## Share or host the viewer
 

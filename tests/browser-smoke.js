@@ -107,7 +107,7 @@ runButton.addEventListener("click", async () => {
       let destroyed = 0;
       const alphas = new Set();
       prototype.destroy = function (...args) { destroyed += 1; return destroy.apply(this, args); };
-      prototype.fill = function (style) { alphas.add(style.alpha); return fill.call(this, style); };
+      prototype.fill = function (style) { alphas.add((style || this.fillStyle).alpha); return fill.call(this, style); };
       try {
         for (let index = 0; index < 4; index += 1) {
           const previousBackground = win.getComputedStyle(host).backgroundColor;
@@ -135,13 +135,97 @@ runButton.addEventListener("click", async () => {
       get("grid-button").click();
       get("fit-button").click();
     });
-    await check("gds2 extension loads through picker and drop", async () => {
+    await check("rectangle primitives match polygon pixels with reflection, rotation, and overlap", async () => {
+      const application = new win.PIXI.Application();
+      await application.init({ width: 100, height: 100, resolution: 1, backgroundAlpha: 0, antialias: false, preference: "webgl" });
+      application.stop();
+      const gl = application.canvas.getContext("webgl2") || application.canvas.getContext("webgl");
+      const draw = (rectangle, angle, reflection, reverse) => {
+        const context = new win.PIXI.GraphicsContext();
+        context.setFillStyle({ color: 0xff7777, alpha: 0.32 });
+        context.setStrokeStyle({ color: 0x222222, alpha: 0.65, pixelLine: true });
+        for (const x of [0, 8]) {
+          if (rectangle) context.rect(x, -10, 20, 10).fill().stroke();
+          else {
+            const points = [[x, 0], [x + 20, 0], [x + 20, -10], [x, -10]];
+            if (reverse) points.reverse();
+            context.poly(points.flat(), true).fill().stroke();
+          }
+        }
+        const graphics = new win.PIXI.Graphics(context);
+        graphics.position.set(45, 45);
+        graphics.rotation = angle;
+        graphics.scale.set(1.3, reflection ? -1.3 : 1.3);
+        application.stage.addChild(graphics);
+        application.render();
+        const pixels = new Uint8Array(100 * 100 * 4);
+        gl.readPixels(0, 0, 100, 100, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+        application.stage.removeChild(graphics);
+        context.destroy();
+        graphics.destroy({ context: false });
+        return pixels;
+      };
+      try {
+        for (const angle of [0, Math.PI / 2, 0.37]) {
+          for (const reflection of [false, true]) {
+            const rectangle = draw(true, angle, reflection, false);
+            assert(rectangle.some((value) => value !== 0), "Pixel comparison rendered an empty canvas");
+            for (const reverse of [false, true]) {
+              const polygon = draw(false, angle, reflection, reverse);
+              assert(rectangle.every((value, index) => value === polygon[index]), `Rectangle pixels differ: angle=${angle}, reflection=${reflection}, reverse=${reverse}`);
+            }
+          }
+        }
+      } finally { application.destroy(true, { children: true }); }
+    });
+    await check("all three extensions load case-insensitively through picker and drop", async () => {
       get("grid-button").click();
-      await load(bytes.hierarchy, "hierarchy.GDS2");
-      await load(bytes.hierarchy, "hierarchy.gds2", true);
+      for (const extension of ["gds", "GDS", "gds2", "GDS2", "gdsii", "GdSiI"]) {
+        for (const drop of [false, true]) await load(bytes.hierarchy, `hierarchy.${extension}`, drop);
+      }
       assert(/Visible polygons: 9$/.test(status()), status());
       assert(get("grid-button").getAttribute("aria-pressed") === "false", "Reload reset the user's grid choice");
       get("grid-button").click();
+    });
+    await check("picker and drop apply identical content validation for every supported extension", async () => {
+      for (const extension of ["GDS", "GDS2", "GDSII"]) {
+        for (const drop of [false, true]) {
+          selectFile(bytes.hierarchy.slice(6), `missing-header.${extension}`, drop);
+          await until(() => ready() && /Invalid GDSII content/.test(warning()), "missing header rejection");
+          assert(/Visible polygons: 9$/.test(status()), "Invalid content replaced the current scene");
+          selectFile(bytes.hierarchy.slice(0, -4), `missing-end.${extension}`, drop);
+          await until(() => ready() && /Invalid GDSII content/.test(warning()), "missing ENDLIB rejection");
+        }
+      }
+      await load(bytes.hierarchy, "validated.gdsii");
+    });
+    await check("closed shared branches are lazy and inherit current visibility", async () => {
+      await load(BenchmarkFixtures.makeLayout({ levels: 11 }), "shared.gdsii");
+      assert(/Visible polygons: 2048$/.test(status()), status());
+      const rows = () => doc.querySelectorAll(".cell-chip").length;
+      assert(rows() === 14, `Closed descendants were eagerly built: ${rows()}`);
+      get("hide-all-button").click();
+      const folder = [...doc.querySelectorAll(".tree-folder")].find((node) => !node.open);
+      folder.open = true;
+      await until(() => rows() > 14, "lazy branch expansion");
+      assert([...folder.querySelectorAll(".cell-chip")].every((button) => button.classList.contains("is-off") && button.getAttribute("aria-pressed") === "false"), "New buttons lost hidden state");
+      get("show-all-button").click();
+      assert(/Visible polygons: 2048$/.test(status()), status());
+      await load(bytes.hierarchy, "hierarchy.gds");
+    });
+    await check("measurement snapping reaches vertices in later compact-array instances", async () => {
+      await load(BenchmarkFixtures.makeLayout({ columns: 2 }), "snapping.gdsii");
+      const rect = host.getBoundingClientRect();
+      const scale = Math.min(host.clientWidth / 5, host.clientHeight / 2) * 0.92;
+      const screen = (x, y) => [rect.left + host.clientWidth / 2 + (x - 2.5) * scale,
+        rect.top + host.clientHeight / 2 - (y - 1) * scale];
+      const first = screen(3, 0);
+      const second = screen(5, 2);
+      get("measure-button").click();
+      pointer("pointerdown", first[0] - 3, first[1] + 3);
+      pointer("pointerdown", second[0] + 3, second[1] - 3);
+      assert(/2.83 um/.test(get("measurement-list").textContent), get("measurement-list").textContent);
+      await load(bytes.hierarchy, "hierarchy.gds");
     });
     await check("major and minor grid lines share evenly divided intervals", async () => {
       const prototype = win.PIXI.Graphics.prototype;
@@ -296,26 +380,44 @@ runButton.addEventListener("click", async () => {
         win.File.prototype.arrayBuffer = original;
       }
     });
-    await check("a failed newer selection keeps controls paired with the finishing render", async () => {
-      const original = win.requestAnimationFrame;
+    await check("an unsupported filename also supersedes an older pending read", async () => {
+      const original = win.File.prototype.arrayBuffer;
       let release;
-      win.requestAnimationFrame = function (callback) {
-        win.requestAnimationFrame = original;
-        release = () => original.call(win, callback);
-        return 0;
+      win.File.prototype.arrayBuffer = function () {
+        return this.name === "slow.gds" ? new Promise((resolve) => { release = resolve; }) : original.call(this);
+      };
+      const title = doc.title;
+      try {
+        selectFile(bytes.hierarchy, "slow.gds");
+        selectFile(bytes.hierarchy, "unsupported.txt", true);
+        await until(() => ready() && /Only .gds/.test(warning()), "unsupported filename rejection");
+        release(bytes.hierarchy);
+        await pause(50);
+        assert(doc.title === title && /Only .gds/.test(warning()), "A stale read replaced the latest selection");
+      } finally { win.File.prototype.arrayBuffer = original; }
+    });
+    await check("a failed newer selection keeps controls paired with the finishing render", async () => {
+      let release;
+      // Force a yield after a valid model is chosen without depending on a fixed
+      // per-layer animation-frame delay (small loads now finish in one task).
+      const contextPrototype = win.PIXI.GraphicsContext.prototype;
+      const setFillStyle = contextPrototype.setFillStyle;
+      contextPrototype.setFillStyle = function (...args) {
+        const result = setFillStyle.apply(this, args);
+        contextPrototype.setFillStyle = setFillStyle;
+        selectFile(new Uint8Array([0, 6, 0, 2, 0]), "newer-invalid.gds");
+        release = true;
+        return result;
       };
       try {
         selectFile(bytes.hierarchy, "finishing.gds");
         await until(() => Boolean(release), "render frame pause");
-        selectFile(new Uint8Array([0, 6, 0, 2, 0]), "newer-invalid.gds");
-        await pause();
-        release();
         await until(() => ready() && /byte 0/.test(warning()), "newer file error");
         assert(doc.title === "GDS Viewer: finishing.gds", "Finishing render was lost");
         await apply("LEAF", "");
         assert(/Visible polygons: 2$/.test(status()), "Options used a different library from the displayed file");
       } finally {
-        win.requestAnimationFrame = original;
+        contextPrototype.setFillStyle = setFillStyle;
       }
     });
     await check("repeated dense hierarchical loads release graphics contexts", async () => {
